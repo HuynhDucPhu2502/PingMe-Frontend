@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { logout } from "@/features/slices/authThunk";
 
 const UserMenu = () => {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -20,7 +21,7 @@ const UserMenu = () => {
   const [avatarVersion, setAvatarVersion] = useState(Date.now());
 
   const handleLogout = () => {
-    // dispatch(logout());
+    dispatch(logout());
   };
 
   useEffect(() => {

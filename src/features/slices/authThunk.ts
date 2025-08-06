@@ -1,6 +1,7 @@
 import {
   getCurrentUserSessionApi,
   loginLocalApi,
+  logoutApi,
   refreshSessionApi,
 } from "@/services/authApi";
 import type {
@@ -23,6 +24,15 @@ export const login = createAsyncThunk<
   } catch (err: unknown) {
     const message = getErrorMessage(err, "Đăng nhập thất bại");
     toast.error(message);
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
+export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
+  try {
+    await logoutApi();
+  } catch (err: unknown) {
+    const message = getErrorMessage(err, "Đăng xuất thất bại");
     return thunkAPI.rejectWithValue(message);
   }
 });

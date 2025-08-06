@@ -14,6 +14,14 @@ export const loginLocalApi = (data: UserLoginRequestDto) => {
   );
 };
 
+export const logoutApi = () => {
+  return axios.post(
+    "http://localhost:8080/auth/logout",
+    {},
+    { withCredentials: true }
+  );
+};
+
 export const refreshSessionApi = () => {
   return axios.post<ApiResponse<DefaultAuthResponseDto>>(
     "http://localhost:8080/auth/refresh",

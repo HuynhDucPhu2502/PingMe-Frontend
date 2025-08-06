@@ -4,6 +4,7 @@ import type { AppDispatch } from "@/features/store";
 import type { ApiResponse } from "@/types/apiResponse";
 import { refreshSessionApi } from "@/services/authApi";
 import { updateTokenManually } from "@/features/slices/authSlice";
+import { logout } from "@/features/slices/authThunk";
 
 // ============================================================
 // Setup dispatch từ store để sử dụng
@@ -72,14 +73,14 @@ axiosClient.interceptors.response.use(
     // Check lỗi có phải thuộc lại lỗi JWT Token
     const { response } = error;
 
-    const responseMessage = (response?.data as ApiResponse<unknown>)?.errorCode;
+    const responseErrorCode = (response?.data as ApiResponse<unknown>)
+      ?.errorCode;
     const responseStatus = response?.status;
 
+    console.log(response?.data);
+
     const isUnauthorized =
-      responseStatus === 401 &&
-      responseMessage.includes(
-        "Token không hợp lệ (không đúng định dạng, hết thời gian...)"
-      );
+      responseStatus === 401 && responseErrorCode.includes("INVALID_JWT_TOKEN");
 
     if (isUnauthorized && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -104,7 +105,7 @@ axiosClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosClient(originalRequest);
       } catch (refreshError) {
-        // dispatchRef(logout());
+        dispatchRef(logout());
         processQueue(refreshError, null);
 
         return Promise.reject(refreshError);

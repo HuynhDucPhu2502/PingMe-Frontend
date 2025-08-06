@@ -1,6 +1,11 @@
 import type { UserSession } from "@/types/user";
 import { createSlice } from "@reduxjs/toolkit";
-import { getCurrentUserSession, login, refreshSession } from "./authThunk";
+import {
+  getCurrentUserSession,
+  login,
+  logout,
+  refreshSession,
+} from "./authThunk";
 
 export type AuthState = {
   userSession: UserSession;
@@ -34,16 +39,33 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
+        console.log(action.payload.userSession);
         state.userSession = action.payload.userSession;
         localStorage.setItem("access_token", action.payload.accessToken);
 
         state.isLogin = true;
         state.isLoading = false;
-        state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? null;
+      })
+
+      // LOGOUT
+      .addCase(logout.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.userSession = {} as UserSession;
+
+        state.isLogin = false;
+        state.isLoading = false;
+        localStorage.removeItem("access_token");
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       })
 
       // REFRESH TOKEN

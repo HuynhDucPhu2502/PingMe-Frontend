@@ -9,7 +9,7 @@ export const getErrorMessage = (
   if (axios.isAxiosError(err)) {
     const res = err.response?.data as ApiResponse<unknown>;
 
-    return res?.errorCode || fallbackMessage;
+    return res?.errorMessage || fallbackMessage;
   }
 
   return fallbackMessage;
