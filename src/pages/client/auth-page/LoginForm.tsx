@@ -12,7 +12,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import GoogleSVG from "@/components/common/GoogleSVG";
 import { Link, useNavigate } from "react-router-dom";
 import type { UserLoginRequestDto } from "@/types/user";
 import { useAppDispatch } from "@/features/hooks";
@@ -42,11 +41,6 @@ export default function LoginForm() {
     await dispatch(login(loginRequestDto));
     setIsLoading(false);
     navigate("/home");
-  };
-
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked");
-    // Implement Google OAuth here
   };
 
   const handleForgotPassword = () => {
