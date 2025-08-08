@@ -57,7 +57,7 @@ export default function LoginForm() {
               Đăng nhập
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
-              Nhập thông tin để truy cập tài khoản của bạn
+              Nhập thông tin để truy cập tài khoản
             </CardDescription>
           </CardHeader>
 
