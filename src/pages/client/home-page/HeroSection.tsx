@@ -35,17 +35,6 @@ const HeroSection = () => {
             Xem demo
           </Button>
         </div>
-
-        {/* Hero Image Placeholder */}
-        <div className="relative max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 border border-purple-100">
-            <img
-              src="/placeholder.svg?height=400&width=800"
-              alt="PingMe Chat Interface"
-              className="w-full h-auto rounded-lg"
-            />
-          </div>
-        </div>
       </div>
     </section>
   );
