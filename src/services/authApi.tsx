@@ -16,7 +16,7 @@ export const loginLocalApi = (data: UserLoginRequestDto) => {
 
 export const logoutApi = () => {
   return axios.post(
-    "http://localhost:8080/auth/logout",
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/logout`,
     {},
     { withCredentials: true }
   );
@@ -24,7 +24,7 @@ export const logoutApi = () => {
 
 export const refreshSessionApi = () => {
   return axios.post<ApiResponse<DefaultAuthResponseDto>>(
-    "http://localhost:8080/auth/refresh",
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
     {},
     { withCredentials: true }
   );

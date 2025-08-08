@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { UserLoginRequestDto } from "@/types/user";
 import { useAppDispatch } from "@/features/hooks";
 import { login } from "@/features/slices/authThunk";
+import GoogleAuth from "@/pages/common-page-components/GoogleAuth";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -165,15 +166,7 @@ export default function LoginForm() {
             </div>
 
             {/* Google Login */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoogleLogin}
-              className="w-full h-12 border-gray-200 hover:bg-gray-50 font-medium rounded-lg transition-colors bg-transparent"
-            >
-              <GoogleSVG />
-              Đăng nhập với Google
-            </Button>
+            <GoogleAuth />
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 pt-6">
