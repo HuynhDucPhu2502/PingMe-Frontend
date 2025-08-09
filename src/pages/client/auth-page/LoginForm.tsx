@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import type { UserLoginRequestDto } from "@/types/user";
+import type { UserLoginLocalRequestDto } from "@/types/user";
 import { useAppDispatch } from "@/features/hooks";
 import { login } from "@/features/slices/authThunk";
 import GoogleAuth from "@/pages/common-page-components/GoogleAuth";
@@ -33,7 +33,7 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    const loginRequestDto: UserLoginRequestDto = {
+    const loginRequestDto: UserLoginLocalRequestDto = {
       email,
       password,
     };

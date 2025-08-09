@@ -2,12 +2,21 @@ import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/apiResponse";
 import type {
   DefaultAuthResponseDto,
-  UserLoginRequestDto,
-  UserSession,
+  UserLoginLocalRequestDto,
+  UserRegisterLocalRequestDto,
+  UserSessionResponseDto,
 } from "@/types/user";
 import axios from "axios";
 
-export const loginLocalApi = (data: UserLoginRequestDto) => {
+export const registerLocalApi = (data: UserRegisterLocalRequestDto) => {
+  return axios.post<ApiResponse<DefaultAuthResponseDto>>(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/register`,
+    data,
+    { withCredentials: true }
+  );
+};
+
+export const loginLocalApi = (data: UserLoginLocalRequestDto) => {
   return axiosClient.post<ApiResponse<DefaultAuthResponseDto>>(
     "/auth/login",
     data
@@ -31,5 +40,5 @@ export const refreshSessionApi = () => {
 };
 
 export const getCurrentUserSessionApi = () => {
-  return axiosClient.get<ApiResponse<UserSession>>("/auth/me");
+  return axiosClient.get<ApiResponse<UserSessionResponseDto>>("/auth/me");
 };

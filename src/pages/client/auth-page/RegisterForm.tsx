@@ -1,7 +1,3 @@
-"use client";
-
-import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,19 +37,25 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import GoogleSVG from "@/components/common/GoogleSVG";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import type { UserRegisterLocalRequestDto } from "@/types/user";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { registerLocalApi } from "@/services/authApi";
+import { toast } from "sonner";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UserRegisterLocalRequestDto>({
     email: "",
     password: "",
     name: "",
-    gender: "",
+    gender: "OTHER",
     address: "",
   });
   const [dob, setDob] = useState<Date>();
   const [isLoading, setIsLoading] = useState(false);
+
+  const nagivate = useNavigate();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -61,13 +63,23 @@ export default function RegisterForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setIsLoading(true);
+      const payload: UserRegisterLocalRequestDto = {
+        ...formData,
+        dob: dob ? format(dob, "yyyy-MM-dd") : undefined,
+      };
+
+      await registerLocalApi(payload);
+
+      toast.success("Đăng ký thành công");
+      nagivate("/auth?mode=login");
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Đăng ký thất bại"));
+    } finally {
       setIsLoading(false);
-      console.log("Register attempt:", { ...formData, dob });
-    }, 1000);
+    }
   };
 
   const handleGoogleRegister = () => {
@@ -90,7 +102,6 @@ export default function RegisterForm() {
 
           <CardContent className="space-y-6">
             <form onSubmit={handleRegister} className="space-y-6">
-              {/* Grid 2 columns for form fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Name Input */}
                 <div className="space-y-2">
@@ -236,7 +247,7 @@ export default function RegisterForm() {
                   </Popover>
                 </div>
 
-                {/* Address Input - Full width */}
+                {/* Address Input */}
                 <div className="space-y-2 md:col-span-2">
                   <Label
                     htmlFor="address"

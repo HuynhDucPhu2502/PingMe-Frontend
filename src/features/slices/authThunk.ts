@@ -6,8 +6,8 @@ import {
 } from "@/services/authApi";
 import type {
   DefaultAuthResponseDto,
-  UserLoginRequestDto,
-  UserSession,
+  UserLoginLocalRequestDto,
+  UserSessionResponseDto,
 } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 export const login = createAsyncThunk<
   DefaultAuthResponseDto,
-  UserLoginRequestDto,
+  UserLoginLocalRequestDto,
   { rejectValue: string }
 >("auth/login", async (data, thunkAPI) => {
   try {
@@ -52,7 +52,7 @@ export const refreshSession = createAsyncThunk<
 });
 
 export const getCurrentUserSession = createAsyncThunk<
-  UserSession,
+  UserSessionResponseDto,
   void,
   { rejectValue: string }
 >("auth/me", async (_, thunkAPI) => {

@@ -3,17 +3,26 @@
 // =============================
 export interface DefaultAuthResponseDto {
   accessToken: string;
-  userSession: UserSession;
+  userSession: UserSessionResponseDto;
 }
 
-export interface UserSession {
+export interface UserSessionResponseDto {
   email: string;
   name: string;
   avatarUrl: string;
   updatedAt: string;
 }
 
-export interface UserLoginRequestDto {
+export interface UserRegisterLocalRequestDto {
+  email: string;
+  name: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  password: string;
+  address?: string;
+  dob?: string;
+}
+
+export interface UserLoginLocalRequestDto {
   email: string;
   password: string;
 }

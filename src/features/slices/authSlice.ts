@@ -1,4 +1,4 @@
-import type { UserSession } from "@/types/user";
+import type { UserSessionResponseDto } from "@/types/user";
 import { createSlice } from "@reduxjs/toolkit";
 import {
   getCurrentUserSession,
@@ -8,14 +8,14 @@ import {
 } from "./authThunk";
 
 export type AuthState = {
-  userSession: UserSession;
+  userSession: UserSessionResponseDto;
   isLogin: boolean;
   isLoading: boolean;
   error: string | null;
 };
 
 const initialValue: AuthState = {
-  userSession: {} as UserSession,
+  userSession: {} as UserSessionResponseDto,
   isLogin: false,
   isLoading: false,
   error: null,
@@ -57,7 +57,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.userSession = {} as UserSession;
+        state.userSession = {} as UserSessionResponseDto;
 
         state.isLogin = false;
         state.isLoading = false;
