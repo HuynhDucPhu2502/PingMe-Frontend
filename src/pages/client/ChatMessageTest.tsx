@@ -17,7 +17,7 @@ export default function ChatMessageTest() {
     const token = getAccessToken();
 
     const socket = new SockJS(
-      `http://localhost:8080/ws?access_token=${token}`,
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/ws?access_token=${token}`,
       null,
       {
         transports: ["websocket", "xhr-streaming", "xhr-polling"],
