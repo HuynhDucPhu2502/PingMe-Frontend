@@ -12,7 +12,7 @@ export default function Header() {
 
   const navigationItems = [
     { name: "Trang chủ", href: "/" },
-    { name: "Tin nhắn", href: "/messages" },
+    { name: "Tin nhắn", href: "/chat" },
     { name: "Bạn bè", href: "/friends" },
     { name: "Nhóm", href: "/groups" },
   ];
@@ -39,13 +39,13 @@ export default function Header() {
             {isLogin ? (
               <>
                 {navigationItems.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className="text-gray-600 hover:text-purple-600 font-medium transition-colors"
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
 
                 {/* User Menu */}
@@ -94,13 +94,13 @@ export default function Header() {
               {isLogin ? (
                 <>
                   {navigationItems.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
-                      href={item.href}
+                      to={item.href}
                       className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md"
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
                 </>
               ) : (

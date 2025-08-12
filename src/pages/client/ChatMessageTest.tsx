@@ -11,23 +11,23 @@ export default function ChatMessageTest() {
   const [connected, setConnected] = useState(false);
   const clientRef = useRef<Client | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
-  const getAccessToken = () => localStorage.getItem("access_token") ?? "";
 
+  const getAccessToken = () => localStorage.getItem("access_token") ?? "";
   useEffect(() => {
     const token = getAccessToken();
 
+    // Thiết lập kết nối WebSocket
     const socket = new SockJS(
-      `${import.meta.env.VITE_BACKEND_BASE_URL}/ws?access_token=${token}`,
-      null,
-      {
-        transports: ["websocket", "xhr-streaming", "xhr-polling"],
-      }
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/ws?access_token=${token}`
     );
 
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 3000,
       debug: () => {},
+      connectHeaders: {
+        Authorization: getAccessToken(),
+      },
     });
 
     client.onConnect = () => {
@@ -45,7 +45,6 @@ export default function ChatMessageTest() {
       console.error("Broker error:", frame.headers["message"], frame.body);
     };
 
-    // Khởi động kết nối WebSocket
     client.activate();
     clientRef.current = client;
 

@@ -77,8 +77,6 @@ axiosClient.interceptors.response.use(
       ?.errorCode;
     const responseStatus = response?.status;
 
-    console.log(response?.data);
-
     const isUnauthorized =
       responseStatus === 401 && responseErrorCode.includes("INVALID_JWT_TOKEN");
 
