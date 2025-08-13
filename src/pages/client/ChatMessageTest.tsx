@@ -18,7 +18,9 @@ export default function ChatMessageTest() {
 
     // Thiết lập kết nối WebSocket
     const socket = new SockJS(
-      `${import.meta.env.VITE_BACKEND_BASE_URL}/ws?access_token=${token}`
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/ws?access_token=${token}`,
+      null,
+      { transports: ["websocket"] }
     );
 
     const client = new Client({

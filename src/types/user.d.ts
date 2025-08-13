@@ -1,19 +1,28 @@
 // =============================
 // MAIN INTERFACE
 // =============================
-export interface DefaultAuthResponseDto {
+export interface DefaultAuthResponse {
   accessToken: string;
-  userSession: UserSessionResponseDto;
+  userSession: UserSessionResponse;
 }
 
-export interface UserSessionResponseDto {
+export interface UserSessionResponse {
   email: string;
   name: string;
   avatarUrl: string;
   updatedAt: string;
 }
 
-export interface UserRegisterLocalRequestDto {
+export interface UserDetailResponse {
+  email: string;
+  name: string;
+  avatarUrl: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  address?: string;
+  dob?: string;
+}
+
+export interface LocalRegisterRequest {
   email: string;
   name: string;
   gender: "MALE" | "FEMALE" | "OTHER";
@@ -22,7 +31,19 @@ export interface UserRegisterLocalRequestDto {
   dob?: string;
 }
 
-export interface UserLoginLocalRequestDto {
+export interface LocalLoginRequest {
   email: string;
   password: string;
+}
+
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface ChangeProfileRequest {
+  name: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  address?: string;
+  dob?: string;
 }

@@ -38,14 +38,14 @@ import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import GoogleSVG from "@/components/common/GoogleSVG";
 import { Link, useNavigate } from "react-router-dom";
-import type { UserRegisterLocalRequestDto } from "@/types/user";
+import type { LocalRegisterRequest } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { registerLocalApi } from "@/services/authApi";
 import { toast } from "sonner";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<UserRegisterLocalRequestDto>({
+  const [formData, setFormData] = useState<LocalRegisterRequest>({
     email: "",
     password: "",
     name: "",
@@ -66,7 +66,7 @@ export default function RegisterForm() {
 
     try {
       setIsLoading(true);
-      const payload: UserRegisterLocalRequestDto = {
+      const payload: LocalRegisterRequest = {
         ...formData,
         dob: dob ? format(dob, "yyyy-MM-dd") : undefined,
       };

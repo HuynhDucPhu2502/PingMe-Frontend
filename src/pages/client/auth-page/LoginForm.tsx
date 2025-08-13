@@ -12,11 +12,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import type { UserLoginLocalRequestDto } from "@/types/user";
+import { Link } from "react-router-dom";
+import type { LocalLoginRequest } from "@/types/user";
 import { useAppDispatch } from "@/features/hooks";
 import { login } from "@/features/slices/authThunk";
-import GoogleAuth from "@/pages/common-page-components/GoogleAuth";
+import GoogleAuth from "@/pages/common/GoogleAuth";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,22 +27,24 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();
-
   const dispatch = useAppDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const loginRequestDto: UserLoginLocalRequestDto = {
+    const loginRequestDto: LocalLoginRequest = {
       email,
       password,
     };
 
-    await dispatch(login(loginRequestDto));
-    setIsLoading(false);
-    navigate("/home");
+    try {
+      await dispatch(login(loginRequestDto));
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Đăng nhập thất bại"));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleForgotPassword = () => {

@@ -2,11 +2,14 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import { useAppSelector } from "@/features/hooks";
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const mode = params.get("mode");
+
+  const { isLogin } = useAppSelector((state) => state.auth);
 
   const loginRef = useRef<HTMLDivElement | null>(null);
   const registerRef = useRef<HTMLDivElement | null>(null);
@@ -17,11 +20,11 @@ export default function AuthPage() {
     }
   }, [mode, navigate]);
 
-  // useEffect(() => {
-  //   if (isLogin) {
-  //     navigate("/home", { replace: true });
-  //   }
-  // }, [isLogin, navigate]);
+  useEffect(() => {
+    if (isLogin) {
+      navigate("/home", { replace: true });
+    }
+  }, [isLogin, navigate]);
 
   useEffect(() => {
     if (mode === "login" && loginRef.current) {

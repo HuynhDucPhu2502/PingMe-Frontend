@@ -4,7 +4,7 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export interface PageResponseDto<T> {
+export interface PageResponse<T> {
   content: T[];
   page: number;
   size: number;

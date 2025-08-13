@@ -5,21 +5,22 @@ import {
   refreshSessionApi,
 } from "@/services/authApi";
 import type {
-  DefaultAuthResponseDto,
-  UserLoginLocalRequestDto,
-  UserSessionResponseDto,
+  DefaultAuthResponse,
+  LocalLoginRequest,
+  UserSessionResponse,
 } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 
 export const login = createAsyncThunk<
-  DefaultAuthResponseDto,
-  UserLoginLocalRequestDto,
+  DefaultAuthResponse,
+  LocalLoginRequest,
   { rejectValue: string }
 >("auth/login", async (data, thunkAPI) => {
   try {
     const res = await loginLocalApi(data);
+    toast.success("Đăng nhập thành công");
     return res.data.data;
   } catch (err: unknown) {
     const message = getErrorMessage(err, "Đăng nhập thất bại");
@@ -38,7 +39,7 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
 });
 
 export const refreshSession = createAsyncThunk<
-  DefaultAuthResponseDto,
+  DefaultAuthResponse,
   void,
   { rejectValue: string }
 >("auth/refresh", async (_, thunkAPI) => {
@@ -52,7 +53,7 @@ export const refreshSession = createAsyncThunk<
 });
 
 export const getCurrentUserSession = createAsyncThunk<
-  UserSessionResponseDto,
+  UserSessionResponse,
   void,
   { rejectValue: string }
 >("auth/me", async (_, thunkAPI) => {

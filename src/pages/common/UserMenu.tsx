@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { logout } from "@/features/slices/authThunk";
+import { getUserInitials } from "@/utils/authFieldHandler";
 
 const UserMenu = () => {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -50,11 +51,7 @@ const UserMenu = () => {
                 alt={userSession?.name || "User"}
               />
               <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 font-semibold text-white">
-                {userSession?.name
-                  ?.split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .slice(0, 2) || "U"}
+                {getUserInitials(userSession?.name) || "U"}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -100,7 +97,7 @@ const UserMenu = () => {
 
         <DropdownMenuItem>
           <Link
-            to={"/profile"}
+            to={"/profile/detail"}
             className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
