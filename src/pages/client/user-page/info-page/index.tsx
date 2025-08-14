@@ -33,7 +33,7 @@ import { getGenderDisplay, getUserInitials } from "@/utils/authFieldHandler";
 const DetailPage = () => {
   // Status
   const [isLoading, setIsLoading] = useState(false);
-  const [avatarVersion, setAvatarVersion] = useState(Date.now());
+  const [avatarVersion] = useState(Date.now());
 
   // Form visibility
   const [showProfileForm, setShowProfileForm] = useState(false);
