@@ -1,4 +1,4 @@
-import { User, LogOut, LockKeyhole } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -75,11 +75,7 @@ const UserMenu = () => {
               alt={userSession?.name || "User"}
             />
             <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 font-semibold text-white">
-              {userSession?.name
-                ?.split(" ")
-                .map((n) => n[0])
-                .join("")
-                .slice(0, 2) || "U"}
+              {getUserInitials(userSession?.name)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
@@ -97,33 +93,17 @@ const UserMenu = () => {
 
         <DropdownMenuItem>
           <Link
-            to={"/profile/detail"}
+            to={"/profile/user-info"}
             className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
               <User className="h-4 w-4 text-purple-600" />
             </div>
             <div className="min-w-0">
-              <p className="font-medium">Hồ sơ</p>
+              <p className="font-medium">Thông tin cá nhân</p>
             </div>
           </Link>
         </DropdownMenuItem>
-
-        <DropdownMenuItem>
-          <Link
-            to={"/security"}
-            className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
-              <LockKeyhole className="h-4 w-4 text-purple-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium">Bảo mật</p>
-            </div>
-          </Link>
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
 
         <DropdownMenuItem
           onClick={handleLogout}

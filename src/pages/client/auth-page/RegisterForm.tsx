@@ -68,7 +68,7 @@ export default function RegisterForm() {
       setIsLoading(true);
       const payload: LocalRegisterRequest = {
         ...formData,
-        dob: dob ? format(dob, "yyyy-MM-dd") : undefined,
+        dob: dob?.toLocaleDateString("en-CA"),
       };
 
       await registerLocalApi(payload);

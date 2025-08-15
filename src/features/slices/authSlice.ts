@@ -39,7 +39,6 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        console.log(action.payload.userSession);
         state.userSession = action.payload.userSession;
         localStorage.setItem("access_token", action.payload.accessToken);
 
