@@ -5,10 +5,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/card.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
 import {
   Eye,
   EyeOff,
@@ -19,9 +19,9 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { getPasswordStrength } from "@/utils/authFieldHandler";
-import { updateCurrentUserPassword } from "@/services/authApi";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { getPasswordStrength } from "@/utils/authFieldHandler.ts";
+import { updateCurrentUserPassword } from "@/services/authApi.tsx";
 
 const ChangePasswordPage = () => {
   const [formData, setFormData] = useState({

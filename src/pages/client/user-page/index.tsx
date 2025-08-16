@@ -1,8 +1,8 @@
 import { useAppSelector } from "@/features/hooks";
-import { User, Key, Monitor, X } from "lucide-react";
+import { User, Key, Monitor } from "lucide-react";
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getUserInitials } from "@/utils/authFieldHandler";
+
+import UserAvatarPanel from "./UserAvatarPanel";
 
 const navigationItems = [
   {
@@ -23,90 +23,63 @@ const navigationItems = [
     href: "device-management",
     description: "Xem và quản lý các thiết bị đăng nhập",
   },
-  {
-    title: "Xóa tài khoản",
-    icon: X,
-    href: "delete-account",
-    description: "Xóa vĩnh viễn tài khoản của bạn",
-    isDestructive: true,
-  },
 ];
 
 export default function UserPage() {
-  const { isLogin, userSession } = useAppSelector((state) => state.auth);
+  const { isLogin } = useAppSelector((state) => state.auth);
   const location = useLocation();
 
-  if (!isLogin || !userSession)
-    return <Navigate to="/auth?mode=login" replace />;
+  if (!isLogin) return <Navigate to="/auth?mode=login" replace />;
 
-  // Get current active item
   const currentPath = location.pathname.split("/").pop();
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="bg-gradient-to-r from-purple-500 to-purple-600 h-48 relative overflow-hidden min-h-[300px]">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/bg_office.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-purple-600/40"></div>
-
-        <div className="relative z-30 flex flex-col items-center justify-center h-full text-white">
-          <div className="relative">
-            <Avatar className="h-20 w-20 ring-2 ring-white mb-4">
-              <AvatarImage
-                src={
-                  userSession.avatarUrl ? `${userSession.avatarUrl}` : undefined
-                }
-                alt={userSession?.name || "User"}
-              />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 font-semibold text-white">
-                {getUserInitials(userSession?.name)}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-          <h1 className="text-xl font-semibold drop-shadow-sm ">
-            {userSession?.name || "Người dùng"}
-          </h1>
-        </div>
-      </div>
+      <UserAvatarPanel />
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto -mt-16 relative z-40 px-4">
-        <div className="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
-          <div className="flex">
-            {/* Sidebar */}
-            <div className="w-80 border-r border-gray-200">
-              <nav className="p-0">
-                <ul className="space-y-0">
-                  {navigationItems.map((item, index) => {
+      <div className="max-w-6xl mx-auto my-8 relative lg:w-2/3 md:w-3/4 w-4/5">
+        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+          <div className="flex flex-col lg:flex-row min-h-[400px]">
+            <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-gray-200 bg-gray-50/50">
+              <div className="p-4 lg:p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Cài đặt tài khoản
+                </h2>
+              </div>
+              <nav className="px-3 pb-4 lg:pb-0">
+                <ul className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1 overflow-x-auto lg:overflow-x-visible">
+                  {navigationItems.map((item) => {
                     const isActive = currentPath === item.href;
                     return (
-                      <li key={item.title}>
+                      <li
+                        key={item.title}
+                        className="flex-shrink-0 lg:flex-shrink"
+                      >
                         <NavLink
                           to={item.href}
-                          className={`flex items-center px-4 py-4 text-sm font-medium transition-colors border-l-4 ${
+                          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap lg:whitespace-normal ${
                             isActive
-                              ? "bg-purple-50 text-purple-700 border-purple-500"
-                              : item.isDestructive
-                              ? "text-red-600 hover:bg-red-50 border-transparent hover:border-red-200"
-                              : "text-gray-700 hover:bg-gray-50 border-transparent hover:border-gray-200"
-                          } ${
-                            index !== navigationItems.length - 1
-                              ? "border-b border-gray-100"
-                              : ""
+                              ? "bg-purple-100 text-purple-700 shadow-sm border-l-4 lg:border-l-4 border-purple-500"
+                              : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
                           }`}
                         >
                           <item.icon
                             className={`w-5 h-5 mr-3 ${
-                              isActive
-                                ? "text-purple-600"
-                                : item.isDestructive
-                                ? "text-red-500"
-                                : "text-gray-400"
+                              isActive ? "text-purple-600" : "text-gray-400"
                             }`}
                           />
-                          <span>{item.title}</span>
+                          <div className="hidden sm:block lg:block">
+                            <div className="font-medium">{item.title}</div>
+                            <div className="text-xs text-gray-500 mt-0.5 hidden lg:block">
+                              {item.description}
+                            </div>
+                          </div>
+                          <div className="block sm:hidden lg:hidden">
+                            <div className="font-medium text-xs">
+                              {item.title}
+                            </div>
+                          </div>
                         </NavLink>
                       </li>
                     );
@@ -115,8 +88,8 @@ export default function UserPage() {
               </nav>
             </div>
 
-            {/* Main Content - Outlet */}
-            <div className="flex-1">
+            {/* Outlet */}
+            <div className="flex-1 flex flex-col min-h-full">
               <Outlet />
             </div>
           </div>

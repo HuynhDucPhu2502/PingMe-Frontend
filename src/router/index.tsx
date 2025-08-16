@@ -3,8 +3,8 @@ import ChatMessageTest from "@/pages/client/chat-page/ChatMessageTest";
 import HomePage from "@/pages/client/home-page";
 import RootPage from "@/pages/client/RootPage";
 import ProfilePage from "@/pages/client/user-page";
-import ChangePasswordPage from "@/pages/client/user-page/ChangePasswordPage";
-import UserInfoPage from "@/pages/client/user-page/UserInfoPage";
+import ChangePasswordPage from "@/pages/client/user-page/change-password-page";
+import UserInfoPage from "@/pages/client/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([
