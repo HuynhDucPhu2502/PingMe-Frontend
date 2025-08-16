@@ -112,7 +112,7 @@ const InfoPage = () => {
   }
 
   return (
-    <Card className="shadow-2xl backdrop-blur-sm w-full rounded-none mx-auto">
+    <Card className="shadow-2xl backdrop-blur-sm w-full rounded-none mx-auto flex-1">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-gray-900 flex items-center">
           <User className="w-5 h-5 mr-2 text-purple-600" />
