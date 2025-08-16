@@ -67,3 +67,10 @@ export const updateCurrentUserProfile = (
     changeProfileRequest
   );
 };
+
+export const updateCurrentUserAvatar = (data: FormData) => {
+  return axiosClient.post<ApiResponse<UserSessionResponse>>(
+    "/auth/me/avatar",
+    data
+  );
+};
