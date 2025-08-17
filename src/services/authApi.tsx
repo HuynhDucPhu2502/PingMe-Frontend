@@ -6,9 +6,11 @@ import type {
   DefaultAuthResponse,
   LocalLoginRequest,
   LocalRegisterRequest,
+  SessionMetaResponse,
   UserDetailResponse,
   UserSessionResponse,
 } from "@/types/user";
+import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 import axios from "axios";
 
 export const registerLocalApi = (data: LocalRegisterRequest) => {
@@ -20,10 +22,12 @@ export const registerLocalApi = (data: LocalRegisterRequest) => {
 };
 
 export const loginLocalApi = (data: LocalLoginRequest) => {
-  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
-    "/auth/login",
-    data
-  );
+  const sessionMetaRequest = getSessionMetaRequest();
+
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>("/auth/login", {
+    ...data,
+    sessionMetaRequest,
+  });
 };
 
 export const logoutApi = () => {
@@ -35,9 +39,11 @@ export const logoutApi = () => {
 };
 
 export const refreshSessionApi = () => {
+  const sessionMetaRequest = getSessionMetaRequest();
+
   return axios.post<ApiResponse<DefaultAuthResponse>>(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
-    {},
+    sessionMetaRequest,
     { withCredentials: true }
   );
 };
@@ -48,6 +54,12 @@ export const getCurrentUserSessionApi = () => {
 
 export const getCurrentUserDetail = () => {
   return axiosClient.get<ApiResponse<UserDetailResponse>>("/auth/me/detail");
+};
+
+export const getCurrentUserSessions = () => {
+  return axiosClient.get<ApiResponse<SessionMetaResponse[]>>(
+    "/auth/me/sessions"
+  );
 };
 
 export const updateCurrentUserPassword = (

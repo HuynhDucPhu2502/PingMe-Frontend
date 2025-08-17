@@ -1,0 +1,65 @@
+import { UAParser } from "ua-parser-js";
+import {
+  Smartphone,
+  Tablet,
+  Monitor,
+  Tv,
+  Gamepad2,
+  Watch,
+  Cpu,
+  Globe,
+} from "lucide-react";
+import type { SessionMetaRequest } from "@/types/user";
+
+export const getSessionMetaRequest = (): SessionMetaRequest => {
+  const parser = new UAParser();
+  const result = parser.getResult();
+
+  const deviceType = result.device.type || "desktop";
+  const browser = `${result.browser.name} ${result.browser.version}`;
+  const os = `${result.os.name} ${result.os.version}`;
+
+  return { deviceType, browser, os };
+};
+
+export const normalizeDeviceType = (type?: string): string => {
+  switch (type) {
+    case "mobile":
+      return "Điện thoại";
+    case "tablet":
+      return "Máy tính bảng";
+    case "smarttv":
+      return "Smart TV";
+    case "console":
+      return "Máy chơi game";
+    case "wearable":
+      return "Thiết bị đeo tay";
+    case "embedded":
+      return "Thiết bị nhúng";
+    default:
+      return "Laptop/Desktop";
+  }
+};
+
+export const getDeviceIcon = (deviceType?: string | null) => {
+  if (!deviceType) return <Globe className="h-5 w-5 text-orange-500" />;
+
+  switch (deviceType.toLowerCase()) {
+    case "mobile":
+      return <Smartphone className="h-5 w-5 text-orange-500" />;
+    case "tablet":
+      return <Tablet className="h-5 w-5 text-orange-500" />;
+    case "smarttv":
+      return <Tv className="h-5 w-5 text-orange-500" />;
+    case "console":
+      return <Gamepad2 className="h-5 w-5 text-orange-500" />;
+    case "wearable":
+      return <Watch className="h-5 w-5 text-orange-500" />;
+    case "embedded":
+      return <Cpu className="h-5 w-5 text-orange-500" />;
+    case "desktop":
+    case "computer":
+    default:
+      return <Monitor className="h-5 w-5 text-orange-500" />;
+  }
+};

@@ -67,7 +67,6 @@ export default function LoginForm() {
 
           <CardContent className="space-y-6">
             <form onSubmit={handleLogin} className="space-y-6">
-              {/* Grid 2 columns for form fields */}
               <div className="grid grid-cols-1  gap-6">
                 {/* Email Input */}
                 <div className="space-y-2">
