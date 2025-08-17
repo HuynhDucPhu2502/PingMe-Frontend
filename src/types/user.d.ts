@@ -34,6 +34,22 @@ export interface LocalRegisterRequest {
 export interface LocalLoginRequest {
   email: string;
   password: string;
+  sessionMetaRequest?: SessionMetaRequest;
+}
+
+export interface SessionMetaRequest {
+  deviceType?: string;
+  browser?: string;
+  os?: string;
+}
+
+export interface SessionMetaResponse {
+  sessionId: string;
+  deviceType: string;
+  browser: string;
+  os: string;
+  lastActiveAt: string;
+  current: boolean;
 }
 
 export interface ChangePasswordRequest {

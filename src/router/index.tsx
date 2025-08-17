@@ -4,6 +4,7 @@ import HomePage from "@/pages/client/home-page";
 import RootPage from "@/pages/client/RootPage";
 import ProfilePage from "@/pages/client/user-page";
 import ChangePasswordPage from "@/pages/client/user-page/change-password-page";
+import DeviceManagementPage from "@/pages/client/user-page/device-management-page";
 import UserInfoPage from "@/pages/client/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/profile/user-info" /> },
           { path: "user-info", element: <UserInfoPage /> },
           { path: "change-password", element: <ChangePasswordPage /> },
+          { path: "device-management", element: <DeviceManagementPage /> },
         ],
       },
 
