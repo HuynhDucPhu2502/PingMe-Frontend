@@ -86,3 +86,9 @@ export const updateCurrentUserAvatar = (data: FormData) => {
     data
   );
 };
+
+export const deleteCurrentUserSession = (sessionId: string) => {
+  return axiosClient.delete<ApiResponse<UserSessionResponse>>(
+    `/auth/me/sessions/${sessionId}`
+  );
+};

@@ -1,4 +1,7 @@
-import { getCurrentUserSessions } from "@/services/authApi";
+import {
+  deleteCurrentUserSession,
+  getCurrentUserSessions,
+} from "@/services/authApi";
 import type { SessionMetaResponse } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { getDeviceIcon, normalizeDeviceType } from "@/utils/sessionMetaHandler";
@@ -10,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Shield, Trash2, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { DeleteConfirmDialog } from "@/components/common/DeleteConfirmationDialog";
 
 const DeviceManagementPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -47,20 +52,17 @@ const DeviceManagementPage = () => {
 
   const handleDeleteSession = async (sessionId: string) => {
     console.log(sessionId);
-    // try {
-    //   setDeletingSessionId(sessionId);
-    //   await deleteUserSession(sessionId);
+    try {
+      setDeletingSessionId(sessionId);
+      await deleteCurrentUserSession(sessionId);
 
-    //   // Cập nhật danh sách sau khi xóa
-    //   setSessions((prev) =>
-    //     prev.filter((session) => session.sessionId !== sessionId)
-    //   );
-    //   toast.success("Đã xóa phiên đăng nhập thành công");
-    // } catch (err) {
-    //   toast.error(getErrorMessage(err, "Không thể xóa phiên đăng nhập"));
-    // } finally {
-    //   setDeletingSessionId(null);
-    // }
+      toast.success("Đã xóa phiên đăng nhập thành công");
+      await fetchSessions();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Không thể xóa phiên đăng nhập"));
+    } finally {
+      setDeletingSessionId(null);
+    }
   };
 
   const formatLastActive = (lastActiveAt: string) => {
@@ -82,7 +84,7 @@ const DeviceManagementPage = () => {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="flex items-center space-x-2 text-purple-600">
-          <Loader2 className="w-6 h-6 animate-spin" />
+          <LoadingSpinner />
           <span className="text-lg font-medium">
             Đang tải danh sách phiên đăng nhập...
           </span>
@@ -214,25 +216,28 @@ const DeviceManagementPage = () => {
 
                   {/* Action Button */}
                   {!session.current && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteSession(session.sessionId)}
-                      disabled={deletingSessionId === session.sessionId}
-                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 ml-4"
+                    <DeleteConfirmDialog
+                      onConfirm={() => handleDeleteSession(session.sessionId)}
                     >
-                      {deletingSessionId === session.sessionId ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Đang xóa...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Xóa phiên
-                        </>
-                      )}
-                    </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={deletingSessionId === session.sessionId}
+                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 ml-4"
+                      >
+                        {deletingSessionId === session.sessionId ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Đang xóa...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Xóa phiên
+                          </>
+                        )}
+                      </Button>
+                    </DeleteConfirmDialog>
                   )}
                 </div>
               </CardHeader>
