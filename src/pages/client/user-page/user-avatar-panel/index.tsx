@@ -1,6 +1,6 @@
-import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { getUserInitials } from "@/utils/authFieldHandler";
+} from "@/components/ui/dialog.tsx";
+import { Progress } from "@/components/ui/progress.tsx";
+import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { updateCurrentUserAvatar } from "@/services/authApi";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { updateCurrentUserAvatar } from "@/services/authApi.tsx";
 import { Camera, Upload, Loader2, X, ImageIcon } from "lucide-react";
-import { getCurrentUserSession } from "@/features/slices/authThunk";
+import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 
 const UserAvatarPanel = () => {
   const { userSession } = useAppSelector((state) => state.auth);
