@@ -1,7 +1,7 @@
-import HeroSection from "./HeroSection";
-import FeaturesSection from "./FeaturesSection";
-import StatsSection from "./StatsSection";
-import CTASection from "./CTASection";
+import HeroSection from "./components/HeroSection.tsx";
+import FeaturesSection from "./components/FeaturesSection.tsx";
+import StatsSection from "./components/StatsSection.tsx";
+import CTASection from "./components/CTASection.tsx";
 
 export default function HomePage() {
   return (

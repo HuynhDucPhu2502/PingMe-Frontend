@@ -2,7 +2,7 @@ import { useAppSelector } from "@/features/hooks";
 import { User, Key, Monitor } from "lucide-react";
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
 
-import UserAvatarPanel from "./user-avatar-panel";
+import UserAvatarPanel from "./components";
 
 const navigationItems = [
   {

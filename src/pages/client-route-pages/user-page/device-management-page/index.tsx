@@ -13,8 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Shield, Trash2, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { DeleteConfirmDialog } from "@/components/common/DeleteConfirmationDialog";
+import LoadingSpinner from "@/components/commons/LoadingSpinner";
+import { DeleteConfirmDialog } from "@/components/commons/DeleteConfirmationDialog";
 
 const DeviceManagementPage = () => {
   const [isLoading, setIsLoading] = useState(false);

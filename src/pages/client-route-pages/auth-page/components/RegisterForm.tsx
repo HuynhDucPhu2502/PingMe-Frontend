@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
 import {
   Card,
   CardContent,
@@ -8,22 +8,22 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/ui/card.tsx";
+import { Label } from "@/components/ui/label.tsx";
+import { Separator } from "@/components/ui/separator.tsx";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
+} from "@/components/ui/select.tsx";
+import { Calendar } from "@/components/ui/calendar.tsx";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/popover.tsx";
 import {
   Eye,
   EyeOff,
@@ -35,12 +35,12 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import GoogleSVG from "@/components/common/GoogleSVG";
+import { cn } from "@/lib/utils.ts";
+import GoogleSVG from "@/components/commons/GoogleSVG.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import type { LocalRegisterRequest } from "@/types/user";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { registerLocalApi } from "@/services/authApi";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { registerLocalApi } from "@/services/authApi.tsx";
 import { toast } from "sonner";
 
 export default function RegisterForm() {

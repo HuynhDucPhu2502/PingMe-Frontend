@@ -1,14 +1,14 @@
-import AuthPage from "@/pages/client/auth-page";
-import ChatPage from "@/pages/client/chat-page";
-import ChatMessageTest from "@/pages/client/chat-page/test-page/ChatMessageTest.tsx";
-import ContactsPage from "@/pages/client/chat-page/contact-page";
-import MessagesPage from "@/pages/client/chat-page/messages-page";
-import HomePage from "@/pages/client/home-page";
-import RootPage from "@/pages/client/RootPage";
-import ProfilePage from "@/pages/client/user-page";
-import ChangePasswordPage from "@/pages/client/user-page/change-password-page";
-import DeviceManagementPage from "@/pages/client/user-page/device-management-page";
-import UserInfoPage from "@/pages/client/user-page/user-info-page";
+import AuthPage from "@/pages/client-route-pages/auth-page";
+import ChatPage from "@/pages/client-route-pages/chat-page";
+import ChatMessageTest from "@/pages/client-route-pages/chat-page/test-page/ChatMessageTest.tsx";
+import ContactsPage from "@/pages/client-route-pages/chat-page/contact-page";
+import MessagesPage from "@/pages/client-route-pages/chat-page/messages-page";
+import HomePage from "@/pages/client-route-pages/home-page";
+import RootPage from "@/pages/client-route-pages/RootPage";
+import ProfilePage from "@/pages/client-route-pages/user-page";
+import ChangePasswordPage from "@/pages/client-route-pages/user-page/change-password-page";
+import DeviceManagementPage from "@/pages/client-route-pages/user-page/device-management-page";
+import UserInfoPage from "@/pages/client-route-pages/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([

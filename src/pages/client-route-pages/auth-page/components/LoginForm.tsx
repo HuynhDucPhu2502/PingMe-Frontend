@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
 import {
   Card,
   CardContent,
@@ -8,17 +8,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/ui/card.tsx";
+import { Label } from "@/components/ui/label.tsx";
+import { Separator } from "@/components/ui/separator.tsx";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { LocalLoginRequest } from "@/types/user";
-import { useAppDispatch } from "@/features/hooks";
-import { login } from "@/features/slices/authThunk";
-import GoogleAuth from "@/pages/common/GoogleAuth";
+import { useAppDispatch } from "@/features/hooks.ts";
+import { login } from "@/features/slices/authThunk.ts";
+import GoogleAuth from "@/pages/commons/GoogleAuth.tsx";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);

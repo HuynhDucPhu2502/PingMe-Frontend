@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Header from "@/pages/common/Header";
-import Footer from "@/pages/common/Footer";
+import Header from "@/pages/commons/Header";
+import Footer from "@/pages/commons/Footer";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { useEffect } from "react";
 import { getCurrentUserSession } from "@/features/slices/authThunk";

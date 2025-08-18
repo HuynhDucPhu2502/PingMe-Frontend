@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGoogleLogin, type TokenResponse } from "@react-oauth/google";
 import { Button } from "@/components/ui/button";
-import GoogleSVG from "@/components/common/GoogleSVG";
+import GoogleSVG from "@/components/commons/GoogleSVG";
 
 export default function GoogleAuth() {
   const [loading, setLoading] = useState(false);

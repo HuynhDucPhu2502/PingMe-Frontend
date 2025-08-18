@@ -18,7 +18,7 @@ import {
   Filter,
   ArrowUpDown,
 } from "lucide-react";
-import { EmptyState } from "@/components/common/EmptyState";
+import { EmptyState } from "@/components/commons/EmptyState";
 
 // Mock data
 const contactCategories = [

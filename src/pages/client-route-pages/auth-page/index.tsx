@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import LoginForm from "./LoginForm";
-import RegisterForm from "./RegisterForm";
+import LoginForm from "./components/LoginForm.tsx";
+import RegisterForm from "./components/RegisterForm.tsx";
 import { useAppSelector } from "@/features/hooks";
 
 export default function AuthPage() {
