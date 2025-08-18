@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Smile, Paperclip, MoreHorizontal } from "lucide-react";
-import { EmptyState } from "@/components/commons/EmptyState";
+import { EmptyState } from "@/components/custom/EmptyState";
 import { MessageCircle } from "lucide-react"; // Import MessageCircle
 
 // Mock data

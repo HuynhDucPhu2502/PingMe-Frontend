@@ -36,7 +36,7 @@ import {
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
-import GoogleSVG from "@/components/commons/GoogleSVG.tsx";
+import GoogleSVG from "@/components/custom/GoogleSVG.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import type { LocalRegisterRequest } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
