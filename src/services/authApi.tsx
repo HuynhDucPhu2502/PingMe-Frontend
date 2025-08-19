@@ -53,7 +53,7 @@ export const getCurrentUserSessionApi = () => {
 };
 
 export const getCurrentUserDetail = () => {
-  return axiosClient.get<ApiResponse<UserDetailResponse>>("/auth/me/detail");
+  return axiosClient.get<ApiResponse<UserDetailResponse>>("/auth/me/info");
 };
 
 export const getCurrentUserSessions = () => {
