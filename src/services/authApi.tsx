@@ -7,7 +7,7 @@ import type {
   LocalLoginRequest,
   LocalRegisterRequest,
   SessionMetaResponse,
-  UserDetailResponse,
+  UserInfoResponse,
   UserSessionResponse,
 } from "@/types/user";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
@@ -52,17 +52,17 @@ export const getCurrentUserSessionApi = () => {
   return axiosClient.get<ApiResponse<UserSessionResponse>>("/auth/me");
 };
 
-export const getCurrentUserDetail = () => {
-  return axiosClient.get<ApiResponse<UserDetailResponse>>("/auth/me/info");
+export const getCurrentUserInfoApi = () => {
+  return axiosClient.get<ApiResponse<UserInfoResponse>>("/auth/me/info");
 };
 
-export const getCurrentUserSessions = () => {
+export const getCurrentUserAllDeviceMetasApi = () => {
   return axiosClient.get<ApiResponse<SessionMetaResponse[]>>(
     "/auth/me/sessions"
   );
 };
 
-export const updateCurrentUserPassword = (
+export const updateCurrentUserPasswordApi = (
   changePasswordRequest: ChangePasswordRequest
 ) => {
   return axiosClient.post<ApiResponse<UserSessionResponse>>(
@@ -71,7 +71,7 @@ export const updateCurrentUserPassword = (
   );
 };
 
-export const updateCurrentUserProfile = (
+export const updateCurrentUserProfileApi = (
   changeProfileRequest: ChangeProfileRequest
 ) => {
   return axiosClient.post<ApiResponse<UserSessionResponse>>(
@@ -80,14 +80,14 @@ export const updateCurrentUserProfile = (
   );
 };
 
-export const updateCurrentUserAvatar = (data: FormData) => {
+export const updateCurrentUserAvatarApi = (data: FormData) => {
   return axiosClient.post<ApiResponse<UserSessionResponse>>(
     "/auth/me/avatar",
     data
   );
 };
 
-export const deleteCurrentUserSession = (sessionId: string) => {
+export const deleteCurrentUserDeviceMetaApi = (sessionId: string) => {
   return axiosClient.delete<ApiResponse<UserSessionResponse>>(
     `/auth/me/sessions/${sessionId}`
   );

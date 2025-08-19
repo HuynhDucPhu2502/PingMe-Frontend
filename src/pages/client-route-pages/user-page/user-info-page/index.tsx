@@ -30,8 +30,8 @@ import { toast } from "sonner";
 import type { ChangeProfileRequest } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
-  getCurrentUserDetail,
-  updateCurrentUserProfile,
+  getCurrentUserInfoApi,
+  updateCurrentUserProfileApi,
 } from "@/services/authApi.tsx";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
@@ -55,7 +55,7 @@ const UserInfoPage = () => {
   const fetchUserDetails = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await getCurrentUserDetail();
+      const res = await getCurrentUserInfoApi();
       const data = res.data.data;
 
       setFormData({
@@ -84,7 +84,7 @@ const UserInfoPage = () => {
     setIsUpdating(true);
 
     try {
-      await updateCurrentUserProfile({
+      await updateCurrentUserProfileApi({
         ...formData,
         dob: dob?.toLocaleDateString("en-CA"),
       });

@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getPasswordStrength } from "@/utils/authFieldHandler.ts";
-import { updateCurrentUserPassword } from "@/services/authApi.tsx";
+import { updateCurrentUserPasswordApi } from "@/services/authApi.tsx";
 
 const ChangePasswordPage = () => {
   const [formData, setFormData] = useState({
@@ -67,7 +67,7 @@ const ChangePasswordPage = () => {
     setIsLoading(true);
 
     try {
-      await updateCurrentUserPassword({
+      await updateCurrentUserPasswordApi({
         oldPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });

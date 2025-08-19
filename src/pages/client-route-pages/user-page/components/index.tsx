@@ -14,7 +14,7 @@ import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { updateCurrentUserAvatar } from "@/services/authApi.tsx";
+import { updateCurrentUserAvatarApi } from "@/services/authApi.tsx";
 import { Camera, Upload, Loader2, X, ImageIcon } from "lucide-react";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 
@@ -95,7 +95,7 @@ const UserAvatarPanel = () => {
         });
       }, 200);
 
-      await updateCurrentUserAvatar(data);
+      await updateCurrentUserAvatarApi(data);
 
       clearInterval(progressInterval);
       setUploadProgress(100);

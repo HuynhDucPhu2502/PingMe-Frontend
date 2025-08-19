@@ -13,7 +13,7 @@ export interface UserSessionResponse {
   updatedAt: string;
 }
 
-export interface UserDetailResponse {
+export interface UserInfoResponse {
   email: string;
   name: string;
   avatarUrl: string;

@@ -1,6 +1,6 @@
 import {
-  deleteCurrentUserSession,
-  getCurrentUserSessions,
+  deleteCurrentUserDeviceMetaApi,
+  getCurrentUserAllDeviceMetasApi,
 } from "@/services/authApi";
 import type { SessionMetaResponse } from "@/types/user";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
@@ -26,7 +26,7 @@ const DeviceManagementPage = () => {
   const fetchSessions = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await getCurrentUserSessions();
+      const res = await getCurrentUserAllDeviceMetasApi();
       const data = res.data.data;
 
       const sortedSessions = data.sort(
@@ -54,7 +54,7 @@ const DeviceManagementPage = () => {
     console.log(sessionId);
     try {
       setDeletingSessionId(sessionId);
-      await deleteCurrentUserSession(sessionId);
+      await deleteCurrentUserDeviceMetaApi(sessionId);
 
       toast.success("Đã xóa phiên đăng nhập thành công");
       await fetchSessions();
