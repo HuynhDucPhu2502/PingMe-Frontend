@@ -14,7 +14,7 @@ import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { updateCurrentUserAvatarApi } from "@/services/authApi.tsx";
+import { updateCurrentUserAvatarApi } from "@/services/userAccountApi.ts";
 import { Camera, Upload, Loader2, X, ImageIcon } from "lucide-react";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 

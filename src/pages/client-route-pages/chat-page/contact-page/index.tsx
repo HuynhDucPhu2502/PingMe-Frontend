@@ -1,246 +1,570 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Search, Users, Send, Inbox } from "lucide-react";
+import type { UserSummaryResponse } from "@/types/userSummary";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  MoreHorizontal,
-  Search,
-  Users,
-  UserPlus,
-  UserCheck,
-} from "lucide-react";
+  acceptInvitationApi,
+  cancelInvitationApi,
+  deleteFriendshipApi,
+  getAcceptedFriendshipListApi,
+  getReceivedInvitationsApi,
+  getSentInvitationsApi,
+  rejectInvitationApi,
+} from "@/services/friendshipApi";
+import Pagination from "@/components/custom/Pagination";
+import { EmptyState } from "@/components/custom/EmptyState";
+import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { SharedTopBar } from "../components/SharedTopbar";
+import SidebarNavigation from "./components/SidebarNavigation";
+import ContactItem from "./components/ContactItem";
 
-// Mock data for contacts organized by categories
-const mockContacts = [
-  // Recent contacts
-  {
-    id: "recent-1",
-    name: "Minh Hoàng",
-    email: "minh.hoang@example.com",
-    phone: "+84 123 456 789",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: true,
-    lastSeen: "Đang hoạt động",
-    mutualFriends: 5,
-    category: "recent",
-    letter: "M",
-  },
-  {
-    id: "recent-2",
-    name: "Thu Hà",
-    email: "thu.ha@example.com",
-    phone: "+84 987 654 321",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: false,
-    lastSeen: "2 giờ trước",
-    mutualFriends: 3,
-    category: "recent",
-    letter: "T",
-  },
-  // A
-  {
-    id: "a-1",
-    name: "An Nguyễn",
-    email: "an.nguyen@example.com",
-    phone: "+84 555 123 456",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: true,
-    lastSeen: "Đang hoạt động",
-    mutualFriends: 8,
-    category: "friends",
-    letter: "A",
-  },
-  {
-    id: "a-2",
-    name: "Anh Tuấn",
-    email: "anh.tuan@example.com",
-    phone: "+84 777 888 999",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: false,
-    lastSeen: "1 ngày trước",
-    mutualFriends: 2,
-    category: "friends",
-    letter: "A",
-  },
-  {
-    id: "a-3",
-    name: "Ánh Dương",
-    email: "anh.duong@example.com",
-    phone: "+84 333 444 555",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: true,
-    lastSeen: "Đang hoạt động",
-    mutualFriends: 6,
-    category: "friends",
-    letter: "A",
-  },
-  // B
-  {
-    id: "b-1",
-    name: "Bảo Trâm",
-    email: "bao.tram@example.com",
-    phone: "+84 666 777 888",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: false,
-    lastSeen: "3 giờ trước",
-    mutualFriends: 4,
-    category: "friends",
-    letter: "B",
-  },
-  {
-    id: "b-2",
-    name: "Bình An",
-    email: "binh.an@example.com",
-    phone: "+84 999 000 111",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: true,
-    lastSeen: "Đang hoạt động",
-    mutualFriends: 7,
-    category: "friends",
-    letter: "B",
-  },
-  // C
-  {
-    id: "c-1",
-    name: "Cẩm Ly",
-    email: "cam.ly@example.com",
-    phone: "+84 222 333 444",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: false,
-    lastSeen: "5 giờ trước",
-    mutualFriends: 3,
-    category: "friends",
-    letter: "C",
-  },
-  {
-    id: "c-2",
-    name: "Công Phượng",
-    email: "cong.phuong@example.com",
-    phone: "+84 111 222 333",
-    avatar: "/placeholder.svg?height=40&width=40",
-    isOnline: true,
-    lastSeen: "Đang hoạt động",
-    mutualFriends: 9,
-    category: "friends",
-    letter: "C",
-  },
-];
+// Định nghĩa interface cho pagination state
+interface PaginationState {
+  currentPage: number;
+  itemsPerPage: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+// Định nghĩa interface cho data state
+interface DataState {
+  data: UserSummaryResponse[];
+  isLoading: boolean;
+  pagination: PaginationState;
+}
 
 const sidebarItems = [
   {
     id: "friends",
     title: "Danh sách bạn bè",
     icon: Users,
-    count: 99,
-    isActive: true,
+    description: "Bạn bè đã kết nối",
   },
   {
-    id: "groups",
-    title: "Danh sách nhóm và cộng đồng",
-    icon: Users,
-    count: 12,
-    isActive: false,
+    id: "received-requests",
+    title: "Lời mời được nhận",
+    icon: Inbox,
+    description: "Lời mời kết bạn từ người khác",
   },
   {
-    id: "friend-requests",
-    title: "Lời mời kết bạn",
-    icon: UserPlus,
-    count: 3,
-    isActive: false,
-  },
-  {
-    id: "group-invites",
-    title: "Lời mời vào nhóm và cộng đồng",
-    icon: UserCheck,
-    count: 1,
-    isActive: false,
+    id: "sent-requests",
+    title: "Lời mời đã gửi",
+    icon: Send,
+    description: "Lời mời bạn đã gửi đi",
   },
 ];
 
 export default function ContactsPage() {
   const [activeCategory, setActiveCategory] = useState("friends");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("name");
 
-  // Group contacts by letter for alphabetical display
-  const groupedContacts = mockContacts
-    .filter((contact) => contact.category === activeCategory)
-    .filter(
-      (contact) =>
-        contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        contact.email.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .reduce((groups, contact) => {
-      const letter = contact.letter;
-      if (!groups[letter]) {
-        groups[letter] = [];
+  // Separate states for each data type
+  const [friendsState, setFriendsState] = useState<DataState>({
+    data: [],
+    isLoading: false,
+    pagination: {
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalElements: 0,
+      totalPages: 1,
+    },
+  });
+
+  const [receivedRequestsState, setReceivedRequestsState] = useState<DataState>(
+    {
+      data: [],
+      isLoading: false,
+      pagination: {
+        currentPage: 1,
+        itemsPerPage: 10,
+        totalElements: 0,
+        totalPages: 1,
+      },
+    }
+  );
+
+  const [sentRequestsState, setSentRequestsState] = useState<DataState>({
+    data: [],
+    isLoading: false,
+    pagination: {
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalElements: 0,
+      totalPages: 1,
+    },
+  });
+
+  // Fetch functions for each data type - stable references
+  const fetchFriends = useCallback(
+    async (page: number, size: number, searchTerm?: string) => {
+      setFriendsState((prev) => ({ ...prev, isLoading: true }));
+      try {
+        const response = await getAcceptedFriendshipListApi({
+          page: page - 1,
+          size,
+          filter: searchTerm || null,
+        });
+        const { content, totalElements, totalPages } = response.data.data;
+
+        setFriendsState((prev) => ({
+          ...prev,
+          data: content,
+          isLoading: false,
+          pagination: {
+            ...prev.pagination,
+            currentPage: page,
+            totalElements,
+            totalPages,
+          },
+        }));
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể lấy danh sách bạn bè"));
+        setFriendsState((prev) => ({ ...prev, isLoading: false }));
       }
-      groups[letter].push(contact);
-      return groups;
-    }, {} as Record<string, typeof mockContacts>);
+    },
+    []
+  );
 
-  // Add recent contacts section
-  const recentContacts = mockContacts.filter(
-    (contact) => contact.category === "recent"
+  const fetchReceivedRequests = useCallback(
+    async (page: number, size: number, searchTerm?: string) => {
+      setReceivedRequestsState((prev) => ({ ...prev, isLoading: true }));
+      try {
+        const response = await getReceivedInvitationsApi({
+          page: page - 1,
+          size,
+          filter: searchTerm || null,
+        });
+        const { content, totalElements, totalPages } = response.data.data;
+
+        setReceivedRequestsState((prev) => ({
+          ...prev,
+          data: content,
+          isLoading: false,
+          pagination: {
+            ...prev.pagination,
+            currentPage: page,
+            totalElements,
+            totalPages,
+          },
+        }));
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể lấy lời mời được nhận"));
+        setReceivedRequestsState((prev) => ({ ...prev, isLoading: false }));
+      }
+    },
+    []
+  );
+
+  const fetchSentRequests = useCallback(
+    async (page: number, size: number, searchTerm?: string) => {
+      setSentRequestsState((prev) => ({ ...prev, isLoading: true }));
+      try {
+        const response = await getSentInvitationsApi({
+          page: page - 1,
+          size,
+          filter: searchTerm || null,
+        });
+        const { content, totalElements, totalPages } = response.data.data;
+
+        setSentRequestsState((prev) => ({
+          ...prev,
+          data: content,
+          isLoading: false,
+          pagination: {
+            ...prev.pagination,
+            currentPage: page,
+            totalElements,
+            totalPages,
+          },
+        }));
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể lấy lời mời đã gửi"));
+        setSentRequestsState((prev) => ({ ...prev, isLoading: false }));
+      }
+    },
+    []
+  );
+
+  // Get current active state - memoized
+  const currentState = useMemo(() => {
+    switch (activeCategory) {
+      case "friends":
+        return friendsState;
+      case "received-requests":
+        return receivedRequestsState;
+      case "sent-requests":
+        return sentRequestsState;
+      default:
+        return friendsState;
+    }
+  }, [activeCategory, friendsState, receivedRequestsState, sentRequestsState]);
+
+  // Update pagination functions
+  const updateFriendsPagination = useCallback(
+    (updates: Partial<PaginationState>) => {
+      setFriendsState((prev) => ({
+        ...prev,
+        pagination: { ...prev.pagination, ...updates },
+      }));
+    },
+    []
+  );
+
+  const updateReceivedRequestsPagination = useCallback(
+    (updates: Partial<PaginationState>) => {
+      setReceivedRequestsState((prev) => ({
+        ...prev,
+        pagination: { ...prev.pagination, ...updates },
+      }));
+    },
+    []
+  );
+
+  const updateSentRequestsPagination = useCallback(
+    (updates: Partial<PaginationState>) => {
+      setSentRequestsState((prev) => ({
+        ...prev,
+        pagination: { ...prev.pagination, ...updates },
+      }));
+    },
+    []
+  );
+
+  // Generic update function
+  const updateCurrentPagination = useCallback(
+    (updates: Partial<PaginationState>) => {
+      switch (activeCategory) {
+        case "friends":
+          updateFriendsPagination(updates);
+          break;
+        case "received-requests":
+          updateReceivedRequestsPagination(updates);
+          break;
+        case "sent-requests":
+          updateSentRequestsPagination(updates);
+          break;
+      }
+    },
+    [
+      activeCategory,
+      updateFriendsPagination,
+      updateReceivedRequestsPagination,
+      updateSentRequestsPagination,
+    ]
+  );
+
+  // Initial data fetch
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await Promise.all([
+        fetchFriends(1, 10),
+        fetchReceivedRequests(1, 10),
+        fetchSentRequests(1, 10),
+      ]);
+    };
+    fetchInitialData();
+  }, [fetchFriends, fetchReceivedRequests, fetchSentRequests]);
+
+  // Fetch data when category changes
+  useEffect(() => {
+    switch (activeCategory) {
+      case "friends":
+        fetchFriends(
+          friendsState.pagination.currentPage,
+          friendsState.pagination.itemsPerPage,
+          searchQuery
+        );
+        break;
+      case "received-requests":
+        fetchReceivedRequests(
+          receivedRequestsState.pagination.currentPage,
+          receivedRequestsState.pagination.itemsPerPage,
+          searchQuery
+        );
+        break;
+      case "sent-requests":
+        fetchSentRequests(
+          sentRequestsState.pagination.currentPage,
+          sentRequestsState.pagination.itemsPerPage,
+          searchQuery
+        );
+        break;
+    }
+  }, [
+    activeCategory,
+    searchQuery,
+    fetchFriends,
+    fetchReceivedRequests,
+    fetchSentRequests,
+    friendsState.pagination.currentPage,
+    friendsState.pagination.itemsPerPage,
+    receivedRequestsState.pagination.currentPage,
+    receivedRequestsState.pagination.itemsPerPage,
+    sentRequestsState.pagination.currentPage,
+    sentRequestsState.pagination.itemsPerPage,
+  ]);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // Reset to first page when searching
+      updateCurrentPagination({ currentPage: 1 });
+
+      // Fetch data with search term
+      switch (activeCategory) {
+        case "friends":
+          fetchFriends(1, friendsState.pagination.itemsPerPage, searchQuery);
+          break;
+        case "received-requests":
+          fetchReceivedRequests(
+            1,
+            receivedRequestsState.pagination.itemsPerPage,
+            searchQuery
+          );
+          break;
+        case "sent-requests":
+          fetchSentRequests(
+            1,
+            sentRequestsState.pagination.itemsPerPage,
+            searchQuery
+          );
+          break;
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    activeCategory,
+    searchQuery,
+    fetchFriends,
+    fetchReceivedRequests,
+    fetchSentRequests,
+    friendsState.pagination.itemsPerPage,
+    receivedRequestsState.pagination.itemsPerPage,
+    sentRequestsState.pagination.itemsPerPage,
+    updateCurrentPagination,
+  ]);
+
+  // Handle pagination changes
+  const handlePageChange = useCallback(
+    (page: number) => {
+      updateCurrentPagination({ currentPage: page });
+
+      switch (activeCategory) {
+        case "friends":
+          fetchFriends(page, friendsState.pagination.itemsPerPage, searchQuery);
+          break;
+        case "received-requests":
+          fetchReceivedRequests(
+            page,
+            receivedRequestsState.pagination.itemsPerPage,
+            searchQuery
+          );
+          break;
+        case "sent-requests":
+          fetchSentRequests(
+            page,
+            sentRequestsState.pagination.itemsPerPage,
+            searchQuery
+          );
+          break;
+      }
+    },
+    [
+      activeCategory,
+      friendsState.pagination.itemsPerPage,
+      receivedRequestsState.pagination.itemsPerPage,
+      sentRequestsState.pagination.itemsPerPage,
+      searchQuery,
+      updateCurrentPagination,
+      fetchFriends,
+      fetchReceivedRequests,
+      fetchSentRequests,
+    ]
+  );
+
+  const handleItemsPerPageChange = useCallback(
+    (size: number) => {
+      updateCurrentPagination({ itemsPerPage: size, currentPage: 1 });
+
+      switch (activeCategory) {
+        case "friends":
+          fetchFriends(1, size, searchQuery);
+          break;
+        case "received-requests":
+          fetchReceivedRequests(1, size, searchQuery);
+          break;
+        case "sent-requests":
+          fetchSentRequests(1, size, searchQuery);
+          break;
+      }
+    },
+    [
+      activeCategory,
+      searchQuery,
+      updateCurrentPagination,
+      fetchFriends,
+      fetchReceivedRequests,
+      fetchSentRequests,
+    ]
+  );
+
+  const currentItem = useMemo(
+    () => sidebarItems.find((item) => item.id === activeCategory),
+    [activeCategory]
+  );
+
+  const handleAcceptRequest = useCallback(
+    async (friendshipId: number) => {
+      try {
+        await acceptInvitationApi(friendshipId);
+
+        toast.success("Đã chấp nhận lời mời kết bạn");
+
+        await Promise.all([
+          fetchReceivedRequests(
+            receivedRequestsState.pagination.currentPage,
+            receivedRequestsState.pagination.itemsPerPage,
+            searchQuery
+          ),
+          fetchFriends(1, 10),
+        ]);
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể chấp nhận lời mời"));
+      }
+    },
+    [
+      receivedRequestsState.pagination.currentPage,
+      receivedRequestsState.pagination.itemsPerPage,
+      searchQuery,
+      fetchReceivedRequests,
+      fetchFriends,
+    ]
+  );
+
+  // Handle reject friend request
+  const handleRejectRequest = useCallback(
+    async (friendshipId: number) => {
+      try {
+        await rejectInvitationApi(friendshipId);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        toast.success("Đã từ chối lời mời kết bạn");
+
+        await fetchReceivedRequests(
+          receivedRequestsState.pagination.currentPage,
+          receivedRequestsState.pagination.itemsPerPage,
+          searchQuery
+        );
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể từ chối lời mời"));
+      }
+    },
+    [
+      receivedRequestsState.pagination.currentPage,
+      receivedRequestsState.pagination.itemsPerPage,
+      searchQuery,
+      fetchReceivedRequests,
+    ]
+  );
+
+  // Handle cancel sent request
+  const handleCancelRequest = useCallback(
+    async (friendshipId: number) => {
+      try {
+        await cancelInvitationApi(friendshipId);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        toast.success("Đã hủy lời mời kết bạn");
+
+        await fetchSentRequests(
+          sentRequestsState.pagination.currentPage,
+          sentRequestsState.pagination.itemsPerPage,
+          searchQuery
+        );
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể hủy lời mời"));
+      }
+    },
+    [
+      sentRequestsState.pagination.currentPage,
+      sentRequestsState.pagination.itemsPerPage,
+      searchQuery,
+      fetchSentRequests,
+    ]
+  );
+
+  // Handle remove friend
+  const handleRemoveFriend = useCallback(
+    async (friendshipId: number) => {
+      try {
+        await deleteFriendshipApi(friendshipId);
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        toast.success("Đã xóa bạn bè");
+
+        await fetchFriends(
+          friendsState.pagination.currentPage,
+          friendsState.pagination.itemsPerPage,
+          searchQuery
+        );
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể xóa bạn bè"));
+      }
+    },
+    [
+      friendsState.pagination.currentPage,
+      friendsState.pagination.itemsPerPage,
+      searchQuery,
+      fetchFriends,
+    ]
   );
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        {/* Top Bar */}
-        <SharedTopBar />
+        <SharedTopBar
+          onFriendAdded={async () => {
+            await fetchSentRequests(
+              sentRequestsState.pagination.currentPage,
+              sentRequestsState.pagination.itemsPerPage,
+              searchQuery
+            );
+          }}
+        />
 
         {/* Sidebar Navigation */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-2">
-            {sidebarItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveCategory(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                  activeCategory === item.id
-                    ? "bg-purple-100 text-purple-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="flex-1">{item.title}</span>
-                {item.count > 0 && (
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      activeCategory === item.id
-                        ? "bg-purple-200 text-purple-800"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+        <SidebarNavigation
+          sidebarItems={sidebarItems}
+          friendsStateTotalElements={friendsState.pagination.totalElements}
+          receivedRequestsStateTotalElements={
+            receivedRequestsState.pagination.totalElements
+          }
+          sentRequestsStateTotalElements={
+            sentRequestsState.pagination.totalElements
+          }
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+        />
       </div>
 
-      {/* Right Content - Contact List */}
+      {/* Right Content */}
       <div className="flex-1 bg-white flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Bạn bè (
-              {mockContacts.filter((c) => c.category === activeCategory).length}
-              )
-            </h2>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {currentItem?.title}
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {currentState.pagination.totalElements} kết quả
+              </p>
+            </div>
           </div>
 
           {/* Search and Filters */}
@@ -248,128 +572,66 @@ export default function ContactsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Tìm bạn"
+                placeholder="Tìm kiếm theo tên hoặc email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-50 border-gray-200"
+                className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
               />
-            </div>
-
-            <div className="flex space-x-2">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="flex-1 bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="Tên (A-Z)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Tên (A-Z)</SelectItem>
-                  <SelectItem value="recent">Gần đây</SelectItem>
-                  <SelectItem value="online">Đang online</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select defaultValue="all">
-                <SelectTrigger className="flex-1 bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="Tất cả" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="online">Đang online</SelectItem>
-                  <SelectItem value="offline">Offline</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </div>
 
-        {/* Contact List */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Recent Contacts */}
-          {recentContacts.length > 0 && (
-            <div className="p-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-3">
-                Bạn mới
-              </h3>
-              {recentContacts.map((contact) => (
-                <div
-                  key={contact.id}
-                  className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 group"
-                >
-                  <div className="relative">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={contact.avatar || "/placeholder.svg"} />
-                      <AvatarFallback className="bg-purple-100 text-purple-600 text-sm">
-                        {contact.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    {contact.isOnline && (
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {contact.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {contact.lastSeen}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100"
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
+        {/* Content */}
+        <div className="flex-1 flex flex-col">
+          {currentState.isLoading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="flex items-center space-x-3 text-purple-600">
+                <LoadingSpinner className="w-8 h-8" />
+                <span className="text-lg font-medium">Đang tải...</span>
+              </div>
             </div>
-          )}
-
-          {/* Alphabetical Groups */}
-          {Object.entries(groupedContacts)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([letter, contacts]) => (
-              <div key={letter} className="p-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">
-                  {letter}
-                </h3>
-                {contacts.map((contact) => (
-                  <div
-                    key={contact.id}
-                    className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 group"
-                  >
-                    <div className="relative">
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage
-                          src={contact.avatar || "/placeholder.svg"}
-                        />
-                        <AvatarFallback className="bg-purple-100 text-purple-600 text-sm">
-                          {contact.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {contact.isOnline && (
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {contact.name}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {contact.lastSeen}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="opacity-0 group-hover:opacity-100"
-                    >
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </div>
+          ) : currentState.data.length === 0 ? (
+            <div className="flex-1">
+              <EmptyState
+                icon={currentItem?.icon}
+                title={`Không có ${currentItem?.title.toLowerCase()}`}
+                description={
+                  searchQuery
+                    ? `Không tìm thấy kết quả nào cho "${searchQuery}"`
+                    : `Chưa có ${currentItem?.title.toLowerCase()} nào.`
+                }
+              />
+            </div>
+          ) : (
+            <>
+              {/* Contact List */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {currentState.data.map((item) => (
+                  <ContactItem
+                    contact={item}
+                    activeCategory={activeCategory}
+                    handleAcceptRequest={handleAcceptRequest}
+                    handleRejectRequest={handleRejectRequest}
+                    handleCancelRequest={handleCancelRequest}
+                    handleRemoveFriend={handleRemoveFriend}
+                  />
                 ))}
               </div>
-            ))}
+
+              {/* Pagination */}
+              {currentState.pagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={currentState.pagination.currentPage}
+                  setCurrentPage={handlePageChange}
+                  totalPages={currentState.pagination.totalPages}
+                  totalElements={currentState.pagination.totalElements}
+                  itemsPerPage={currentState.pagination.itemsPerPage}
+                  setItemsPerPage={handleItemsPerPageChange}
+                  showItemsPerPageSelect={true}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

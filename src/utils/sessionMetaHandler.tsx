@@ -9,7 +9,7 @@ import {
   Cpu,
   Globe,
 } from "lucide-react";
-import type { SessionMetaRequest } from "@/types/user";
+import type { SessionMetaRequest } from "@/types/userAccount";
 
 export const getSessionMetaRequest = (): SessionMetaRequest => {
   const parser = new UAParser();

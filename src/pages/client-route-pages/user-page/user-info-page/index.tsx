@@ -27,12 +27,12 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
 import { toast } from "sonner";
-import type { ChangeProfileRequest } from "@/types/user";
+import type { ChangeProfileRequest } from "@/types/userAccount";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
   getCurrentUserInfoApi,
   updateCurrentUserProfileApi,
-} from "@/services/authApi.tsx";
+} from "@/services/userAccountApi.ts";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 

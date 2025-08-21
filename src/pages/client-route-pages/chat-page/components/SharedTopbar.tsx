@@ -1,15 +1,18 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
-import { Search, UserPlus, Users } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AddFriendModal } from "./AddFriendModal";
 
-export function SharedTopBar() {
+interface SharedTopBarProps {
+  onFriendAdded?: () => void;
+}
+
+export function SharedTopBar({ onFriendAdded }: SharedTopBarProps) {
   return (
     <TooltipProvider>
       <div className="p-4 border-b border-gray-200 bg-white">
@@ -31,13 +34,7 @@ export function SharedTopBar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-gray-500 hover:text-purple-600 hover:bg-purple-50"
-              >
-                <UserPlus className="w-4 h-4" />
-              </Button>
+              <AddFriendModal onFriendAdded={onFriendAdded} />
             </TooltipTrigger>
             <TooltipContent>
               <p>Thêm bạn</p>

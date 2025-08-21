@@ -1,4 +1,4 @@
-import type { UserSessionResponse } from "@/types/user";
+import type { UserSessionResponse } from "@/types/userAccount";
 import { createSlice } from "@reduxjs/toolkit";
 import {
   getCurrentUserSession,

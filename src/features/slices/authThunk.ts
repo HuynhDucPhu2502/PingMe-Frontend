@@ -3,12 +3,12 @@ import {
   loginLocalApi,
   logoutApi,
   refreshSessionApi,
-} from "@/services/authApi";
+} from "@/services/userAccountApi.ts";
 import type {
   DefaultAuthResponse,
   LocalLoginRequest,
   UserSessionResponse,
-} from "@/types/user";
+} from "@/types/userAccount";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";

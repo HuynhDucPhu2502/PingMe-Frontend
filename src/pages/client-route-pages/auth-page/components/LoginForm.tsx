@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { LocalLoginRequest } from "@/types/user";
+import type { LocalLoginRequest } from "@/types/userAccount";
 import { useAppDispatch } from "@/features/hooks.ts";
 import { login } from "@/features/slices/authThunk.ts";
 import GoogleAuth from "@/pages/commons/GoogleAuth.tsx";

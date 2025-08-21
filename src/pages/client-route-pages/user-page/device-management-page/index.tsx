@@ -1,8 +1,8 @@
 import {
   deleteCurrentUserDeviceMetaApi,
   getCurrentUserAllDeviceMetasApi,
-} from "@/services/authApi";
-import type { SessionMetaResponse } from "@/types/user";
+} from "@/services/userAccountApi.ts";
+import type { SessionMetaResponse } from "@/types/userAccount";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { getDeviceIcon, normalizeDeviceType } from "@/utils/sessionMetaHandler";
 import { useCallback, useEffect, useState } from "react";

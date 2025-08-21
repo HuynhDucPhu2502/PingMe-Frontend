@@ -2,7 +2,7 @@ import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosError } from "axios";
 import type { AppDispatch } from "@/features/store";
 import type { ApiResponse } from "@/types/apiResponse";
-import { refreshSessionApi } from "@/services/authApi";
+import { refreshSessionApi } from "@/services/userAccountApi.ts";
 import { updateTokenManually } from "@/features/slices/authSlice";
 import { logout } from "@/features/slices/authThunk";
 

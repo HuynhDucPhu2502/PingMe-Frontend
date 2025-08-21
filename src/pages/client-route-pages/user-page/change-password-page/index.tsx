@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getPasswordStrength } from "@/utils/authFieldHandler.ts";
-import { updateCurrentUserPasswordApi } from "@/services/authApi.tsx";
+import { updateCurrentUserPasswordApi } from "@/services/userAccountApi.ts";
 
 const ChangePasswordPage = () => {
   const [formData, setFormData] = useState({

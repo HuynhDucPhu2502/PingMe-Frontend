@@ -9,7 +9,7 @@ import type {
   SessionMetaResponse,
   UserInfoResponse,
   UserSessionResponse,
-} from "@/types/user";
+} from "@/types/userAccount";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 import axios from "axios";
 

@@ -38,9 +38,9 @@ import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
 import GoogleSVG from "@/components/custom/GoogleSVG.tsx";
 import { Link, useNavigate } from "react-router-dom";
-import type { LocalRegisterRequest } from "@/types/user";
+import type { LocalRegisterRequest } from "@/types/userAccount";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { registerLocalApi } from "@/services/authApi.tsx";
+import { registerLocalApi } from "@/services/userAccountApi.ts";
 import { toast } from "sonner";
 
 export default function RegisterForm() {
