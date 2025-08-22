@@ -9,19 +9,11 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  Shield,
-  X,
-  CheckCircle,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Shield, X } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { getPasswordStrength } from "@/utils/authFieldHandler.ts";
 import { updateCurrentUserPasswordApi } from "@/services/userAccountApi.ts";
+import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 
 const ChangePasswordPage = () => {
   const [formData, setFormData] = useState({
@@ -43,8 +35,6 @@ const ChangePasswordPage = () => {
   const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   };
-
-  const passwordStrength = getPasswordStrength(formData.newPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,98 +213,7 @@ const ChangePasswordPage = () => {
             </div>
           </div>
 
-          {/* Password Strength Indicator */}
-          {formData.newPassword && (
-            <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-gray-700">
-                  Độ mạnh mật khẩu:
-                </span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      passwordStrength.strength === 1
-                        ? "bg-red-500 w-1/4"
-                        : passwordStrength.strength === 2
-                        ? "bg-yellow-500 w-2/4"
-                        : passwordStrength.strength === 3
-                        ? "bg-blue-500 w-3/4"
-                        : passwordStrength.strength === 4
-                        ? "bg-green-500 w-full"
-                        : "w-0"
-                    }`}
-                  />
-                </div>
-                <span
-                  className={`text-sm font-medium ${passwordStrength.color}`}
-                >
-                  {passwordStrength.text}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <ul className="space-y-1">
-                  <li
-                    className={`flex items-center space-x-2 ${
-                      formData.newPassword.length >= 8
-                        ? "text-green-600"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {formData.newPassword.length >= 8 ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <X className="w-4 h-4" />
-                    )}
-                    <span>Ít nhất 8 ký tự</span>
-                  </li>
-                  <li
-                    className={`flex items-center space-x-2 ${
-                      /[A-Z]/.test(formData.newPassword)
-                        ? "text-green-600"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {/[A-Z]/.test(formData.newPassword) ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <X className="w-4 h-4" />
-                    )}
-                    <span>Chữ hoa</span>
-                  </li>
-                </ul>
-                <ul className="space-y-1">
-                  <li
-                    className={`flex items-center space-x-2 ${
-                      /[a-z]/.test(formData.newPassword)
-                        ? "text-green-600"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {/[a-z]/.test(formData.newPassword) ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <X className="w-4 h-4" />
-                    )}
-                    <span>Chữ thường</span>
-                  </li>
-                  <li
-                    className={`flex items-center space-x-2 ${
-                      /\d/.test(formData.newPassword)
-                        ? "text-green-600"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {/\d/.test(formData.newPassword) ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <X className="w-4 h-4" />
-                    )}
-                    <span>Số</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          )}
+          <PasswordStrengthMeter password={formData.newPassword} />
 
           {/* Submit Button */}
           <div className="pt-4">
