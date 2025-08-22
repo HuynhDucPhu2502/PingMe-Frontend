@@ -18,7 +18,13 @@ function App() {
           <ScrollArea className="min-h-screen">
             <RouterProvider router={router}></RouterProvider>
           </ScrollArea>
-          <Toaster duration={3000} closeButton position="top-center" />
+          <Toaster
+            duration={3000}
+            closeButton
+            position="top-center"
+            theme="system"
+            richColors
+          />
         </PersistGate>
       </Provider>
     </GoogleOAuthProvider>
