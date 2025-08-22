@@ -1,18 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, Users, Send, Inbox } from "lucide-react";
-import type { UserSummaryResponse } from "@/types/userSummary";
-import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import {
-  acceptInvitationApi,
-  cancelInvitationApi,
-  deleteFriendshipApi,
-  getAcceptedFriendshipListApi,
-  getReceivedInvitationsApi,
-  getSentInvitationsApi,
-  rejectInvitationApi,
-} from "@/services/friendshipApi";
 import Pagination from "@/components/custom/Pagination";
 import { EmptyState } from "@/components/custom/EmptyState";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
@@ -24,19 +12,8 @@ import {
   type FriendshipEvent,
 } from "@/services/ws/friendshipSocket";
 import { SharedTopBar } from "../components/SharedTopbar";
-
-interface PaginationState {
-  currentPage: number;
-  itemsPerPage: number;
-  totalElements: number;
-  totalPages: number;
-}
-
-interface DataState {
-  data: UserSummaryResponse[];
-  isLoading: boolean;
-  pagination: PaginationState;
-}
+import { useContactsState } from "./hooks/useContactsState";
+import { useContactsActions } from "./hooks/useContactsActions";
 
 const sidebarItems = [
   {
@@ -63,210 +40,39 @@ export default function ContactsPage() {
   const [activeCategory, setActiveCategory] = useState("friends");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ==============================================================================
-  // Data States
-  // ==============================================================================
+  const {
+    friendsState,
+    receivedRequestsState,
+    sentRequestsState,
+    fetchFriends,
+    fetchReceivedRequests,
+    fetchSentRequests,
+    updateCurrentPagination,
+    getCurrentState,
+  } = useContactsState();
 
-  const [friendsState, setFriendsState] = useState<DataState>({
-    data: [],
-    isLoading: false,
-    pagination: {
-      currentPage: 1,
-      itemsPerPage: 10,
-      totalElements: 0,
-      totalPages: 1,
-    },
+  const {
+    handleAcceptRequest,
+    handleRejectRequest,
+    handleCancelRequest,
+    handleRemoveFriend,
+  } = useContactsActions({
+    fetchFriends,
+    fetchReceivedRequests,
+    fetchSentRequests,
+    friendsState,
+    receivedRequestsState,
+    sentRequestsState,
+    searchQuery,
   });
-
-  const [receivedRequestsState, setReceivedRequestsState] = useState<DataState>(
-    {
-      data: [],
-      isLoading: false,
-      pagination: {
-        currentPage: 1,
-        itemsPerPage: 10,
-        totalElements: 0,
-        totalPages: 1,
-      },
-    }
-  );
-
-  const [sentRequestsState, setSentRequestsState] = useState<DataState>({
-    data: [],
-    isLoading: false,
-    pagination: {
-      currentPage: 1,
-      itemsPerPage: 10,
-      totalElements: 0,
-      totalPages: 1,
-    },
-  });
-
-  // ==============================================================================
-  // Fetch Functions
-  // ==============================================================================
-
-  const fetchFriends = useCallback(
-    async (page: number, size: number, searchTerm?: string) => {
-      setFriendsState((prev) => ({ ...prev, isLoading: true }));
-      try {
-        const response = await getAcceptedFriendshipListApi({
-          page: page - 1,
-          size,
-          filter: searchTerm || null,
-        });
-        const { content, totalElements, totalPages } = response.data.data;
-
-        setFriendsState((prev) => ({
-          ...prev,
-          data: content,
-          isLoading: false,
-          pagination: {
-            ...prev.pagination,
-            currentPage: page,
-            totalElements,
-            totalPages,
-          },
-        }));
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể lấy danh sách bạn bè"));
-        setFriendsState((prev) => ({ ...prev, isLoading: false }));
-      }
-    },
-    []
-  );
-
-  const fetchReceivedRequests = useCallback(
-    async (page: number, size: number, searchTerm?: string) => {
-      setReceivedRequestsState((prev) => ({ ...prev, isLoading: true }));
-      try {
-        const response = await getReceivedInvitationsApi({
-          page: page - 1,
-          size,
-          filter: searchTerm || null,
-        });
-        const { content, totalElements, totalPages } = response.data.data;
-
-        setReceivedRequestsState((prev) => ({
-          ...prev,
-          data: content,
-          isLoading: false,
-          pagination: {
-            ...prev.pagination,
-            currentPage: page,
-            totalElements,
-            totalPages,
-          },
-        }));
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể lấy lời mời được nhận"));
-        setReceivedRequestsState((prev) => ({ ...prev, isLoading: false }));
-      }
-    },
-    []
-  );
-
-  const fetchSentRequests = useCallback(
-    async (page: number, size: number, searchTerm?: string) => {
-      setSentRequestsState((prev) => ({ ...prev, isLoading: true }));
-      try {
-        const response = await getSentInvitationsApi({
-          page: page - 1,
-          size,
-          filter: searchTerm || null,
-        });
-        const { content, totalElements, totalPages } = response.data.data;
-
-        setSentRequestsState((prev) => ({
-          ...prev,
-          data: content,
-          isLoading: false,
-          pagination: {
-            ...prev.pagination,
-            currentPage: page,
-            totalElements,
-            totalPages,
-          },
-        }));
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể lấy lời mời đã gửi"));
-        setSentRequestsState((prev) => ({ ...prev, isLoading: false }));
-      }
-    },
-    []
-  );
 
   const currentState = useMemo(() => {
-    switch (activeCategory) {
-      case "friends":
-        return friendsState;
-      case "received-requests":
-        return receivedRequestsState;
-      case "sent-requests":
-        return sentRequestsState;
-      default:
-        return friendsState;
-    }
-  }, [activeCategory, friendsState, receivedRequestsState, sentRequestsState]);
-
-  // ==============================================================================
-  // Pagination Functions
-  // ==============================================================================
-  const updateFriendsPagination = useCallback(
-    (updates: Partial<PaginationState>) => {
-      setFriendsState((prev) => ({
-        ...prev,
-        pagination: { ...prev.pagination, ...updates },
-      }));
-    },
-    []
-  );
-
-  const updateReceivedRequestsPagination = useCallback(
-    (updates: Partial<PaginationState>) => {
-      setReceivedRequestsState((prev) => ({
-        ...prev,
-        pagination: { ...prev.pagination, ...updates },
-      }));
-    },
-    []
-  );
-
-  const updateSentRequestsPagination = useCallback(
-    (updates: Partial<PaginationState>) => {
-      setSentRequestsState((prev) => ({
-        ...prev,
-        pagination: { ...prev.pagination, ...updates },
-      }));
-    },
-    []
-  );
-
-  const updateCurrentPagination = useCallback(
-    (updates: Partial<PaginationState>) => {
-      switch (activeCategory) {
-        case "friends":
-          updateFriendsPagination(updates);
-          break;
-        case "received-requests":
-          updateReceivedRequestsPagination(updates);
-          break;
-        case "sent-requests":
-          updateSentRequestsPagination(updates);
-          break;
-      }
-    },
-    [
-      activeCategory,
-      updateFriendsPagination,
-      updateReceivedRequestsPagination,
-      updateSentRequestsPagination,
-    ]
-  );
+    return getCurrentState(activeCategory);
+  }, [activeCategory, getCurrentState]);
 
   const handlePageChange = useCallback(
     (page: number) => {
-      updateCurrentPagination({ currentPage: page });
+      updateCurrentPagination(activeCategory, { currentPage: page });
 
       switch (activeCategory) {
         case "friends":
@@ -303,7 +109,10 @@ export default function ContactsPage() {
 
   const handleItemsPerPageChange = useCallback(
     (size: number) => {
-      updateCurrentPagination({ itemsPerPage: size, currentPage: 1 });
+      updateCurrentPagination(activeCategory, {
+        itemsPerPage: size,
+        currentPage: 1,
+      });
 
       switch (activeCategory) {
         case "friends":
@@ -332,10 +141,6 @@ export default function ContactsPage() {
     [activeCategory]
   );
 
-  // ==============================================================================
-  // Listener
-  // ==============================================================================
-  // Initial listener - chỉ fetch data lần đầu khi component mount
   useEffect(() => {
     const fetchInitialData = async () => {
       await Promise.all([
@@ -347,10 +152,9 @@ export default function ContactsPage() {
     fetchInitialData();
   }, [fetchFriends, fetchReceivedRequests, fetchSentRequests]);
 
-  // Search change listener - chỉ refetch khi search query thay đổi
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      updateCurrentPagination({ currentPage: 1 });
+      updateCurrentPagination(activeCategory, { currentPage: 1 });
 
       switch (activeCategory) {
         case "friends":
@@ -386,116 +190,6 @@ export default function ContactsPage() {
     updateCurrentPagination,
   ]);
 
-  // ==============================================================================
-  // Handler
-  // ==============================================================================
-  const handleAcceptRequest = useCallback(
-    async (friendshipId: number) => {
-      try {
-        await acceptInvitationApi(friendshipId);
-
-        toast.success("Đã chấp nhận lời mời kết bạn");
-
-        await Promise.all([
-          fetchReceivedRequests(
-            receivedRequestsState.pagination.currentPage,
-            receivedRequestsState.pagination.itemsPerPage,
-            searchQuery
-          ),
-          fetchFriends(1, 10),
-        ]);
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể chấp nhận lời mời"));
-      }
-    },
-    [
-      receivedRequestsState.pagination.currentPage,
-      receivedRequestsState.pagination.itemsPerPage,
-      searchQuery,
-      fetchReceivedRequests,
-      fetchFriends,
-    ]
-  );
-
-  const handleRejectRequest = useCallback(
-    async (friendshipId: number) => {
-      try {
-        await rejectInvitationApi(friendshipId);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        toast.success("Đã từ chối lời mời kết bạn");
-
-        await fetchReceivedRequests(
-          receivedRequestsState.pagination.currentPage,
-          receivedRequestsState.pagination.itemsPerPage,
-          searchQuery
-        );
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể từ chối lời mời"));
-      }
-    },
-    [
-      receivedRequestsState.pagination.currentPage,
-      receivedRequestsState.pagination.itemsPerPage,
-      searchQuery,
-      fetchReceivedRequests,
-    ]
-  );
-
-  const handleCancelRequest = useCallback(
-    async (friendshipId: number) => {
-      try {
-        await cancelInvitationApi(friendshipId);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        toast.success("Đã hủy lời mời kết bạn");
-
-        await fetchSentRequests(
-          sentRequestsState.pagination.currentPage,
-          sentRequestsState.pagination.itemsPerPage,
-          searchQuery
-        );
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể hủy lời mời"));
-      }
-    },
-    [
-      sentRequestsState.pagination.currentPage,
-      sentRequestsState.pagination.itemsPerPage,
-      searchQuery,
-      fetchSentRequests,
-    ]
-  );
-
-  const handleRemoveFriend = useCallback(
-    async (friendshipId: number) => {
-      try {
-        await deleteFriendshipApi(friendshipId);
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        toast.success("Đã xóa bạn bè");
-
-        await fetchFriends(
-          friendsState.pagination.currentPage,
-          friendsState.pagination.itemsPerPage,
-          searchQuery
-        );
-      } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể xóa bạn bè"));
-      }
-    },
-    [
-      friendsState.pagination.currentPage,
-      friendsState.pagination.itemsPerPage,
-      searchQuery,
-      fetchFriends,
-    ]
-  );
-
-  // ==============================================================================
-  // WebSocket - Real-time updates
-  // ==============================================================================
   useEffect(() => {
     connectFriendshipWS({
       baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
@@ -504,7 +198,6 @@ export default function ContactsPage() {
 
         switch (ev.type) {
           case "INVITED":
-            // Có lời mời mới -> cập nhật received requests
             fetchReceivedRequests(
               receivedRequestsState.pagination.currentPage,
               receivedRequestsState.pagination.itemsPerPage,
@@ -512,7 +205,6 @@ export default function ContactsPage() {
             );
             break;
           case "ACCEPTED":
-            // Lời mời được chấp nhận -> cập nhật friends và sent requests
             fetchFriends(
               friendsState.pagination.currentPage,
               friendsState.pagination.itemsPerPage,
@@ -525,7 +217,6 @@ export default function ContactsPage() {
             );
             break;
           case "REJECTED":
-            // Lời mời bị từ chối -> cập nhật sent requests
             fetchSentRequests(
               sentRequestsState.pagination.currentPage,
               sentRequestsState.pagination.itemsPerPage,
@@ -533,7 +224,6 @@ export default function ContactsPage() {
             );
             break;
           case "CANCELED":
-            // Lời mời bị hủy -> cập nhật received requests
             fetchReceivedRequests(
               receivedRequestsState.pagination.currentPage,
               receivedRequestsState.pagination.itemsPerPage,
@@ -541,7 +231,6 @@ export default function ContactsPage() {
             );
             break;
           case "DELETED":
-            // Bạn bè bị xóa -> cập nhật friends
             fetchFriends(
               friendsState.pagination.currentPage,
               friendsState.pagination.itemsPerPage,
