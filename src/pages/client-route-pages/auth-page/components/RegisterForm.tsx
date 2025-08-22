@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
 import {
   Select,
   SelectContent,
@@ -36,12 +35,12 @@ import {
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
-import GoogleSVG from "@/components/custom/GoogleSVG.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import type { LocalRegisterRequest } from "@/types/userAccount";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { registerLocalApi } from "@/services/userAccountApi.ts";
 import { toast } from "sonner";
+import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -80,11 +79,6 @@ export default function RegisterForm() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleRegister = () => {
-    console.log("Google register clicked");
-    // Implement Google OAuth here
   };
 
   return (
@@ -152,7 +146,7 @@ export default function RegisterForm() {
                 </div>
 
                 {/* Password Input */}
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label
                     htmlFor="password"
                     className="text-sm font-medium text-gray-700"
@@ -184,6 +178,8 @@ export default function RegisterForm() {
                       )}
                     </button>
                   </div>
+
+                  <PasswordStrengthMeter password={formData.password} />
                 </div>
 
                 {/* Gender Select */}
@@ -201,7 +197,7 @@ export default function RegisterForm() {
                     }
                     required
                   >
-                    <SelectTrigger className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200">
+                    <SelectTrigger className="w-full h-full border-gray-200 focus:border-purple-300 focus:ring-purple-200">
                       <SelectValue placeholder="Chọn giới tính" />
                     </SelectTrigger>
                     <SelectContent>
@@ -287,27 +283,6 @@ export default function RegisterForm() {
                 )}
               </Button>
             </form>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Hoặc</span>
-              </div>
-            </div>
-
-            {/* Google Register */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoogleRegister}
-              className="w-full h-12 border-gray-200 hover:bg-gray-50 font-medium rounded-lg transition-colors bg-transparent"
-            >
-              <GoogleSVG />
-              Đăng ký với Google
-            </Button>
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 pt-6">

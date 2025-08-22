@@ -10,13 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { LocalLoginRequest } from "@/types/userAccount";
 import { useAppDispatch } from "@/features/hooks.ts";
 import { login } from "@/features/slices/authThunk.ts";
-import GoogleAuth from "@/pages/commons/GoogleAuth.tsx";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 
@@ -151,19 +149,6 @@ export default function LoginForm() {
                 )}
               </Button>
             </form>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Hoặc</span>
-              </div>
-            </div>
-
-            {/* Google Login */}
-            <GoogleAuth />
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 pt-6">
