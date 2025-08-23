@@ -59,7 +59,7 @@ const defaultGetToken = async () => {
     const res = (await refreshSessionApi()).data.data;
 
     const newAccessToken = res.accessToken;
-    dispatchRef(updateTokenManually(newAccessToken));
+    dispatchRef(updateTokenManually(res));
 
     return newAccessToken;
   }
