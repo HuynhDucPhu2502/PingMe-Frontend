@@ -4,7 +4,7 @@ import type { AppDispatch } from "@/features/store";
 import type { ApiResponse } from "@/types/apiResponse";
 import { refreshSessionApi } from "@/services/userAccountApi.ts";
 import { updateTokenManually } from "@/features/slices/authSlice";
-import { logout } from "@/features/slices/authThunk";
+import { getCurrentUserSession, logout } from "@/features/slices/authThunk";
 
 // ============================================================
 // Setup dispatch từ store để sử dụng
@@ -98,6 +98,7 @@ axiosClient.interceptors.response.use(
 
         const accessToken = res.accessToken;
         dispatchRef(updateTokenManually(res));
+        dispatchRef(getCurrentUserSession());
         processQueue(null, accessToken);
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
