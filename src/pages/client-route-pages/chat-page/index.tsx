@@ -1,6 +1,5 @@
 import { MessageCircle, Users } from "lucide-react";
-import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
-import { useAppSelector } from "@/features/hooks";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
@@ -24,13 +23,8 @@ const navigationItems = [
 ];
 
 export default function ChatPage() {
-  const { isLogin, userSession } = useAppSelector((state) => state.auth);
   const location = useLocation();
 
-  if (!isLogin || !userSession)
-    return <Navigate to="/auth?mode=login" replace />;
-
-  // Get current active item
   const currentPath = location.pathname.split("/").pop();
 
   return (

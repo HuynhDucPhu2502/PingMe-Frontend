@@ -34,14 +34,14 @@ export default function UserPage() {
   const currentPath = location.pathname.split("/").pop();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen ">
       <UserAvatarPanel />
 
       {/* Main Content Container */}
       <div className="max-w-6xl mx-auto my-8 relative lg:w-2/3 md:w-3/4 w-4/5">
         <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
           <div className="flex flex-col lg:flex-row min-h-[400px]">
-            <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-gray-200 bg-gray-50/50">
+            <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-gray-200">
               <div className="p-4 lg:p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
                   Cài đặt tài khoản

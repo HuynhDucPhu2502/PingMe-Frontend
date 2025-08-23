@@ -12,9 +12,8 @@ export default function Header() {
 
   const navigationItems = [
     { name: "Trang chủ", href: "/" },
-    { name: "Tin nhắn", href: "/chat" },
-    { name: "Bạn bè", href: "/friends" },
-    { name: "Nhóm", href: "/groups" },
+    { name: "Trò chuyện", href: "/chat/messages" },
+    { name: "Danh bạ", href: "/chat/contacts" },
   ];
 
   return (

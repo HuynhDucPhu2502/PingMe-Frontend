@@ -37,11 +37,11 @@ import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 
 const UserInfoPage = () => {
-  const { userSession } = useAppSelector((state) => state.auth);
+  const { userSession, isLoading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   // Status State
-  const [isLoading, setIsLoading] = useState(true);
+  const [isFetchLoading, setIsFetchLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Form State
@@ -53,7 +53,7 @@ const UserInfoPage = () => {
   const [dob, setDob] = useState<Date | undefined>(undefined);
 
   const fetchUserDetails = useCallback(async () => {
-    setIsLoading(true);
+    setIsFetchLoading(true);
     try {
       const res = await getCurrentUserInfoApi();
       const data = res.data.data;
@@ -67,7 +67,7 @@ const UserInfoPage = () => {
     } catch (err) {
       toast.error(getErrorMessage(err, "Không thể lấy thông tin người dùng"));
     } finally {
-      setIsLoading(false);
+      setIsFetchLoading(false);
     }
   }, []);
 
@@ -100,7 +100,7 @@ const UserInfoPage = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isFetchLoading)
     return (
       <div className="flex items-center justify-center h-96">
         <div className="flex items-center space-x-2 text-purple-600">
@@ -109,7 +109,6 @@ const UserInfoPage = () => {
         </div>
       </div>
     );
-  }
 
   return (
     <Card className="shadow-2xl backdrop-blur-sm w-full rounded-none mx-auto flex-1">
@@ -130,7 +129,7 @@ const UserInfoPage = () => {
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Email</Label>
               <Input
-                value={userSession.email}
+                value={userSession.email ?? ""}
                 disabled
                 className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
               />
