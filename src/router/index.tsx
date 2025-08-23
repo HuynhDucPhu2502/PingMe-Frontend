@@ -2,7 +2,6 @@ import AuthPage from "@/pages/client-route-pages/auth-page";
 import ChatPage from "@/pages/client-route-pages/chat-page";
 import ContactsPage from "@/pages/client-route-pages/chat-page/contact-page";
 import MessagesPage from "@/pages/client-route-pages/chat-page/messages-page";
-import ChatMessageTest from "@/pages/client-route-pages/chat-page/test-page/ChatMessageTest.tsx";
 import HomePage from "@/pages/client-route-pages/home-page";
 import RootPage from "@/pages/client-route-pages/RootPage";
 import ProfilePage from "@/pages/client-route-pages/user-page";
@@ -37,7 +36,6 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/chat/messages" /> },
           { path: "messages", element: <MessagesPage /> },
           { path: "contacts", element: <ContactsPage /> },
-          { path: "test", element: <ChatMessageTest /> },
         ],
       },
     ],
