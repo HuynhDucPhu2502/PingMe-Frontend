@@ -194,8 +194,6 @@ export default function ContactsPage() {
     connectFriendshipWS({
       baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
       onEvent: (ev: FriendshipEvent) => {
-        console.log("Friendship event:", ev);
-
         switch (ev.type) {
           case "INVITED":
             fetchReceivedRequests(
@@ -239,10 +237,9 @@ export default function ContactsPage() {
             break;
         }
       },
-      onConnect: () => console.log("FriendshipWS connected"),
-      onDisconnect: (reason) =>
-        console.log("FriendshipWS disconnected:", reason),
-      debug: true,
+      onConnect: () => console.log("WS Connected"),
+      onDisconnect: (reason) => console.log("WS Disconnected: ", reason),
+      debug: false,
     });
 
     return () => {

@@ -41,8 +41,8 @@ export const logoutApi = () => {
 export const refreshSessionApi = () => {
   const sessionMetaRequest = getSessionMetaRequest();
 
-  return axios.post<ApiResponse<DefaultAuthResponse>>(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth/refresh",
     sessionMetaRequest,
     { withCredentials: true }
   );
