@@ -1,5 +1,8 @@
-import type { UserSessionResponse } from "@/types/userAccount";
-import { createSlice } from "@reduxjs/toolkit";
+import type {
+  DefaultAuthResponse,
+  UserSessionResponse,
+} from "@/types/userAccount";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
   getCurrentUserSession,
   login,
@@ -25,8 +28,8 @@ const authSlice = createSlice({
   name: "auth",
   initialState: initialValue,
   reducers: {
-    updateTokenManually(state, action) {
-      state.userSession = action.payload.user;
+    updateTokenManually(state, action: PayloadAction<DefaultAuthResponse>) {
+      state.userSession = action.payload.userSession;
       localStorage.setItem("access_token", action.payload.accessToken);
       state.isLogin = true;
     },
@@ -38,13 +41,16 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action) => {
-        state.userSession = action.payload.userSession;
-        localStorage.setItem("access_token", action.payload.accessToken);
+      .addCase(
+        login.fulfilled,
+        (state, action: PayloadAction<DefaultAuthResponse>) => {
+          state.userSession = action.payload.userSession;
+          localStorage.setItem("access_token", action.payload.accessToken);
 
-        state.isLogin = true;
-        state.isLoading = false;
-      })
+          state.isLogin = true;
+          state.isLoading = false;
+        }
+      )
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? null;
@@ -72,13 +78,16 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(refreshSession.fulfilled, (state, action) => {
-        state.userSession = action.payload.userSession;
-        localStorage.setItem("access_token", action.payload.accessToken);
+      .addCase(
+        refreshSession.fulfilled,
+        (state, action: PayloadAction<DefaultAuthResponse>) => {
+          state.userSession = action.payload.userSession;
+          localStorage.setItem("access_token", action.payload.accessToken);
 
-        state.isLogin = true;
-        state.isLoading = false;
-      })
+          state.isLogin = true;
+          state.isLoading = false;
+        }
+      )
       .addCase(refreshSession.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
