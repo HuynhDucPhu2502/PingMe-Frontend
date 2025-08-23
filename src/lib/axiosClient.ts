@@ -97,11 +97,14 @@ axiosClient.interceptors.response.use(
         const res = (await refreshSessionApi()).data.data;
 
         const accessToken = res.accessToken;
-        dispatchRef(updateTokenManually(res));
-        dispatchRef(getCurrentUserSession());
-        processQueue(null, accessToken);
+        if (dispatchRef) {
+          dispatchRef(updateTokenManually(res));
+          dispatchRef(getCurrentUserSession());
+        }
 
+        processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
         return axiosClient(originalRequest);
       } catch (refreshError) {
         dispatchRef(logout());
