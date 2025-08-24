@@ -10,7 +10,7 @@ import type {
   UserInfoResponse,
   UserSessionResponse,
 } from "@/types/userAccount";
-import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
+import { getSessionMetaRequest } from "@/utils/sessionMetaHandler.ts";
 import axios from "axios";
 
 export const registerLocalApi = (data: LocalRegisterRequest) => {
@@ -24,10 +24,14 @@ export const registerLocalApi = (data: LocalRegisterRequest) => {
 export const loginLocalApi = (data: LocalLoginRequest) => {
   const sessionMetaRequest = getSessionMetaRequest();
 
-  return axiosClient.post<ApiResponse<DefaultAuthResponse>>("/auth/login", {
-    ...data,
-    sessionMetaRequest,
-  });
+  return axios.post<ApiResponse<DefaultAuthResponse>>(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/login`,
+    {
+      ...data,
+      sessionMetaRequest,
+    },
+    { withCredentials: true }
+  );
 };
 
 export const logoutApi = () => {
@@ -40,9 +44,8 @@ export const logoutApi = () => {
 
 export const refreshSessionApi = () => {
   const sessionMetaRequest = getSessionMetaRequest();
-
-  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
-    "/auth/refresh",
+  return axios.post<ApiResponse<DefaultAuthResponse>>(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
     sessionMetaRequest,
     { withCredentials: true }
   );

@@ -1,40 +1,24 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosError } from "axios";
-import type { AppDispatch } from "@/features/store";
 import type { ApiResponse } from "@/types/apiResponse";
-import { refreshSessionApi } from "@/services/userAccountApi.ts";
-import { updateTokenManually } from "@/features/slices/authSlice";
 import { logout } from "@/features/slices/authThunk";
+import { type AppDispatch } from "@/features/store.ts";
+import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
+import { updateTokenManually } from "@/features/slices/authSlice";
 
 // ============================================================
-// Setup dispatch từ store để sử dụng
-// trong đây
-// ============================================================
-let dispatchRef: AppDispatch;
-
-export const setupAxiosInterceptors = (dispatch: AppDispatch) => {
-  dispatchRef = dispatch;
-};
-
-// ============================================================
-// Cấu hình mặc định cho các request
+// Cấu hình cơ bản
 // ============================================================
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
   withCredentials: true,
 });
 
-// ============================================================
-// Interceptor: Tự động gắn Access Token vào mỗi request
-// CHO TRƯỜNG HỢP ACCESS TOKEN ĐƯỢC LƯU Ở LOCAL STORAGE
-// ============================================================
-axiosClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const accessToken = localStorage.getItem("access_token");
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-  return config;
-});
+let dispatchRef: AppDispatch | null = null;
+
+export const setupAxiosInterceptors = (dispatch: AppDispatch) => {
+  dispatchRef = dispatch;
+};
 
 // ============================================================
 // Cơ chế hàng đợi xử lý request bị lỗi 401 trong khi refresh token:
@@ -58,9 +42,8 @@ const processQueue = (error: unknown, token: string | null = null) => {
 };
 
 // ============================================================
-// Interceptor: Xử lý lỗi 401 và errorCode UNAUTHORIZED
+// Response Interceptor
 // ============================================================
-
 let isRefreshing = false;
 
 axiosClient.interceptors.response.use(
@@ -70,15 +53,14 @@ axiosClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Check lỗi có phải thuộc lại lỗi JWT Token
     const { response } = error;
 
-    const responseErrorCode = (response?.data as ApiResponse<unknown>)
-      ?.errorCode;
+    const payload = response?.data as ApiResponse<unknown> | undefined;
+    const code = payload?.errorCode ?? "";
     const responseStatus = response?.status;
-
     const isUnauthorized =
-      responseStatus === 401 && responseErrorCode.includes("INVALID_JWT_TOKEN");
+      responseStatus === 401 &&
+      (code === "INVALID_JWT_TOKEN" || code.includes?.("INVALID_JWT_TOKEN"));
 
     if (isUnauthorized && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -94,17 +76,18 @@ axiosClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = (await refreshSessionApi()).data.data;
+        const result = await getValidAccessToken();
 
-        const accessToken = res.accessToken;
-        dispatchRef(updateTokenManually(res));
+        if (result.type === "refreshed" && dispatchRef != null)
+          dispatchRef(updateTokenManually(result.payload));
 
+        const accessToken = result.accessToken;
         processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         return axiosClient(originalRequest);
       } catch (refreshError) {
-        dispatchRef(logout());
+        if (dispatchRef != null) dispatchRef(logout());
         processQueue(refreshError, null);
 
         return Promise.reject(refreshError);
@@ -118,5 +101,18 @@ axiosClient.interceptors.response.use(
 );
 
 // ============================================================
+// Request Interceptor
+// ============================================================
+axiosClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default axiosClient;

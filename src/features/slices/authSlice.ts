@@ -101,12 +101,15 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(getCurrentUserSession.fulfilled, (state, action) => {
-        state.userSession = action.payload;
+      .addCase(
+        getCurrentUserSession.fulfilled,
+        (state, action: PayloadAction<UserSessionResponse>) => {
+          state.userSession = action.payload;
 
-        state.isLogin = true;
-        state.isLoading = false;
-      })
+          state.isLogin = true;
+          state.isLoading = false;
+        }
+      )
       .addCase(getCurrentUserSession.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
