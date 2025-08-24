@@ -239,7 +239,6 @@ export default function ContactsPage() {
       },
       onConnect: () => console.log("WS Connected"),
       onDisconnect: (reason) => console.log("WS Disconnected: ", reason),
-      debug: false,
     });
 
     return () => {

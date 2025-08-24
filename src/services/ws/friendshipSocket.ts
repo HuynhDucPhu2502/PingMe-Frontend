@@ -1,14 +1,13 @@
+import { updateTokenManually } from "@/features/slices/authSlice";
 import type { AppDispatch } from "@/features/store";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { isExpiringSoon } from "@/utils/jwtDecodeHandler";
+import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
-import { refreshSessionApi } from "../userAccountApi";
-import { updateTokenManually } from "@/features/slices/authSlice";
 
 // =================================================================
-// Backend Types (khớp BE)
+// Type
 // =================================================================
 export type FriendshipEventType =
   | "INVITED"
@@ -24,17 +23,21 @@ export interface FriendshipEvent {
   targetId: number;
 }
 
-// =================================================================
-// Connect Options
-// =================================================================
 export interface FriendshipWSOptions {
   baseUrl: string;
-  getToken?: () => Promise<string | null>;
   onEvent: (ev: FriendshipEvent) => void;
-  onConnect?: () => void;
-  onDisconnect?: (reason?: string) => void;
-  debug?: boolean;
+  onConnect: () => void;
+  onDisconnect: (reason?: string) => void;
 }
+
+// =================================================================
+// Setup App Dispatch
+// =================================================================
+let dispatchRef: AppDispatch | null = null;
+
+export const setupFriendshipWSAppDispatch = (dispatch: AppDispatch) => {
+  dispatchRef = dispatch;
+};
 
 // =================================================================
 // Internal state
@@ -43,49 +46,22 @@ let client: Client | null = null;
 let sub: StompSubscription | null = null;
 let manualDisconnect = false;
 
-// =================================================================
-// Helpers
-// =================================================================
-let dispatchRef: AppDispatch;
-
-export const setupFriendshipWSDispatch = (dispatch: AppDispatch) => {
-  dispatchRef = dispatch;
-};
-
-const defaultGetToken = async () => {
-  const acccessToken = localStorage.getItem("access_token");
-
-  if (!acccessToken || isExpiringSoon(acccessToken)) {
-    const res = (await refreshSessionApi()).data.data;
-
-    const newAccessToken = res.accessToken;
-    dispatchRef(updateTokenManually(res));
-
-    return newAccessToken;
-  }
-
-  return acccessToken;
-};
-
-export function isFriendshipWSConnected(): boolean {
-  return !!client?.connected;
-}
-
 export async function connectFriendshipWS(opts: FriendshipWSOptions) {
   if (client?.connected) return;
-
   manualDisconnect = false;
 
-  const token = (await (opts.getToken ?? defaultGetToken)()) ?? "";
-
   client = new Client({
-    webSocketFactory: () =>
-      new SockJS(`${opts.baseUrl}/ws?access_token=${token}`),
+    webSocketFactory: async () => {
+      const result = await getValidAccessToken();
 
+      if (result.type === "refreshed" && dispatchRef != null)
+        dispatchRef(updateTokenManually(result.payload));
+
+      new SockJS(`${opts.baseUrl}/ws?access_token=${result.accessToken}`);
+    },
     heartbeatIncoming: 15000,
     heartbeatOutgoing: 15000,
     reconnectDelay: 3000,
-    debug: opts.debug ? (str) => console.log("[FriendshipWS]", str) : () => {},
     maxWebSocketChunkSize: 8 * 1024,
   });
 
