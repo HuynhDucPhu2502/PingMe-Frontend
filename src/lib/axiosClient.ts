@@ -1,10 +1,8 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosError } from "axios";
 import type { ApiResponse } from "@/types/apiResponse";
-import { logout } from "@/features/slices/authThunk";
-import { type AppDispatch } from "@/features/store.ts";
 import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
-import { updateTokenManually } from "@/features/slices/authSlice";
+import type { DefaultAuthResponse } from "@/types/userAccount";
 
 // ============================================================
 // Cấu hình cơ bản
@@ -14,11 +12,15 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
-let dispatchRef: AppDispatch | null = null;
-
-export const setupAxiosInterceptors = (dispatch: AppDispatch) => {
-  dispatchRef = dispatch;
-};
+let onTokenRefreshed: ((payload: DefaultAuthResponse) => void) | null = null;
+let onLogout: (() => void) | null = null;
+export function setupAxiosInterceptors(opts: {
+  onTokenRefreshed?: (payload: DefaultAuthResponse) => void;
+  onLogout?: () => void;
+}) {
+  onTokenRefreshed = opts.onTokenRefreshed ?? null;
+  onLogout = opts.onLogout ?? null;
+}
 
 // ============================================================
 // Cơ chế hàng đợi xử lý request bị lỗi 401 trong khi refresh token:
@@ -27,17 +29,14 @@ export const setupAxiosInterceptors = (dispatch: AppDispatch) => {
 // - Khi refresh fail → reject toàn bộ queue
 // ============================================================
 type FailedRequest = {
-  resolve: () => void;
+  resolve: (token: string) => void;
   reject: (reason?: unknown) => void;
 };
-
 let failedQueue: FailedRequest[] = [];
-
-const processQueue = (error: unknown, token: string | null = null) => {
-  failedQueue.forEach(({ resolve, reject }) => {
-    if (token) resolve();
-    else reject(error);
-  });
+const processQueue = (error: unknown, token: string | null) => {
+  failedQueue.forEach(({ resolve, reject }) =>
+    token ? resolve(token) : reject(error)
+  );
   failedQueue = [];
 };
 
@@ -47,56 +46,48 @@ const processQueue = (error: unknown, token: string | null = null) => {
 let isRefreshing = false;
 
 axiosClient.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
-
-    const { response } = error;
-
-    const payload = response?.data as ApiResponse<unknown> | undefined;
+    const original = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
+    const payload = error.response?.data as ApiResponse<unknown> | undefined;
     const code = payload?.errorCode ?? "";
-    const responseStatus = response?.status;
     const isUnauthorized =
-      responseStatus === 401 &&
-      (code === "INVALID_JWT_TOKEN" || code.includes?.("INVALID_JWT_TOKEN"));
+      error.response?.status === 401 && code.includes?.("INVALID_JWT_TOKEN");
 
-    if (isUnauthorized && !originalRequest._retry) {
-      originalRequest._retry = true;
+    if (!original || original._retry || !isUnauthorized)
+      return Promise.reject(error);
+    original._retry = true;
 
-      if (isRefreshing) {
-        return new Promise<void>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => axiosClient(originalRequest)) // trigger khi resolve()
-          .catch((err) => Promise.reject(err)); // trigger khi reject()
-      }
-
-      isRefreshing = true;
-
-      try {
-        const result = await getValidAccessToken();
-
-        if (result.type === "refreshed" && dispatchRef != null)
-          dispatchRef(updateTokenManually(result.payload));
-
-        const accessToken = result.accessToken;
-        processQueue(null, accessToken);
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
-        return axiosClient(originalRequest);
-      } catch (refreshError) {
-        if (dispatchRef != null) dispatchRef(logout());
-        processQueue(refreshError, null);
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    if (isRefreshing) {
+      return new Promise<string>((resolve, reject) =>
+        failedQueue.push({ resolve, reject })
+      ).then((token) => {
+        original.headers = original.headers ?? {};
+        original.headers.Authorization = `Bearer ${token}`;
+        return axiosClient(original);
+      });
     }
 
-    return Promise.reject(error);
+    isRefreshing = true;
+    try {
+      const result = await getValidAccessToken();
+      if (result.type === "refreshed") onTokenRefreshed?.(result.payload);
+
+      const token = result.accessToken;
+      processQueue(null, token);
+
+      original.headers = original.headers ?? {};
+      original.headers.Authorization = `Bearer ${token}`;
+      return axiosClient(original);
+    } catch (e) {
+      onLogout?.();
+      processQueue(e, null);
+      return Promise.reject(e);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 
@@ -112,7 +103,7 @@ axiosClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (err) => Promise.reject(err)
 );
 
 export default axiosClient;
