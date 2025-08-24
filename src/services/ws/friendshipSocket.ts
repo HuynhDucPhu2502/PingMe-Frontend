@@ -1,7 +1,4 @@
-import { updateTokenManually } from "@/features/slices/authSlice";
-import type { AppDispatch } from "@/features/store";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
@@ -31,15 +28,6 @@ export interface FriendshipWSOptions {
 }
 
 // =================================================================
-// Setup App Dispatch
-// =================================================================
-let dispatchRef: AppDispatch | null = null;
-
-export const setupFriendshipWSAppDispatch = (dispatch: AppDispatch) => {
-  dispatchRef = dispatch;
-};
-
-// =================================================================
 // Internal state
 // =================================================================
 let client: Client | null = null;
@@ -51,13 +39,12 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
   manualDisconnect = false;
 
   client = new Client({
-    webSocketFactory: async () => {
-      const result = await getValidAccessToken();
-
-      if (result.type === "refreshed" && dispatchRef != null)
-        dispatchRef(updateTokenManually(result.payload));
-
-      new SockJS(`${opts.baseUrl}/ws?access_token=${result.accessToken}`);
+    webSocketFactory: () => {
+      const token = localStorage.getItem("access_token") ?? "";
+      const url = `${opts.baseUrl}/ws?access_token=${encodeURIComponent(
+        token
+      )}`;
+      return new SockJS(url);
     },
     heartbeatIncoming: 15000,
     heartbeatOutgoing: 15000,

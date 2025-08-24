@@ -34,6 +34,7 @@ const authSlice = createSlice({
       state.isLogin = true;
     },
   },
+
   extraReducers: (builder) => {
     builder
       // LOGIN
