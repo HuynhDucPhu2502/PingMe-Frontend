@@ -4,7 +4,7 @@ import {
 } from "@/services/userAccountApi.ts";
 import type { SessionMetaResponse } from "@/types/userAccount";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { getDeviceIcon, normalizeDeviceType } from "@/utils/sessionMetaHandler";
+import { normalizeDeviceType } from "@/utils/sessionMetaHandler.ts";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,16 @@ import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { DeleteConfirmDialog } from "@/components/custom/DeleteConfirmationDialog";
+import {
+  Smartphone,
+  Tablet,
+  Monitor,
+  Tv,
+  Gamepad2,
+  Watch,
+  Cpu,
+  Globe,
+} from "lucide-react";
 
 const DeviceManagementPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +32,29 @@ const DeviceManagementPage = () => {
   const [deletingSessionId, setDeletingSessionId] = useState<string | null>(
     null
   );
+
+  const getDeviceIcon = (deviceType?: string | null) => {
+    if (!deviceType) return <Globe className="h-5 w-5 text-orange-500" />;
+
+    switch (deviceType.toLowerCase()) {
+      case "mobile":
+        return <Smartphone className="h-5 w-5 text-orange-500" />;
+      case "tablet":
+        return <Tablet className="h-5 w-5 text-orange-500" />;
+      case "smarttv":
+        return <Tv className="h-5 w-5 text-orange-500" />;
+      case "console":
+        return <Gamepad2 className="h-5 w-5 text-orange-500" />;
+      case "wearable":
+        return <Watch className="h-5 w-5 text-orange-500" />;
+      case "embedded":
+        return <Cpu className="h-5 w-5 text-orange-500" />;
+      case "desktop":
+      case "computer":
+      default:
+        return <Monitor className="h-5 w-5 text-orange-500" />;
+    }
+  };
 
   const fetchSessions = useCallback(async () => {
     try {

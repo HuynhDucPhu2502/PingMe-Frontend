@@ -1,14 +1,4 @@
 import { UAParser } from "ua-parser-js";
-import {
-  Smartphone,
-  Tablet,
-  Monitor,
-  Tv,
-  Gamepad2,
-  Watch,
-  Cpu,
-  Globe,
-} from "lucide-react";
 import type { SessionMetaRequest } from "@/types/userAccount";
 
 export const getSessionMetaRequest = (): SessionMetaRequest => {
@@ -38,28 +28,5 @@ export const normalizeDeviceType = (type?: string): string => {
       return "Thiết bị nhúng";
     default:
       return "Laptop/Desktop";
-  }
-};
-
-export const getDeviceIcon = (deviceType?: string | null) => {
-  if (!deviceType) return <Globe className="h-5 w-5 text-orange-500" />;
-
-  switch (deviceType.toLowerCase()) {
-    case "mobile":
-      return <Smartphone className="h-5 w-5 text-orange-500" />;
-    case "tablet":
-      return <Tablet className="h-5 w-5 text-orange-500" />;
-    case "smarttv":
-      return <Tv className="h-5 w-5 text-orange-500" />;
-    case "console":
-      return <Gamepad2 className="h-5 w-5 text-orange-500" />;
-    case "wearable":
-      return <Watch className="h-5 w-5 text-orange-500" />;
-    case "embedded":
-      return <Cpu className="h-5 w-5 text-orange-500" />;
-    case "desktop":
-    case "computer":
-    default:
-      return <Monitor className="h-5 w-5 text-orange-500" />;
   }
 };
