@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
-import { refreshSessionApi } from "@/services/userAccountApi.ts";
 import type { DefaultAuthResponse } from "@/types/userAccount";
+import axios from "axios";
 
 type Decoded = { exp: number };
 export function isExpiringSoon(token: string, skewSec = 30) {
@@ -12,17 +12,18 @@ export function isExpiringSoon(token: string, skewSec = 30) {
 export type ValidTokenResult =
   | { type: "cached"; accessToken: string }
   | { type: "refreshed"; accessToken: string; payload: DefaultAuthResponse };
+
 export const getValidAccessToken = async (): Promise<ValidTokenResult> => {
-  const currentAccessToken = localStorage.getItem("access_token");
-
-  if (!currentAccessToken || isExpiringSoon(currentAccessToken)) {
-    const res = (await refreshSessionApi()).data.data;
-
-    const newAccessToken = res.accessToken;
-    localStorage.setItem("access_token", newAccessToken);
-
-    return { type: "refreshed", accessToken: newAccessToken, payload: res };
+  const current = localStorage.getItem("access_token");
+  if (!current || isExpiringSoon(current)) {
+    const resp = await axios.post(
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
+      {},
+      { withCredentials: true }
+    );
+    const payload = resp.data.data as DefaultAuthResponse;
+    localStorage.setItem("access_token", payload.accessToken);
+    return { type: "refreshed", accessToken: payload.accessToken, payload };
   }
-
-  return { type: "cached", accessToken: currentAccessToken };
+  return { type: "cached", accessToken: current };
 };
