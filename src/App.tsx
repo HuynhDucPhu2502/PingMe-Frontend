@@ -5,14 +5,14 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./features/store";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { Toaster } from "./components/ui/sonner";
-import { setupAxiosInterceptors } from "./lib/axiosClient";
-import { setupFriendshipWSDispatch } from "./services/ws/friendshipSocket";
 import { useEffect } from "react";
+import { setupAxiosInterceptors } from "./lib/axiosClient";
+import { setupFriendshipWSAppDispatch } from "./services/ws/friendshipSocket";
 
 function App() {
   useEffect(() => {
     setupAxiosInterceptors(store.dispatch);
-    setupFriendshipWSDispatch(store.dispatch);
+    setupFriendshipWSAppDispatch(store.dispatch);
   }, []);
 
   return (
