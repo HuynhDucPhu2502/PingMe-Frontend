@@ -9,7 +9,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Search, UserPlus, UserCheck, Clock, Users } from "lucide-react";
+import {
+  Search,
+  UserPlus,
+  UserCheck,
+  Clock,
+  Users,
+  MessageCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { lookupApi } from "@/services/userLookupApi";
 import type { UserSummaryResponse } from "@/types/userSummary";
@@ -18,16 +25,18 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import type { FriendInvitationRequest } from "@/types/friendship";
 import { sendInvitationApi } from "@/services/friendshipApi";
 
-interface AddFriendModalProps {
+interface UserLookupModalProps {
   onFriendAdded?: () => void;
+  onMessageUser?: (userId: string, userName: string) => void;
 }
 
-export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
+export function UserLookupModal({ onFriendAdded }: UserLookupModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [emailSearch, setEmailSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [userData, setUserData] = useState<UserSummaryResponse | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleLookup = async () => {
     if (!emailSearch.trim()) {
@@ -38,15 +47,11 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
     try {
       setIsLoading(true);
       setUserData(null);
+      setHasSearched(true);
 
       const response = await lookupApi(emailSearch.trim());
       setUserData(response.data.data);
-
-      if (!response.data.data) {
-        toast.error("Không tìm thấy người dùng với email này");
-      }
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Không thể tìm kiếm người dùng"));
+    } catch {
       setUserData(null);
     } finally {
       setIsLoading(false);
@@ -60,16 +65,22 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
       await sendInvitationApi(data);
       toast.success("Đã gửi lời mời kết bạn thành công!");
 
-      setEmailSearch("");
-      setUserData(null);
-      setIsOpen(false);
-
       onFriendAdded?.();
     } catch (err) {
       toast.error(getErrorMessage(err, "Không thể gửi lời mời kết bạn"));
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleMessageUser = () => {
+    // if (userData) {
+    //     onMessageUser?.(userData.id, userData.name)
+    //     setIsOpen(false)
+    //     setEmailSearch("")
+    //     setUserData(null)
+    //     setHasSearched(false)
+    // }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -126,7 +137,17 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
   const friendshipStatus = userData ? getFriendshipStatus() : null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setEmailSearch("");
+          setUserData(null);
+          setHasSearched(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -140,7 +161,7 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Users className="w-5 h-5 text-purple-600" />
-            <span>Thêm bạn bè</span>
+            <span>Tìm kiếm người dùng</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -153,7 +174,7 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
             >
               Email người dùng
             </label>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mt-2">
               <Input
                 id="email"
                 type="email"
@@ -178,8 +199,16 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-center py-8">
+              <LoadingSpinner className="w-8 h-8 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Đang tìm kiếm...</p>
+            </div>
+          )}
+
           {/* User Result */}
-          {userData && (
+          {userData && !isLoading && (
             <div className="border rounded-lg p-4 space-y-4">
               <div className="flex items-center space-x-3">
                 <Avatar className="w-12 h-12">
@@ -198,48 +227,42 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
                 </div>
               </div>
 
-              {/* Friendship Status */}
-              {friendshipStatus && (
-                <div className="flex items-center justify-between">
-                  <div
-                    className={`flex items-center space-x-2 px-3 py-1 rounded-full ${friendshipStatus.bgColor}`}
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                <Button
+                  onClick={handleMessageUser}
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Nhắn tin
+                </Button>
+
+                {friendshipStatus?.canSendRequest && (
+                  <Button
+                    onClick={() =>
+                      handleSendFriendRequest({ targetUserId: userData.id })
+                    }
+                    disabled={isSending}
+                    size="sm"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                   >
-                    <friendshipStatus.icon
-                      className={`w-4 h-4 ${friendshipStatus.color}`}
-                    />
-                    <span
-                      className={`text-sm font-medium ${friendshipStatus.color}`}
-                    >
-                      {friendshipStatus.text}
-                    </span>
-                  </div>
+                    {isSending ? (
+                      <>
+                        <LoadingSpinner className="w-4 h-4 mr-2" />
+                        Đang gửi...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Kết bạn
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
 
-                  {friendshipStatus.canSendRequest && (
-                    <Button
-                      onClick={() =>
-                        handleSendFriendRequest({ targetUserId: userData.id })
-                      }
-                      disabled={isSending}
-                      size="sm"
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      {isSending ? (
-                        <>
-                          <LoadingSpinner className="w-4 h-4 mr-2" />
-                          Đang gửi...
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Gửi lời mời
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {/* Additional Info for Pending Status */}
               {friendshipStatus?.status === "pending" && (
                 <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                   Lời mời kết bạn đã được gửi. Vui lòng chờ phản hồi từ người
@@ -247,7 +270,6 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
                 </div>
               )}
 
-              {/* Additional Info for Accepted Status */}
               {friendshipStatus?.status === "accepted" && (
                 <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
                   Bạn và {userData.name} đã là bạn bè. Có thể bắt đầu trò
@@ -257,8 +279,8 @@ export function AddFriendModal({ onFriendAdded }: AddFriendModalProps) {
             </div>
           )}
 
-          {/* No Results Message */}
-          {isLoading === false && emailSearch && !userData && (
+          {/* Empty State */}
+          {!isLoading && hasSearched && !userData && (
             <div className="text-center py-8 text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
               <p className="text-sm">Không tìm thấy người dùng với email này</p>

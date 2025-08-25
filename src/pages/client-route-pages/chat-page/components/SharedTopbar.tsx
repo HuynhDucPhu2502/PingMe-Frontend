@@ -6,7 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AddFriendModal } from "./AddFriendModal";
+import { UserLookupModal } from "./UserLookupModal.tsx";
 
 interface SharedTopBarProps {
   onFriendAdded?: () => void;
@@ -34,7 +34,7 @@ export function SharedTopBar({ onFriendAdded }: SharedTopBarProps) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <AddFriendModal onFriendAdded={onFriendAdded} />
+              <UserLookupModal onFriendAdded={onFriendAdded} />
             </TooltipTrigger>
             <TooltipContent>
               <p>Thêm bạn</p>
