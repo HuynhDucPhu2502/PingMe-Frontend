@@ -15,5 +15,5 @@ export interface PageResponse<T> {
 export interface PaginationParams {
   page: number;
   size: number;
-  filter: string | null;
+  filter?: string | null;
 }
