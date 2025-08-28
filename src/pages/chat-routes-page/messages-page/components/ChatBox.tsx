@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { MessageResponse } from "@/types/message";
 import type { RoomResponse } from "@/types/room";
 import { toast } from "sonner";
