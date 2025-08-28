@@ -62,7 +62,7 @@ export function ChatCard({
       onClick={onClick}
       className={`p-4 border-b border-gray-100 cursor-pointer transition-all duration-200 ${
         isSelected
-          ? "bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-l-purple-600 shadow-md transform scale-[1.02]"
+          ? "bg-gradient-to-r from-purple-50 to-purple-100 shadow-md"
           : "hover:bg-gray-50 hover:shadow-sm"
       }`}
     >
@@ -84,11 +84,6 @@ export function ChatCard({
               {getRoomDisplayName(room).charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <div
-            className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full transition-all duration-200 ${
-              isSelected ? "shadow-lg shadow-green-400/50" : ""
-            }`}
-          ></div>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">

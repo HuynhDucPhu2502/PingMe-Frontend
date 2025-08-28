@@ -11,9 +11,33 @@ export default function ReceivedMessageBubble({
   senderName,
   senderAvatar,
 }: ReceivedMessageBubbleProps) {
+  const getAvatarColor = (name?: string) => {
+    if (!name) return "bg-gray-400";
+
+    const colors = [
+      "bg-purple-500",
+      "bg-blue-500",
+      "bg-green-500",
+      "bg-yellow-500",
+      "bg-red-500",
+      "bg-indigo-500",
+      "bg-pink-500",
+      "bg-teal-500",
+    ];
+
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
   return (
-    <div className="flex mb-4">
-      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3 flex-shrink-0">
+    <div className="flex items-start mb-4">
+      <div
+        className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-sm ${
+          senderAvatar && senderAvatar !== "/placeholder.svg"
+            ? "bg-gray-100"
+            : getAvatarColor(senderName)
+        }`}
+      >
         {senderAvatar && senderAvatar !== "/placeholder.svg" ? (
           <img
             src={senderAvatar || "/placeholder.svg"}
@@ -21,7 +45,7 @@ export default function ReceivedMessageBubble({
             className="w-8 h-8 rounded-full object-cover"
           />
         ) : (
-          <span className="text-xs font-medium text-gray-600">
+          <span className="text-xs font-semibold text-white">
             {senderName?.charAt(0).toUpperCase()}
           </span>
         )}
