@@ -68,7 +68,7 @@ export default function ChatNavigation() {
           })}
         </div>
 
-        <div className="bg-purple-700/50 rounded-xl p-2 space-y-2 border border-purple-500/30">
+        <div className="space-y-4">
           {/* Logo */}
           <div>
             <Tooltip>
