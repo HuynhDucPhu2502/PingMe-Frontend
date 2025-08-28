@@ -1,13 +1,13 @@
-import AuthPage from "@/pages/client-route-pages/auth-page";
-import ChatPage from "@/pages/client-route-pages/chat-page";
-import ContactsPage from "@/pages/client-route-pages/chat-page/contact-page";
-import MessagesPage from "@/pages/client-route-pages/chat-page/messages-page";
-import HomePage from "@/pages/client-route-pages/home-page";
-import RootPage from "@/pages/client-route-pages/RootPage";
-import ProfilePage from "@/pages/client-route-pages/user-page";
-import ChangePasswordPage from "@/pages/client-route-pages/user-page/change-password-page";
-import DeviceManagementPage from "@/pages/client-route-pages/user-page/device-management-page";
-import UserInfoPage from "@/pages/client-route-pages/user-page/user-info-page";
+import AuthPage from "@/pages/main-routes-page/auth-page";
+import ChatPage from "@/pages/chat-routes-page";
+import ContactsPage from "@/pages/chat-routes-page/contact-page";
+import MessagesPage from "@/pages/chat-routes-page/messages-page";
+import HomePage from "@/pages/main-routes-page/home-page";
+import RootPage from "@/pages/main-routes-page/RootPage";
+import ProfilePage from "@/pages/main-routes-page/user-page";
+import ChangePasswordPage from "@/pages/main-routes-page/user-page/change-password-page";
+import DeviceManagementPage from "@/pages/main-routes-page/user-page/device-management-page";
+import UserInfoPage from "@/pages/main-routes-page/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([
