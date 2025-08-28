@@ -1,19 +1,19 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input.tsx";
 import { Search, Users, Send, Inbox } from "lucide-react";
-import Pagination from "@/components/custom/Pagination";
-import { EmptyState } from "@/components/custom/EmptyState";
-import LoadingSpinner from "@/components/custom/LoadingSpinner";
-import SidebarNavigation from "./components/SidebarNavigation";
-import ContactItem from "./components/ContactItem";
+import Pagination from "@/components/custom/Pagination.tsx";
+import { EmptyState } from "@/components/custom/EmptyState.tsx";
+import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
+import SidebarNavigation from "./components/SidebarNavigation.tsx";
+import ContactItem from "./components/ContactItem.tsx";
 import {
   connectFriendshipWS,
   disconnectFriendshipWS,
   type FriendshipEvent,
-} from "@/services/ws/friendshipSocket";
-import { SharedTopBar } from "../components/SharedTopbar";
-import { useContactsState } from "./hooks/useContactsState";
-import { useContactsActions } from "./hooks/useContactsActions";
+} from "@/services/ws/friendshipSocket.ts";
+import { SharedTopBar } from "../components/SharedTopbar.tsx";
+import { useContactsState } from "./hooks/useContactsState.ts";
+import { useContactsActions } from "./hooks/useContactsActions.ts";
 
 const sidebarItems = [
   {

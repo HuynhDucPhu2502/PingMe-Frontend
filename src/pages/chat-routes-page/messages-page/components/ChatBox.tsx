@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { MessageResponse } from "@/types/message";
 import type { RoomResponse } from "@/types/room";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { getHistoryMessagesApi, sendMessageApi } from "@/services/chatApi";
-import { useAppSelector } from "@/features/hooks";
-import { EmptyState } from "@/components/custom/EmptyState";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { getHistoryMessagesApi, sendMessageApi } from "@/services/chatApi.ts";
+import { useAppSelector } from "@/features/hooks.ts";
+import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import { ChatBoxInput } from "./ChatBoxInput.tsx";
-import LoadingSpinner from "@/components/custom/LoadingSpinner";
-import SentMessageBubble from "./SentMessageBubble";
-import ReceivedMessageBubble from "./ReceivedMessageBubble";
+import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
+import SentMessageBubble from "./SentMessageBubble.tsx";
+import ReceivedMessageBubble from "./ReceivedMessageBubble.tsx";
 import ChatBoxHeader from "./ChatBoxHeader.tsx";
 
 interface ChatBoxProps {

@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
 import type { UserSummaryResponse } from "@/types/userSummary";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
   getAcceptedFriendshipListApi,
   getReceivedInvitationsApi,
   getSentInvitationsApi,
-} from "@/services/friendshipApi";
+} from "@/services/friendshipApi.ts";
 
 interface PaginationState {
   currentPage: number;

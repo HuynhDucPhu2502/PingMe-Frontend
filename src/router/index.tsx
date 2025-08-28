@@ -28,16 +28,15 @@ export const router = createBrowserRouter([
           { path: "device-management", element: <DeviceManagementPage /> },
         ],
       },
-
-      {
-        path: "chat",
-        element: <ChatPage />,
-        children: [
-          { index: true, element: <Navigate to="/chat/messages" /> },
-          { path: "messages", element: <MessagesPage /> },
-          { path: "contacts", element: <ContactsPage /> },
-        ],
-      },
+    ],
+  },
+  {
+    path: "chat",
+    element: <ChatPage />,
+    children: [
+      { index: true, element: <Navigate to="/chat/messages" /> },
+      { path: "messages", element: <MessagesPage /> },
+      { path: "contacts", element: <ContactsPage /> },
     ],
   },
 ]);

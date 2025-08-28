@@ -4,9 +4,9 @@ import {
   rejectInvitationApi,
   cancelInvitationApi,
   deleteFriendshipApi,
-} from "@/services/friendshipApi";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import type { DataState } from "./useContactsState";
+} from "@/services/friendshipApi.ts";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import type { DataState } from "./useContactsState.ts";
 
 interface UseContactsActionsProps {
   fetchFriends: (

@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog.tsx";
 import {
   Search,
   UserPlus,
@@ -18,14 +18,14 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { lookupApi } from "@/services/userLookupApi";
+import { lookupApi } from "@/services/userLookupApi.ts";
 import type { UserSummaryResponse } from "@/types/userSummary";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import LoadingSpinner from "@/components/custom/LoadingSpinner";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { FriendInvitationRequest } from "@/types/friendship";
-import { sendInvitationApi } from "@/services/friendshipApi";
+import { sendInvitationApi } from "@/services/friendshipApi.ts";
 import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/room";
-import { createOrGetDirectRoomApi } from "@/services/chatApi";
+import { createOrGetDirectRoomApi } from "@/services/chatApi.ts";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;

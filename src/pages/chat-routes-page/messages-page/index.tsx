@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAppSelector } from "@/features/hooks";
-import { SharedTopBar } from "../components/SharedTopbar";
-import { EmptyState } from "@/components/custom/EmptyState";
-import { ChatBox } from "./components/ChatBox";
-import { ChatCard } from "./components/ChatCard";
-import LoadingSpinner from "@/components/custom/LoadingSpinner";
+import { useAppSelector } from "@/features/hooks.ts";
+import { SharedTopBar } from "../components/SharedTopbar.tsx";
+import { EmptyState } from "@/components/custom/EmptyState.tsx";
+import { ChatBox } from "./components/ChatBox.tsx";
+import { ChatCard } from "./components/ChatCard.tsx";
+import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/room";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { getCurrentUserRoomsApi } from "@/services/chatApi";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { getCurrentUserRoomsApi } from "@/services/chatApi.ts";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);

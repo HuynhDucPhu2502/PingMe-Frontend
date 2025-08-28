@@ -1,7 +1,7 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { UserSummaryResponse } from "@/types/userSummary";
 import { MoreHorizontal, UserCheck, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button.tsx";
 
 interface ContactItemProps {
   contact: UserSummaryResponse;
