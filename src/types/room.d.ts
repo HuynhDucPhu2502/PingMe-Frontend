@@ -4,8 +4,8 @@ export interface RoomResponse {
   roomId: number;
   roomType: "DIRECT" | "GROUP";
   directKey: string | null;
-  name: string;
-  lastMessage: LastMessage;
+  name: string | null;
+  lastMessage: LastMessage | null;
   participants: RoomParticipantResponse[];
   unreadCount: number;
 }

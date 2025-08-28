@@ -7,12 +7,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UserLookupModal } from "./UserLookupModal.tsx";
+import type { RoomResponse } from "@/types/room";
 
 interface SharedTopBarProps {
   onFriendAdded?: () => void;
+  setSelectedChat?: (room: RoomResponse) => void;
 }
 
-export function SharedTopBar({ onFriendAdded }: SharedTopBarProps) {
+export function SharedTopBar({
+  onFriendAdded,
+  setSelectedChat,
+}: SharedTopBarProps) {
   return (
     <TooltipProvider>
       <div className="p-4 border-b border-gray-200 bg-white">
@@ -34,7 +39,10 @@ export function SharedTopBar({ onFriendAdded }: SharedTopBarProps) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <UserLookupModal onFriendAdded={onFriendAdded} />
+              <UserLookupModal
+                onFriendAdded={onFriendAdded}
+                setSelectedChat={setSelectedChat}
+              />
             </TooltipTrigger>
             <TooltipContent>
               <p>Thêm bạn</p>

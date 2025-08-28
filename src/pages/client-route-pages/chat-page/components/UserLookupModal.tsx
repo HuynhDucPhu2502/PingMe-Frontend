@@ -24,13 +24,18 @@ import { getErrorMessage } from "@/utils/errorMessageHandler";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import type { FriendInvitationRequest } from "@/types/friendship";
 import { sendInvitationApi } from "@/services/friendshipApi";
+import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/room";
+import { createOrGetDirectRoom } from "@/services/chatApi";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;
-  onMessageUser?: (userId: string, userName: string) => void;
+  setSelectedChat?: (room: RoomResponse) => void; // Added setSelectedChat prop to handle room selection
 }
 
-export function UserLookupModal({ onFriendAdded }: UserLookupModalProps) {
+export function UserLookupModal({
+  onFriendAdded,
+  setSelectedChat,
+}: UserLookupModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [emailSearch, setEmailSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,14 +78,23 @@ export function UserLookupModal({ onFriendAdded }: UserLookupModalProps) {
     }
   };
 
-  const handleMessageUser = () => {
-    // if (userData) {
-    //     onMessageUser?.(userData.id, userData.name)
-    //     setIsOpen(false)
-    //     setEmailSearch("")
-    //     setUserData(null)
-    //     setHasSearched(false)
-    // }
+  const handleMessageUser = async (data: CreateOrGetDirectRoomRequest) => {
+    if (!userData?.email) return;
+    try {
+      setIsSending(true);
+
+      const roomResponse = (await createOrGetDirectRoom(data)).data.data;
+
+      if (setSelectedChat) {
+        setSelectedChat(roomResponse);
+        setIsOpen(false);
+        toast.success("Đang chuyển đến cuộc trò chuyện...");
+      }
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -230,7 +244,9 @@ export function UserLookupModal({ onFriendAdded }: UserLookupModalProps) {
               {/* Action Buttons */}
               <div className="flex space-x-2">
                 <Button
-                  onClick={handleMessageUser}
+                  onClick={() =>
+                    handleMessageUser({ targetUserId: userData.id })
+                  }
                   size="sm"
                   variant="outline"
                   className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
