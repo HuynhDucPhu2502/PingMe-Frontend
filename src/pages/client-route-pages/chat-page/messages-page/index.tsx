@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "@/features/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -23,35 +23,41 @@ export default function MessagesPage() {
     isLoadingMore: false,
   });
 
-  const fetchRooms = async (page: number, size: number, append = false) => {
-    try {
-      if (!append) {
-        setIsFetchingRooms(true);
-      } else {
-        setRoomsPagination((prev) => ({ ...prev, isLoadingMore: true }));
+  const fetchRooms = useCallback(
+    async (page: number, size: number, append = false) => {
+      try {
+        if (!append) setIsFetchingRooms(true);
+        else setRoomsPagination((prev) => ({ ...prev, isLoadingMore: true }));
+
+        const res = (await getCurrentUserRooms({ page, size })).data.data;
+
+        if (append) {
+          const newRooms = res.content.filter(
+            (newRoom) =>
+              !rooms.some(
+                (existingRoom) => existingRoom.roomId === newRoom.roomId
+              )
+          );
+          setRooms((prev) => [...prev, ...newRooms]);
+        } else {
+          setRooms(res.content);
+        }
+
+        setRoomsPagination({
+          currentPage: res.page,
+          totalPages: res.totalPages,
+          hasMore: res.page < res.totalPages - 1,
+          isLoadingMore: false,
+        });
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      } finally {
+        setIsFetchingRooms(false);
+        setRoomsPagination((prev) => ({ ...prev, isLoadingMore: false }));
       }
-
-      const res = (await getCurrentUserRooms({ page, size })).data.data;
-
-      if (append) {
-        setRooms((prev) => [...prev, ...res.content]);
-      } else {
-        setRooms(res.content);
-      }
-
-      setRoomsPagination({
-        currentPage: res.page,
-        totalPages: res.totalPages,
-        hasMore: res.page < res.totalPages - 1,
-        isLoadingMore: false,
-      });
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setIsFetchingRooms(false);
-      setRoomsPagination((prev) => ({ ...prev, isLoadingMore: false }));
-    }
-  };
+    },
+    [rooms]
+  );
 
   const refetchRooms = () => {
     fetchRooms(0, 20);
@@ -59,7 +65,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     fetchRooms(0, 20);
-  }, []);
+  }, [fetchRooms]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -84,7 +90,6 @@ export default function MessagesPage() {
     if (room.name) return room.name;
 
     if (room.roomType === "DIRECT" && userSession) {
-      // For direct rooms, show the other participant's name
       const otherParticipant = room.participants.find(
         (p) => p.name !== userSession.name
       );
@@ -96,7 +101,6 @@ export default function MessagesPage() {
 
   const getRoomAvatar = (room: RoomResponse) => {
     if (room.roomType === "DIRECT" && userSession) {
-      // For direct rooms, show the other participant's avatar
       const otherParticipant = room.participants.find(
         (p) => p.name !== userSession.name
       );
@@ -115,21 +119,6 @@ export default function MessagesPage() {
           onFriendAdded={refetchRooms}
           setSelectedChat={handleSetSelectedChat}
         />
-
-        {/* Chat Categories */}
-        <div className="px-4 py-2 border-b border-gray-200">
-          <div className="flex space-x-4">
-            <button className="text-sm font-medium text-purple-600 border-b-2 border-purple-600 pb-2">
-              Tất cả
-            </button>
-            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 pb-2">
-              Chưa đọc
-            </button>
-            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 pb-2">
-              Nhóm
-            </button>
-          </div>
-        </div>
 
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
