@@ -29,7 +29,7 @@ export default function ChatPage() {
 
   return (
     <TooltipProvider>
-      <div className="h-screen bg-gray-100 flex">
+      <div className="h-full bg-gray-100 flex">
         {/* Navigation Content */}
         <div className="w-16 bg-purple-600 flex flex-col items-center py-4 space-y-2">
           {navigationItems.map((item) => {

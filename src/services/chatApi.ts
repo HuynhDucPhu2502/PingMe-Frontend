@@ -11,11 +11,13 @@ import type {
 } from "@/types/message";
 import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/room";
 
-export const createOrGetDirectRoom = (data: CreateOrGetDirectRoomRequest) => {
+export const createOrGetDirectRoomApi = (
+  data: CreateOrGetDirectRoomRequest
+) => {
   return axiosClient.post<ApiResponse<RoomResponse>>("/rooms/direct", data);
 };
 
-export const getCurrentUserRooms = ({
+export const getCurrentUserRoomsApi = ({
   page = 0,
   size = 10,
 }: PaginationParams) => {
@@ -29,10 +31,27 @@ export const getCurrentUserRooms = ({
   );
 };
 
-export const sendMessage = (data: SendMessageRequest) => {
+export const sendMessageApi = (data: SendMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>("/messages/send", data);
 };
 
-export const markAsRead = (data: MarkReadRequest) => {
+export const markAsReadApi = (data: MarkReadRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>("/messages/read", data);
+};
+
+export const getHistoryMessagesApi = (
+  roomId: number,
+  beforeId?: number,
+  size: number = 20
+) => {
+  const params = new URLSearchParams();
+  params.append("roomId", roomId.toString());
+  params.append("size", size.toString());
+  if (beforeId !== undefined) {
+    params.append("beforeId", beforeId.toString());
+  }
+
+  return axiosClient.get<ApiResponse<MessageResponse[]>>(
+    `/messages/history?${params.toString()}`
+  );
 };

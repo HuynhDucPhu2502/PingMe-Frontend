@@ -25,7 +25,7 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import type { FriendInvitationRequest } from "@/types/friendship";
 import { sendInvitationApi } from "@/services/friendshipApi";
 import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/room";
-import { createOrGetDirectRoom } from "@/services/chatApi";
+import { createOrGetDirectRoomApi } from "@/services/chatApi";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;
@@ -83,7 +83,7 @@ export function UserLookupModal({
     try {
       setIsSending(true);
 
-      const roomResponse = (await createOrGetDirectRoom(data)).data.data;
+      const roomResponse = (await createOrGetDirectRoomApi(data)).data.data;
 
       if (setSelectedChat) {
         setSelectedChat(roomResponse);
