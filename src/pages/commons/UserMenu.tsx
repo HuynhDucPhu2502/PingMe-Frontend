@@ -15,7 +15,11 @@ import { useEffect, useState } from "react";
 import { logout } from "@/features/slices/authThunk";
 import { getUserInitials } from "@/utils/authFieldHandler";
 
-const UserMenu = () => {
+interface UserMenuProps {
+  openInNewTab?: boolean;
+}
+
+const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
@@ -94,6 +98,8 @@ const UserMenu = () => {
         <DropdownMenuItem>
           <Link
             to={"/profile/user-info"}
+            target={openInNewTab ? "_blank" : undefined}
+            rel={openInNewTab ? "noopener noreferrer" : undefined}
             className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
