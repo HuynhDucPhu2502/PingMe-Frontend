@@ -33,7 +33,7 @@ export default function ChatNavigation() {
 
   return (
     <TooltipProvider>
-      <div className="w-16 bg-purple-600 flex flex-col items-center py-4">
+      <div className="w-16 bg-purple-600 flex flex-col items-center pt-4">
         {/* Navigation Items */}
         <div className="flex-1 flex flex-col space-y-2">
           {navigationItems.map((item) => {
@@ -68,21 +68,27 @@ export default function ChatNavigation() {
           })}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 bg-purple-700 w-full py-4 border-t-2 border-purple-400/50 shadow-lg rounded-t-xl backdrop-blur-sm">
           {/* Logo */}
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
-                  onClick={handleLogoClick}
-                  className="w-12 h-12 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200 flex items-center justify-center"
-                >
-                  <img src="/logo.png" alt="PingMe Logo" className="w-8 h-8" />
-                </button>
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleLogoClick}
+                    className="w-full py-3 rounded-xl flex items-center justify-center hover:bg-purple-50 transition-colors duration-200"
+                  >
+                    <img
+                      src="/logo.png"
+                      alt="PingMe Logo"
+                      className="w-8 h-8"
+                    />
+                  </button>
+                </div>
               </TooltipTrigger>
               <TooltipContent
                 side="right"
-                className="bg-white text-gray-900 border border-gray-200 shadow-lg"
+                className="bg-white text-gray-900 border border-gray-200 shadow-lg "
               >
                 <div>
                   <div className="font-medium">PingMe</div>
@@ -98,7 +104,7 @@ export default function ChatNavigation() {
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div>
+                <div className="flex justify-center">
                   <UserMenu openInNewTab={true} />
                 </div>
               </TooltipTrigger>
