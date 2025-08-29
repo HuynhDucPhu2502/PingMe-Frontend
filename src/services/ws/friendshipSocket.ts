@@ -23,17 +23,19 @@ export interface FriendshipEvent {
 export interface FriendshipWSOptions {
   baseUrl: string;
   onEvent: (ev: FriendshipEvent) => void;
-  onConnect: () => void;
-  onDisconnect: (reason?: string) => void;
 }
 
 // =================================================================
 // Internal state
 // =================================================================
 let client: Client | null = null;
-let sub: StompSubscription | null = null;
 let manualDisconnect = false;
 
+let sub: StompSubscription | null = null;
+
+// ================================================================
+// Connect / Disconnect
+// ================================================================
 export async function connectFriendshipWS(opts: FriendshipWSOptions) {
   if (client?.connected) return;
   manualDisconnect = false;
@@ -62,8 +64,6 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
         console.error("[FriendshipWS] parse error:", e, msg.body);
       }
     });
-
-    opts.onConnect?.();
   };
 
   client.onStompError = (frame) => {
@@ -78,9 +78,8 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
     console.error("[FriendshipWS] WebSocket error:", ev);
   };
 
-  client.onDisconnect = (frame) => {
+  client.onDisconnect = () => {
     sub = null;
-    opts.onDisconnect?.(frame?.headers?.message);
     if (manualDisconnect) return;
   };
 
