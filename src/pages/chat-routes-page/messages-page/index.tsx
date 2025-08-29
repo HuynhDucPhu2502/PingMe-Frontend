@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector } from "@/features/hooks.ts";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
@@ -6,15 +6,29 @@ import { ChatBox } from "./components/ChatBox.tsx";
 import { ChatCard } from "./components/ChatCard.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/room";
-import { toast } from "sonner";
+
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chatApi.ts";
+import {
+  connectChatWS,
+  disconnectChatWS,
+  enterRoom,
+  leaveRoom,
+  type MessageCreatedEvent,
+  type ReadStateChangedEvent,
+  type RoomUpdatedEvent,
+} from "@/services/ws/chatSocket";
+import type { MessageResponse } from "@/types/message.js";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
 
+  // =======================================================================
+  // Lấy danh sách các ChatBoxes
+  // =======================================================================
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
+
   const [roomsPagination, setRoomsPagination] = useState({
     currentPage: 0,
     totalPages: 0,
@@ -48,7 +62,7 @@ export default function MessagesPage() {
           isLoadingMore: false,
         });
       } catch (err) {
-        toast.error(getErrorMessage(err));
+        console.error(getErrorMessage(err));
       } finally {
         setIsFetchingRooms(false);
         setRoomsPagination((prev) => ({ ...prev, isLoadingMore: false }));
@@ -65,6 +79,10 @@ export default function MessagesPage() {
     fetchRooms(0, 20);
   }, [fetchRooms]);
 
+  // =======================================================================
+  // Xử lý scroll để load thêm phòng
+  // Khi scroll đến 80% chiều cao container sẽ load thêm
+  // =======================================================================
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
@@ -78,23 +96,112 @@ export default function MessagesPage() {
     }
   };
 
+  // =======================================================================
+  // Xử lý chọn chat box để hiển thị
+  // Xử lý khi thay đổi phòng chat được chọn
+  //  - Cập nhật selectedRoomIdRef cho WebSocket tracking
+  //  - Enter/leave room để nhận tin nhắn đúng phòng
+  // =======================================================================
   const [selectedChat, setSelectedChat] = useState<RoomResponse | null>(null);
+  const selectedRoomIdRef = useRef<number | null>(null);
 
   const handleSetSelectedChat = (room: RoomResponse) => {
     setSelectedChat(room);
   };
 
+  useEffect(() => {
+    if (!selectedChat) {
+      selectedRoomIdRef.current = null;
+      leaveRoom();
+      return;
+    }
+
+    selectedRoomIdRef.current = selectedChat.roomId;
+    enterRoom(selectedChat.roomId);
+
+    return () => {
+      leaveRoom();
+    };
+  }, [selectedChat]);
+
+  // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến MESSAGE_CREATED từ WebSocket
+  // =======================================================================
+  const chatBoxMessageHandlerRef = useRef<
+    ((message: MessageResponse) => void) | null
+  >(null);
+
+  const onRegisterMessageHandler = (
+    handler: (message: MessageResponse) => void
+  ) => {
+    chatBoxMessageHandlerRef.current = handler;
+  };
+
+  const handleNewMessage = useCallback((event: MessageCreatedEvent) => {
+    if (
+      selectedRoomIdRef.current === event.roomId &&
+      chatBoxMessageHandlerRef.current
+    ) {
+      const message = event.messageResponse;
+      chatBoxMessageHandlerRef.current(message);
+    }
+    return;
+  }, []);
+
+  // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến ROOM_UPDATED từ WebSocket
+  // =======================================================================
+  const upsertRoom = useCallback((incoming: RoomResponse) => {
+    setRooms((prev) => {
+      const idx = prev.findIndex((r) => r.roomId === incoming.roomId);
+      if (idx === -1) return [incoming, ...prev]; // Thêm phòng mới lên đầu
+      const clone = [...prev];
+      clone[idx] = { ...clone[idx], ...incoming }; // Merge thông tin mới
+      return clone;
+    });
+    setSelectedChat((prev) =>
+      prev && prev.roomId === incoming.roomId ? { ...prev, ...incoming } : prev
+    );
+  }, []);
+
+  // =======================================================================
+  // Setup WebSocket connection và event handlers
+  // Chạy một lần khi component mount
+  // =======================================================================
+  useEffect(() => {
+    connectChatWS({
+      baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
+      onDisconnect: (reason) => {
+        console.warn("[ChatWS] disconnected:", reason);
+      },
+      onMessageCreated: (ev: MessageCreatedEvent) => {
+        handleNewMessage(ev);
+      },
+      onReadStateChanged: (ev: ReadStateChangedEvent) => {
+        // TODO: Implement read state handling
+        console.log("[ChatWS] Read state changed:", ev);
+      },
+      onRoomUpdated: (ev: RoomUpdatedEvent) => {
+        console.log("[ChatWS] Room updated:", ev);
+        upsertRoom(ev.roomResponse);
+      },
+    });
+
+    return () => {
+      disconnectChatWS();
+    };
+  }, [upsertRoom, handleNewMessage]);
+
+  // =======================================================================
+
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Left Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        {/* Top Bar */}
         <SharedTopBar
           onFriendAdded={refetchRooms}
           setSelectedChat={handleSetSelectedChat}
         />
 
-        {/* Chat List */}
         <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
           {isFetchingRooms ? (
             <div className="flex items-center justify-center h-full">
@@ -111,7 +218,6 @@ export default function MessagesPage() {
                   onClick={() => setSelectedChat(room)}
                 />
               ))}
-
               {roomsPagination.isLoadingMore && (
                 <div className="p-4 text-center">
                   <div className="text-sm text-gray-500">Đang tải thêm...</div>
@@ -122,9 +228,13 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      {/* Right Content Area */}
       {selectedChat ? (
-        <ChatBox selectedChat={selectedChat} />
+        <ChatBox
+          selectedChat={selectedChat}
+          onRegisterMessageHandler={(handler) =>
+            onRegisterMessageHandler(handler)
+          }
+        />
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
