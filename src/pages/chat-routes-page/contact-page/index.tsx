@@ -9,7 +9,7 @@ import ContactItem from "./components/ContactItem.tsx";
 import {
   connectFriendshipWS,
   disconnectFriendshipWS,
-  type FriendshipEvent,
+  type FriendshipEventPayload,
 } from "@/services/ws/friendshipSocket.ts";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";
 import { useContactsState } from "./hooks/useContactsState.ts";
@@ -193,7 +193,7 @@ export default function ContactsPage() {
   useEffect(() => {
     connectFriendshipWS({
       baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
-      onEvent: (ev: FriendshipEvent) => {
+      onEvent: (ev: FriendshipEventPayload) => {
         switch (ev.type) {
           case "INVITED":
             fetchReceivedRequests(

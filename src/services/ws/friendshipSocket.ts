@@ -13,16 +13,14 @@ export type FriendshipEventType =
   | "CANCELED"
   | "DELETED";
 
-export interface FriendshipEvent {
+export interface FriendshipEventPayload {
   type: FriendshipEventType;
   friendshipId: number;
-  actorId: number;
-  targetId: number;
 }
 
 export interface FriendshipWSOptions {
   baseUrl: string;
-  onEvent: (ev: FriendshipEvent) => void;
+  onEvent: (ev: FriendshipEventPayload) => void;
 }
 
 // =================================================================
@@ -58,7 +56,7 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
     sub?.unsubscribe();
     sub = client!.subscribe("/user/queue/friendship", (msg: IMessage) => {
       try {
-        const ev = JSON.parse(msg.body) as FriendshipEvent;
+        const ev = JSON.parse(msg.body) as FriendshipEventPayload;
         opts.onEvent(ev);
       } catch (e) {
         console.error("[FriendshipWS] parse error:", e, msg.body);

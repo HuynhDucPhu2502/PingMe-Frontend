@@ -14,9 +14,9 @@ import {
   disconnectChatWS,
   enterRoom,
   leaveRoom,
-  type MessageCreatedEvent,
+  type MessageCreatedEventPayload,
   type ReadStateChangedEvent,
-  type RoomUpdatedEvent,
+  type RoomUpdatedEventPayload,
 } from "@/services/ws/chatSocket";
 import type { MessageResponse } from "@/types/message.js";
 
@@ -137,9 +137,9 @@ export default function MessagesPage() {
     chatBoxMessageHandlerRef.current = handler;
   };
 
-  const handleNewMessage = useCallback((event: MessageCreatedEvent) => {
+  const handleNewMessage = useCallback((event: MessageCreatedEventPayload) => {
     if (
-      selectedRoomIdRef.current === event.roomId &&
+      selectedRoomIdRef.current === event.messageResponse.roomId &&
       chatBoxMessageHandlerRef.current
     ) {
       const message = event.messageResponse;
@@ -154,10 +154,13 @@ export default function MessagesPage() {
   const upsertRoom = useCallback((incoming: RoomResponse) => {
     setRooms((prev) => {
       const idx = prev.findIndex((r) => r.roomId === incoming.roomId);
-      if (idx === -1) return [incoming, ...prev]; // Thêm phòng mới lên đầu
-      const clone = [...prev];
-      clone[idx] = { ...clone[idx], ...incoming }; // Merge thông tin mới
-      return clone;
+      if (idx === -1) {
+        return [incoming, ...prev];
+      }
+
+      const updatedRoom = { ...prev[idx], ...incoming };
+      const filteredRooms = prev.filter((r) => r.roomId !== incoming.roomId);
+      return [updatedRoom, ...filteredRooms];
     });
     setSelectedChat((prev) =>
       prev && prev.roomId === incoming.roomId ? { ...prev, ...incoming } : prev
@@ -174,14 +177,14 @@ export default function MessagesPage() {
       onDisconnect: (reason) => {
         console.warn("[ChatWS] disconnected:", reason);
       },
-      onMessageCreated: (ev: MessageCreatedEvent) => {
+      onMessageCreated: (ev: MessageCreatedEventPayload) => {
         handleNewMessage(ev);
       },
       onReadStateChanged: (ev: ReadStateChangedEvent) => {
         // TODO: Implement read state handling
         console.log("[ChatWS] Read state changed:", ev);
       },
-      onRoomUpdated: (ev: RoomUpdatedEvent) => {
+      onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
         console.log("[ChatWS] Room updated:", ev);
         upsertRoom(ev.roomResponse);
       },

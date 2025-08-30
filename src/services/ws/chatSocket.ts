@@ -11,9 +11,8 @@ export type ChatEventType =
   | "READ_STATE_CHANGED"
   | "ROOM_UPDATED";
 
-export interface MessageCreatedEvent {
+export interface MessageCreatedEventPayload {
   chatEventType: "MESSAGE_CREATED";
-  roomId: number;
   messageResponse: MessageResponse;
 }
 
@@ -25,18 +24,17 @@ export interface ReadStateChangedEvent {
   lastReadAt: string;
 }
 
-export interface RoomUpdatedEvent {
+export interface RoomUpdatedEventPayload {
   chatEventType: "ROOM_UPDATED";
-  roomId: number;
   roomResponse: RoomResponse;
 }
 
 export interface ChatWSOptions {
   baseUrl: string;
   onDisconnect?: (reason?: string) => void;
-  onMessageCreated?: (ev: MessageCreatedEvent) => void;
+  onMessageCreated?: (ev: MessageCreatedEventPayload) => void;
   onReadStateChanged?: (ev: ReadStateChangedEvent) => void;
-  onRoomUpdated?: (ev: RoomUpdatedEvent) => void;
+  onRoomUpdated?: (ev: RoomUpdatedEventPayload) => void;
 }
 
 // =================================================================
@@ -86,7 +84,7 @@ export function connectChatWS(opts: ChatWSOptions) {
     }
     userRoomsSub = client!.subscribe("/user/queue/rooms", (msg: IMessage) => {
       try {
-        const ev = JSON.parse(msg.body) as RoomUpdatedEvent;
+        const ev = JSON.parse(msg.body) as RoomUpdatedEventPayload;
         if (ev?.chatEventType === "ROOM_UPDATED") {
           lastOpts?.onRoomUpdated?.(ev);
         }
@@ -206,7 +204,7 @@ function _subscribeRoomMessages(roomId: number) {
   const dest = `/topic/rooms/${roomId}/messages`;
   roomMsgSub = client.subscribe(dest, (msg: IMessage) => {
     try {
-      const ev = JSON.parse(msg.body) as MessageCreatedEvent;
+      const ev = JSON.parse(msg.body) as MessageCreatedEventPayload;
       if (ev?.chatEventType === "MESSAGE_CREATED") {
         lastOpts?.onMessageCreated?.(ev);
       }
