@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import type { MessageResponse } from "@/types/message";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import type { MessageResponse, HistoryMessageResponse } from "@/types/message";
 import type { RoomResponse } from "@/types/room";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getHistoryMessagesApi, sendMessageApi } from "@/services/chatApi.ts";
 import { useAppSelector } from "@/features/hooks.ts";
-import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import { ChatBoxInput } from "./ChatBoxInput.tsx";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
-import SentMessageBubble from "./SentMessageBubble.tsx";
-import ReceivedMessageBubble from "./ReceivedMessageBubble.tsx";
+import { ChatBoxContent } from "./ChatBoxContent.tsx";
 import ChatBoxHeader from "./ChatBoxHeader.tsx";
 
 interface ChatBoxProps {
@@ -38,17 +37,13 @@ export function ChatBox({
     [selectedChat.participants, userSession]
   );
 
-  // Settings cho cuộn chat box
-  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   // =======================================================================
   // Lấy lịch sử tin nhắn phòng chat
   // =======================================================================
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<MessageResponse[]>([]);
 
-  const [beforeId, setBeforeId] = useState<number | undefined>(undefined); // ID tin nhắn cũ nhất để load thêm
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
-
   const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Fetch lần đầu tiên
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Fetch theo dạng scroll
 
@@ -64,21 +59,20 @@ export function ChatBox({
           size
         );
 
-        const newMessages = response.data.data;
+        const historyResponse: HistoryMessageResponse = response.data.data;
+        const newMessages = historyResponse.messageResponses;
+        const total = historyResponse.total;
+
         const sortedMessages = newMessages.sort((a, b) => a.id - b.id);
 
         if (append) {
           setMessages((prev) => {
-            // Lấy danh sách Ids đã có sẵn
             const existingIds = new Set(prev.map((msg) => msg.id));
 
-            // Lọc các ids message có sẵn từ danh sách mới fetch
             const uniqueNewMessages = sortedMessages.filter(
               (msg) => !existingIds.has(msg.id)
             );
 
-            // Cập nhật tin nhắn cũ mới nhất nếu có chỉnh
-            // sửa
             const updatedMessages = prev.map((existingMsg) => {
               const updatedMsg = sortedMessages.find(
                 (newMsg) => newMsg.id === existingMsg.id
@@ -86,16 +80,16 @@ export function ChatBox({
               return updatedMsg || existingMsg;
             });
 
-            return [...uniqueNewMessages, ...updatedMessages];
-          });
+            const newMessageList = [...uniqueNewMessages, ...updatedMessages];
 
-          if (sortedMessages.length > 0) setBeforeId(sortedMessages[0].id);
+            setHasMoreMessages(newMessageList.length < total);
+
+            return newMessageList;
+          });
         } else {
           setMessages(sortedMessages);
-          if (sortedMessages.length > 0) setBeforeId(sortedMessages[0].id);
+          setHasMoreMessages(sortedMessages.length < total);
         }
-
-        setHasMoreMessages(sortedMessages.length === size);
       } catch (err) {
         toast.error(getErrorMessage(err, "Không thể lấy lịch sử tin nhắn"));
       } finally {
@@ -113,52 +107,17 @@ export function ChatBox({
   useEffect(() => {
     if (selectedChat.roomId) {
       setMessages([]);
-      setBeforeId(undefined);
       setHasMoreMessages(true);
-      setShouldScrollToBottom(true);
       fetchMessages(undefined, 20);
     }
   }, [selectedChat.roomId, fetchMessages]);
 
-  // =======================================================================
-  // Xử lý scroll để load thêm tin nhắn
-  // =======================================================================
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  /**
-   * Auto scroll xuống cuối khi có tin nhắn mới
-   * Chỉ scroll khi shouldScrollToBottom = true và không đang load more
-   */
-  useEffect(() => {
-    if (messagesEndRef.current && shouldScrollToBottom && !isLoadingMore) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages.length, shouldScrollToBottom, isLoadingMore]);
-
-  /**
-   * Xử lý scroll để load tin nhắn cũ hơn (infinite scroll)
-   * Khi scroll lên đầu sẽ load thêm tin nhắn và giữ nguyên vị trí scroll
-   */
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop } = e.currentTarget;
-
-    if (scrollTop === 0 && hasMoreMessages && !isLoadingMore) {
-      const container = e.currentTarget;
-      const currentScrollHeight = container.scrollHeight;
-      const currentScrollTop = container.scrollTop;
-
-      setShouldScrollToBottom(false);
-
-      fetchMessages(beforeId, 20, true).then(() => {
-        requestAnimationFrame(() => {
-          const newScrollHeight = container.scrollHeight;
-          const heightDifference = newScrollHeight - currentScrollHeight;
-          container.scrollTop = currentScrollTop + heightDifference;
-        });
-      });
-    }
-  };
+  const handleLoadMore = useCallback(
+    (beforeMessageId?: number) => {
+      fetchMessages(beforeMessageId, 20, true);
+    },
+    [fetchMessages]
+  );
 
   /**
    * Xử lý gửi tin nhắn mới
@@ -179,7 +138,6 @@ export function ChatBox({
 
         setMessages((prev) => [...prev, sentMessage]);
         setNewMessage("");
-        setShouldScrollToBottom(true);
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -223,7 +181,6 @@ export function ChatBox({
         const messageExists = prev.some((msg) => msg.id === message.id);
         if (messageExists) return prev;
 
-        setShouldScrollToBottom(true);
         return [...prev, message];
       });
     },
@@ -251,52 +208,15 @@ export function ChatBox({
       <ChatBoxHeader selectedChat={selectedChat} />
 
       <div className="flex-1 overflow-hidden relative">
-        {isLoadingMessages ? (
-          <div className="flex items-center justify-center h-full">
-            <LoadingSpinner />
-          </div>
-        ) : messages.length === 0 ? (
-          <EmptyState
-            title="Chưa có tin nhắn"
-            description="Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn đầu tiên!"
-          />
-        ) : (
-          <div
-            ref={messagesContainerRef}
-            className="h-full overflow-y-auto p-4 space-y-4"
-            onScroll={handleScroll}
-          >
-            {isLoadingMore && (
-              <div className="flex justify-center py-2">
-                <LoadingSpinner />
-              </div>
-            )}
-
-            {messages.map((message) => (
-              <div key={message.id}>
-                {isCurrentUserMessage(message.senderId) ? (
-                  <SentMessageBubble message={message} />
-                ) : (
-                  <ReceivedMessageBubble
-                    message={message}
-                    senderName={
-                      selectedChat.participants.find(
-                        (p) => p.userId === message.senderId
-                      )?.name || "Unknown"
-                    }
-                    senderAvatar={
-                      selectedChat.participants.find(
-                        (p) => p.userId === message.senderId
-                      )?.avatarUrl
-                    }
-                  />
-                )}
-              </div>
-            ))}
-
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+        <ChatBoxContent
+          selectedChat={selectedChat}
+          messages={messages}
+          isLoadingMessages={isLoadingMessages}
+          isLoadingMore={isLoadingMore}
+          hasMoreMessages={hasMoreMessages}
+          onLoadMore={handleLoadMore}
+          isCurrentUserMessage={isCurrentUserMessage}
+        />
       </div>
 
       <ChatBoxInput

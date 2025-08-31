@@ -5,6 +5,7 @@ import type {
   PaginationParams,
 } from "@/types/apiResponse";
 import type {
+  HistoryMessageResponse,
   MarkReadRequest,
   MessageResponse,
   SendMessageRequest,
@@ -51,7 +52,7 @@ export const getHistoryMessagesApi = (
     params.append("beforeId", beforeId.toString());
   }
 
-  return axiosClient.get<ApiResponse<MessageResponse[]>>(
+  return axiosClient.get<ApiResponse<HistoryMessageResponse>>(
     `/messages/history?${params.toString()}`
   );
 };

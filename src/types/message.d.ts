@@ -8,6 +8,11 @@ export interface MessageResponse {
   createdAt: string;
 }
 
+export interface HistoryMessageResponse {
+  messageResponses: MessageResponse[];
+  total: number;
+}
+
 export interface SendMessageRequest {
   content: string;
   clientMsgId: string;
