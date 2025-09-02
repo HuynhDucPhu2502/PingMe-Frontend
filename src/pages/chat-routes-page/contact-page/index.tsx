@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Users, Send, Inbox } from "lucide-react";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";
 import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
@@ -12,6 +12,9 @@ import {
 import type { UserSummaryResponse } from "@/types/userSummary";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import type { UserFriendshipStatsResponse } from "@/types/friendship.js";
+import { getUserFriendshipStatsApi } from "@/services/friendshipApi.ts";
+import { useAppSelector } from "@/features/hooks.ts";
 
 const tabs = [
   {
@@ -35,6 +38,15 @@ const tabs = [
 ];
 
 export default function ContactsPage() {
+  const { userSession } = useAppSelector((state) => state.auth);
+
+  const [userFriendshipStats, setUserFriendshipStats] =
+    useState<UserFriendshipStatsResponse>({
+      totalFriends: 0,
+      totalSentInvites: 0,
+      totalReceivedInvites: 0,
+    } as UserFriendshipStatsResponse);
+
   const [activeTab, setActiveTab] = useState("friends");
 
   // Ref quản lý hành động ở trang "Danh sách bạn bè"
@@ -51,7 +63,8 @@ export default function ContactsPage() {
 
   // Ref quản lý hành động ở trang "Lời mời đã gửi"
   const sentRef = useRef<{
-    handleInvitationUpdate: (user: UserSummaryResponse) => void; // cập nhật trạng thái lời mời
+    handleInvitationUpdate: (user: UserSummaryResponse) => void;
+    newInvitation: (user: UserSummaryResponse) => void;
   }>(null);
 
   useEffect(() => {
@@ -61,15 +74,37 @@ export default function ContactsPage() {
         onEvent: (event: FriendshipEventPayload) => {
           try {
             switch (event.type) {
+              // Có lời mời kết bạn mới
               case "INVITED":
-                if (activeTab === "received-invitations") {
-                  receivedRef.current?.handleNewInvitation(
-                    event.userSummaryResponse
-                  );
+                if (userSession?.id === event.userSummaryResponse.id) {
+                  setUserFriendshipStats((prev) => ({
+                    ...prev,
+                    totalSentInvites: prev.totalSentInvites + 1,
+                  }));
+
+                  if (activeTab === "sent-invitations") {
+                    sentRef.current?.newInvitation(event.userSummaryResponse);
+                  }
+                } else {
+                  setUserFriendshipStats((prev) => ({
+                    ...prev,
+                    totalReceivedInvites: prev.totalReceivedInvites + 1,
+                  }));
+                  if (activeTab === "received-invitations") {
+                    receivedRef.current?.handleNewInvitation(
+                      event.userSummaryResponse
+                    );
+                  }
                 }
                 break;
 
+              // Lời mời kết bạn được chấp nhận
               case "ACCEPTED":
+                setUserFriendshipStats((prev) => ({
+                  ...prev,
+                  totalFriends: prev.totalFriends + 1,
+                  totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
+                }));
                 if (activeTab === "friends") {
                   friendsRef.current?.handleNewFriend(
                     event.userSummaryResponse
@@ -82,7 +117,12 @@ export default function ContactsPage() {
                 }
                 break;
 
+              // Lời mời bị từ chối
               case "REJECTED":
+                setUserFriendshipStats((prev) => ({
+                  ...prev,
+                  totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
+                }));
                 if (activeTab === "sent-invitations") {
                   sentRef.current?.handleInvitationUpdate(
                     event.userSummaryResponse
@@ -90,7 +130,15 @@ export default function ContactsPage() {
                 }
                 break;
 
+              // Lời mời bị hủy
               case "CANCELED":
+                setUserFriendshipStats((prev) => ({
+                  ...prev,
+                  totalReceivedInvites: Math.max(
+                    0,
+                    prev.totalReceivedInvites - 1
+                  ),
+                }));
                 if (activeTab === "received-invitations") {
                   receivedRef.current?.removeInvitation(
                     event.userSummaryResponse
@@ -98,7 +146,12 @@ export default function ContactsPage() {
                 }
                 break;
 
+              // Xóa bạn bè
               case "DELETED":
+                setUserFriendshipStats((prev) => ({
+                  ...prev,
+                  totalFriends: Math.max(0, prev.totalFriends - 1),
+                }));
                 if (activeTab === "friends") {
                   friendsRef.current?.removeFriend(event.userSummaryResponse);
                 }
@@ -111,39 +164,81 @@ export default function ContactsPage() {
       });
     };
 
+    const fetchStats = async () => {
+      try {
+        const res = await getUserFriendshipStatsApi();
+        setUserFriendshipStats(res.data.data);
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      }
+    };
+
     connectWebSocket();
+    fetchStats();
 
     return () => {
       disconnectFriendshipWS();
     };
-  }, [activeTab]);
+  }, [activeTab, userSession?.id]);
 
-  const handleFriendAdded = useCallback(() => {
-    if (activeTab === "sent-invitations") setActiveTab("sent-invitations");
-  }, [activeTab]);
+  const getTabCount = (tabId: string) => {
+    switch (tabId) {
+      case "friends":
+        return userFriendshipStats.totalFriends;
+      case "received-invitations":
+        return userFriendshipStats.totalReceivedInvites;
+      case "sent-invitations":
+        return userFriendshipStats.totalSentInvites;
+      default:
+        return 0;
+    }
+  };
 
-  // Hàm render component theo tab đang chọns
+  // Hàm render component theo tab đang chọn
   const renderActiveComponent = () => {
     switch (activeTab) {
       case "friends":
-        return <FriendsListComponent ref={friendsRef} />;
+        return (
+          <FriendsListComponent
+            ref={friendsRef}
+            onStatsUpdate={setUserFriendshipStats}
+          />
+        );
       case "received-invitations":
-        return <ReceivedInvitationsComponent ref={receivedRef} />;
+        return (
+          <ReceivedInvitationsComponent
+            ref={receivedRef}
+            onStatsUpdate={setUserFriendshipStats}
+          />
+        );
       case "sent-invitations":
-        return <SentInvitationsComponent ref={sentRef} />;
+        return (
+          <SentInvitationsComponent
+            ref={sentRef}
+            onStatsUpdate={setUserFriendshipStats}
+          />
+        );
+      default:
+        return (
+          <FriendsListComponent
+            ref={friendsRef}
+            onStatsUpdate={setUserFriendshipStats}
+          />
+        );
     }
   };
 
   return (
     <div className="flex h-screen bg-gray-50">
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        <SharedTopBar onFriendAdded={handleFriendAdded} />
+        <SharedTopBar />
 
         <div className="flex-1 p-4">
           <div className="space-y-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const count = getTabCount(tab.id);
 
               return (
                 <button
@@ -157,7 +252,20 @@ export default function ContactsPage() {
                 >
                   <Icon className="w-5 h-5" />
                   <div className="flex-1">
-                    <div className="font-medium">{tab.title}</div>
+                    <div className="font-medium flex items-center justify-between">
+                      {tab.title}
+                      {count > 0 && (
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            isActive
+                              ? "bg-purple-200 text-purple-800"
+                              : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {tab.description}
                     </div>

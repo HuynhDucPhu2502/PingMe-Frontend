@@ -13,3 +13,9 @@ export interface HistoryFriendshipResponse {
   userSummaryResponses: UserSummaryResponse[];
   total: number;
 }
+
+export interface UserFriendshipStatsResponse {
+  totalFriends: number;
+  totalSentInvites: number;
+  totalReceivedInvites: number;
+}

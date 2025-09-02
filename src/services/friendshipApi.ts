@@ -3,6 +3,7 @@ import type { ApiResponse } from "@/types/apiResponse";
 import type {
   FriendInvitationRequest,
   HistoryFriendshipResponse,
+  UserFriendshipStatsResponse,
 } from "@/types/friendship";
 
 export const sendInvitationApi = (data: FriendInvitationRequest) => {
@@ -61,5 +62,11 @@ export const getSentHistoryInvitationsApi = (
 
   return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
     `/friendships/history/sent?${params.toString()}`
+  );
+};
+
+export const getUserFriendshipStatsApi = () => {
+  return axiosClient.get<ApiResponse<UserFriendshipStatsResponse>>(
+    `/friendships/me/stats`
   );
 };

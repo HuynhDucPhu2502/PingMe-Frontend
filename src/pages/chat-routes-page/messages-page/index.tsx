@@ -6,7 +6,6 @@ import { ChatBox } from "./components/ChatBox.tsx";
 import { ChatCard } from "./components/ChatCard.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/room";
-
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chatApi.ts";
 import {
