@@ -1,11 +1,9 @@
 import axiosClient from "@/lib/axiosClient.ts";
+import type { ApiResponse } from "@/types/apiResponse";
 import type {
-  ApiResponse,
-  PageResponse,
-  PaginationParams,
-} from "@/types/apiResponse";
-import type { FriendInvitationRequest } from "@/types/friendship";
-import type { UserSummaryResponse } from "@/types/userSummary";
+  FriendInvitationRequest,
+  HistoryFriendshipResponse,
+} from "@/types/friendship";
 
 export const sendInvitationApi = (data: FriendInvitationRequest) => {
   return axiosClient.post("/friendships", data);
@@ -27,44 +25,41 @@ export const deleteFriendshipApi = (id: number) => {
   return axiosClient.delete(`/friendships/${id}`);
 };
 
-export const getAcceptedFriendshipListApi = ({
-  page = 0,
-  size = 5,
-}: PaginationParams) => {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    size: size.toString(),
-  });
+export const getAcceptedFriendshipHistoryListApi = (
+  beforeId?: number,
+  size: number = 20
+) => {
+  const params = new URLSearchParams();
+  params.append("size", size.toString());
+  if (beforeId !== undefined) params.append("beforeId", beforeId.toString());
 
-  return axiosClient.get<ApiResponse<PageResponse<UserSummaryResponse>>>(
-    `/friendships?${params.toString()}`
+  return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
+    `/friendships/history?${params.toString()}`
   );
 };
 
-export const getReceivedInvitationsApi = ({
-  page = 0,
-  size = 5,
-}: PaginationParams) => {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    size: size.toString(),
-  });
+export const getReceivedHistoryInvitationsApi = (
+  beforeId?: number,
+  size: number = 20
+) => {
+  const params = new URLSearchParams();
+  params.append("size", size.toString());
+  if (beforeId !== undefined) params.append("beforeId", beforeId.toString());
 
-  return axiosClient.get<ApiResponse<PageResponse<UserSummaryResponse>>>(
-    `/friendships/received?${params.toString()}`
+  return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
+    `/friendships/history/received?${params.toString()}`
   );
 };
 
-export const getSentInvitationsApi = ({
-  page = 0,
-  size = 5,
-}: PaginationParams) => {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    size: size.toString(),
-  });
+export const getSentHistoryInvitationsApi = (
+  beforeId?: number,
+  size: number = 20
+) => {
+  const params = new URLSearchParams();
+  params.append("size", size.toString());
+  if (beforeId !== undefined) params.append("beforeId", beforeId.toString());
 
-  return axiosClient.get<ApiResponse<PageResponse<UserSummaryResponse>>>(
-    `/friendships/sent?${params.toString()}`
+  return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
+    `/friendships/history/sent?${params.toString()}`
   );
 };

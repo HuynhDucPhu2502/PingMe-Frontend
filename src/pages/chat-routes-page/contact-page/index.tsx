@@ -1,372 +1,175 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { Input } from "@/components/ui/input.tsx";
-import { Search, Users, Send, Inbox } from "lucide-react";
-import Pagination from "@/components/custom/Pagination.tsx";
-import { EmptyState } from "@/components/custom/EmptyState.tsx";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
-import SidebarNavigation from "./components/SidebarNavigation.tsx";
-import ContactItem from "./components/ContactItem.tsx";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Users, Send, Inbox } from "lucide-react";
+import { SharedTopBar } from "../components/SharedTopbar.tsx";
+import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
+import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
+import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
 import {
   connectFriendshipWS,
   disconnectFriendshipWS,
   type FriendshipEventPayload,
 } from "@/services/ws/friendshipSocket.ts";
-import { SharedTopBar } from "../components/SharedTopbar.tsx";
-import { useContactsState } from "./hooks/useContactsState.ts";
-import { useContactsActions } from "./hooks/useContactsActions.ts";
+import type { UserSummaryResponse } from "@/types/userSummary";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 
-const sidebarItems = [
+const tabs = [
   {
     id: "friends",
-    title: "Danh sách bạn bè",
+    title: "Bạn bè",
     icon: Users,
-    description: "Bạn bè đã kết nối",
+    description: "Danh sách bạn bè đã kết nối",
   },
   {
-    id: "received-requests",
-    title: "Lời mời được nhận",
+    id: "received-invitations",
+    title: "Lời mời nhận",
     icon: Inbox,
     description: "Lời mời kết bạn từ người khác",
   },
   {
-    id: "sent-requests",
-    title: "Lời mời đã gửi",
+    id: "sent-invitations",
+    title: "Lời mời gửi",
     icon: Send,
     description: "Lời mời bạn đã gửi đi",
   },
 ];
 
 export default function ContactsPage() {
-  const [activeCategory, setActiveCategory] = useState("friends");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("friends");
 
-  const {
-    friendsState,
-    receivedRequestsState,
-    sentRequestsState,
-    fetchFriends,
-    fetchReceivedRequests,
-    fetchSentRequests,
-    updateCurrentPagination,
-    getCurrentState,
-  } = useContactsState();
+  // Ref quản lý hành động ở trang "Danh sách bạn bè"
+  const friendsRef = useRef<{
+    handleNewFriend: (user: UserSummaryResponse) => void; // thêm bạn mới
+    removeFriend: (user: UserSummaryResponse) => void; // xóa bạn
+  }>(null);
 
-  const {
-    handleAcceptRequest,
-    handleRejectRequest,
-    handleCancelRequest,
-    handleRemoveFriend,
-  } = useContactsActions({
-    fetchFriends,
-    fetchReceivedRequests,
-    fetchSentRequests,
-    friendsState,
-    receivedRequestsState,
-    sentRequestsState,
-    searchQuery,
-  });
+  // Ref quản lý hành động ở trang "Lời mời kết bạn đã nhận"
+  const receivedRef = useRef<{
+    handleNewInvitation: (user: UserSummaryResponse) => void; // thêm lời mời mới
+    removeInvitation: (user: UserSummaryResponse) => void; // xóa lời mời
+  }>(null);
 
-  const currentState = useMemo(() => {
-    return getCurrentState(activeCategory);
-  }, [activeCategory, getCurrentState]);
+  // Ref quản lý hành động ở trang "Lời mời đã gửi"
+  const sentRef = useRef<{
+    handleInvitationUpdate: (user: UserSummaryResponse) => void; // cập nhật trạng thái lời mời
+  }>(null);
 
-  const handlePageChange = useCallback(
-    (page: number) => {
-      updateCurrentPagination(activeCategory, { currentPage: page });
+  useEffect(() => {
+    const connectWebSocket = () => {
+      connectFriendshipWS({
+        baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
+        onEvent: (event: FriendshipEventPayload) => {
+          try {
+            switch (event.type) {
+              case "INVITED":
+                if (activeTab === "received-invitations") {
+                  receivedRef.current?.handleNewInvitation(
+                    event.userSummaryResponse
+                  );
+                }
+                break;
 
-      switch (activeCategory) {
-        case "friends":
-          fetchFriends(page, friendsState.pagination.itemsPerPage, searchQuery);
-          break;
-        case "received-requests":
-          fetchReceivedRequests(
-            page,
-            receivedRequestsState.pagination.itemsPerPage,
-            searchQuery
-          );
-          break;
-        case "sent-requests":
-          fetchSentRequests(
-            page,
-            sentRequestsState.pagination.itemsPerPage,
-            searchQuery
-          );
-          break;
-      }
-    },
-    [
-      activeCategory,
-      friendsState.pagination.itemsPerPage,
-      receivedRequestsState.pagination.itemsPerPage,
-      sentRequestsState.pagination.itemsPerPage,
-      searchQuery,
-      updateCurrentPagination,
-      fetchFriends,
-      fetchReceivedRequests,
-      fetchSentRequests,
-    ]
-  );
+              case "ACCEPTED":
+                if (activeTab === "friends") {
+                  friendsRef.current?.handleNewFriend(
+                    event.userSummaryResponse
+                  );
+                }
+                if (activeTab === "sent-invitations") {
+                  sentRef.current?.handleInvitationUpdate(
+                    event.userSummaryResponse
+                  );
+                }
+                break;
 
-  const handleItemsPerPageChange = useCallback(
-    (size: number) => {
-      updateCurrentPagination(activeCategory, {
-        itemsPerPage: size,
-        currentPage: 1,
+              case "REJECTED":
+                if (activeTab === "sent-invitations") {
+                  sentRef.current?.handleInvitationUpdate(
+                    event.userSummaryResponse
+                  );
+                }
+                break;
+
+              case "CANCELED":
+                if (activeTab === "received-invitations") {
+                  receivedRef.current?.removeInvitation(
+                    event.userSummaryResponse
+                  );
+                }
+                break;
+
+              case "DELETED":
+                if (activeTab === "friends") {
+                  friendsRef.current?.removeFriend(event.userSummaryResponse);
+                }
+                break;
+            }
+          } catch (error) {
+            toast.error(getErrorMessage(error, "Không thể kết nối"));
+          }
+        },
       });
-
-      switch (activeCategory) {
-        case "friends":
-          fetchFriends(1, size, searchQuery);
-          break;
-        case "received-requests":
-          fetchReceivedRequests(1, size, searchQuery);
-          break;
-        case "sent-requests":
-          fetchSentRequests(1, size, searchQuery);
-          break;
-      }
-    },
-    [
-      activeCategory,
-      searchQuery,
-      updateCurrentPagination,
-      fetchFriends,
-      fetchReceivedRequests,
-      fetchSentRequests,
-    ]
-  );
-
-  const currentItem = useMemo(
-    () => sidebarItems.find((item) => item.id === activeCategory),
-    [activeCategory]
-  );
-
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      await Promise.all([
-        fetchFriends(1, 10),
-        fetchReceivedRequests(1, 10),
-        fetchSentRequests(1, 10),
-      ]);
     };
-    fetchInitialData();
-  }, [fetchFriends, fetchReceivedRequests, fetchSentRequests]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      updateCurrentPagination(activeCategory, { currentPage: 1 });
-
-      switch (activeCategory) {
-        case "friends":
-          fetchFriends(1, friendsState.pagination.itemsPerPage, searchQuery);
-          break;
-        case "received-requests":
-          fetchReceivedRequests(
-            1,
-            receivedRequestsState.pagination.itemsPerPage,
-            searchQuery
-          );
-          break;
-        case "sent-requests":
-          fetchSentRequests(
-            1,
-            sentRequestsState.pagination.itemsPerPage,
-            searchQuery
-          );
-          break;
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [
-    searchQuery,
-    activeCategory,
-    fetchFriends,
-    fetchReceivedRequests,
-    fetchSentRequests,
-    friendsState.pagination.itemsPerPage,
-    receivedRequestsState.pagination.itemsPerPage,
-    sentRequestsState.pagination.itemsPerPage,
-    updateCurrentPagination,
-  ]);
-
-  useEffect(() => {
-    connectFriendshipWS({
-      baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
-      onEvent: (ev: FriendshipEventPayload) => {
-        switch (ev.type) {
-          case "INVITED":
-            fetchReceivedRequests(
-              receivedRequestsState.pagination.currentPage,
-              receivedRequestsState.pagination.itemsPerPage,
-              searchQuery
-            );
-            break;
-          case "ACCEPTED":
-            fetchFriends(
-              friendsState.pagination.currentPage,
-              friendsState.pagination.itemsPerPage,
-              searchQuery
-            );
-            fetchSentRequests(
-              sentRequestsState.pagination.currentPage,
-              sentRequestsState.pagination.itemsPerPage,
-              searchQuery
-            );
-            break;
-          case "REJECTED":
-            fetchSentRequests(
-              sentRequestsState.pagination.currentPage,
-              sentRequestsState.pagination.itemsPerPage,
-              searchQuery
-            );
-            break;
-          case "CANCELED":
-            fetchReceivedRequests(
-              receivedRequestsState.pagination.currentPage,
-              receivedRequestsState.pagination.itemsPerPage,
-              searchQuery
-            );
-            break;
-          case "DELETED":
-            fetchFriends(
-              friendsState.pagination.currentPage,
-              friendsState.pagination.itemsPerPage,
-              searchQuery
-            );
-            break;
-        }
-      },
-    });
+    connectWebSocket();
 
     return () => {
       disconnectFriendshipWS();
     };
-  }, [
-    fetchFriends,
-    fetchReceivedRequests,
-    fetchSentRequests,
-    friendsState.pagination.currentPage,
-    friendsState.pagination.itemsPerPage,
-    receivedRequestsState.pagination.currentPage,
-    receivedRequestsState.pagination.itemsPerPage,
-    sentRequestsState.pagination.currentPage,
-    sentRequestsState.pagination.itemsPerPage,
-    searchQuery,
-  ]);
+  }, [activeTab]);
+
+  const handleFriendAdded = useCallback(() => {
+    if (activeTab === "sent-invitations") setActiveTab("sent-invitations");
+  }, [activeTab]);
+
+  // Hàm render component theo tab đang chọns
+  const renderActiveComponent = () => {
+    switch (activeTab) {
+      case "friends":
+        return <FriendsListComponent ref={friendsRef} />;
+      case "received-invitations":
+        return <ReceivedInvitationsComponent ref={receivedRef} />;
+      case "sent-invitations":
+        return <SentInvitationsComponent ref={sentRef} />;
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Left Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        <SharedTopBar
-          onFriendAdded={async () => {
-            await fetchSentRequests(
-              sentRequestsState.pagination.currentPage,
-              sentRequestsState.pagination.itemsPerPage,
-              searchQuery
-            );
-          }}
-        />
+        <SharedTopBar onFriendAdded={handleFriendAdded} />
 
-        {/* Sidebar Navigation */}
-        <SidebarNavigation
-          sidebarItems={sidebarItems}
-          friendsStateTotalElements={friendsState.pagination.totalElements}
-          receivedRequestsStateTotalElements={
-            receivedRequestsState.pagination.totalElements
-          }
-          sentRequestsStateTotalElements={
-            sentRequestsState.pagination.totalElements
-          }
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
-      </div>
+        <div className="flex-1 p-4">
+          <div className="space-y-2">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
 
-      {/* Right Content */}
-      <div className="flex-1 bg-white flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                {currentItem?.title}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {currentState.pagination.totalElements} kết quả
-              </p>
-            </div>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Tìm kiếm theo tên hoặc email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
-              />
-            </div>
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+                    isActive
+                      ? "bg-purple-100 text-purple-700 border border-purple-200"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <div className="flex-1">
+                    <div className="font-medium">{tab.title}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {tab.description}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
-
-        {/* Content */}
-        <div className="flex-1 flex flex-col">
-          {currentState.isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="flex items-center space-x-3 text-purple-600">
-                <LoadingSpinner className="w-8 h-8" />
-                <span className="text-lg font-medium">Đang tải...</span>
-              </div>
-            </div>
-          ) : currentState.data.length === 0 ? (
-            <div className="flex-1">
-              <EmptyState
-                icon={currentItem?.icon}
-                title={`Không có ${currentItem?.title.toLowerCase()}`}
-                description={
-                  searchQuery
-                    ? `Không tìm thấy kết quả nào cho "${searchQuery}"`
-                    : `Chưa có ${currentItem?.title.toLowerCase()} nào.`
-                }
-              />
-            </div>
-          ) : (
-            <>
-              {/* Contact List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {currentState.data.map((item) => (
-                  <ContactItem
-                    key={item.friendshipSummary.id}
-                    contact={item}
-                    activeCategory={activeCategory}
-                    handleAcceptRequest={handleAcceptRequest}
-                    handleRejectRequest={handleRejectRequest}
-                    handleCancelRequest={handleCancelRequest}
-                    handleRemoveFriend={handleRemoveFriend}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {currentState.pagination.totalPages > 1 && (
-                <Pagination
-                  currentPage={currentState.pagination.currentPage}
-                  setCurrentPage={handlePageChange}
-                  totalPages={currentState.pagination.totalPages}
-                  totalElements={currentState.pagination.totalElements}
-                  itemsPerPage={currentState.pagination.itemsPerPage}
-                  setItemsPerPage={handleItemsPerPageChange}
-                  showItemsPerPageSelect={true}
-                />
-              )}
-            </>
-          )}
-        </div>
       </div>
+
+      <div className="flex-1 bg-white">{renderActiveComponent()}</div>
     </div>
   );
 }

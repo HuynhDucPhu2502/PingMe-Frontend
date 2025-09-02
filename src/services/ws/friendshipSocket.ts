@@ -1,3 +1,4 @@
+import type { UserSummaryResponse } from "@/types/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
@@ -15,7 +16,7 @@ export type FriendshipEventType =
 
 export interface FriendshipEventPayload {
   type: FriendshipEventType;
-  friendshipId: number;
+  userSummaryResponse: UserSummaryResponse;
 }
 
 export interface FriendshipWSOptions {
