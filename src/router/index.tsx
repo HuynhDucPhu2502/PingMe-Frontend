@@ -9,6 +9,7 @@ import ChangePasswordPage from "@/pages/main-routes-page/user-page/change-passwo
 import DeviceManagementPage from "@/pages/main-routes-page/user-page/device-management-page";
 import UserInfoPage from "@/pages/main-routes-page/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +21,11 @@ export const router = createBrowserRouter([
       { path: "auth", element: <AuthPage /> },
       {
         path: "profile",
-        element: <ProfilePage />,
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
         children: [
           { index: true, element: <Navigate to="/profile/user-info" /> },
           { path: "user-info", element: <UserInfoPage /> },
@@ -32,7 +37,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "chat",
-    element: <ChatPage />,
+    element: (
+      <ProtectedRoute>
+        <ChatPage />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <Navigate to="/chat/messages" /> },
       { path: "messages", element: <MessagesPage /> },

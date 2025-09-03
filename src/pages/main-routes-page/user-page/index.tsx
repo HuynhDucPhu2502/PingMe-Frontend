@@ -1,6 +1,5 @@
-import { useAppSelector } from "@/features/hooks";
 import { User, Key, Monitor } from "lucide-react";
-import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import UserAvatarPanel from "./components";
 
@@ -26,11 +25,7 @@ const navigationItems = [
 ];
 
 export default function UserPage() {
-  const { isLogin } = useAppSelector((state) => state.auth);
   const location = useLocation();
-
-  if (!isLogin) return <Navigate to="/auth?mode=login" replace />;
-
   const currentPath = location.pathname.split("/").pop();
 
   return (
