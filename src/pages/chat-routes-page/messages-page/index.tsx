@@ -1,8 +1,10 @@
+import type React from "react";
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector } from "@/features/hooks.ts";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
-import { ChatBox } from "./components/ChatBox.tsx";
+import { ChatBox, type ChatBoxRef } from "./components/ChatBox.tsx";
 import { ChatCard } from "./components/ChatCard.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/room";
@@ -17,7 +19,6 @@ import {
   type ReadStateChangedEvent,
   type RoomUpdatedEventPayload,
 } from "@/services/ws/chatSocket";
-import type { MessageResponse } from "@/types/message.js";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -126,23 +127,15 @@ export default function MessagesPage() {
   // =======================================================================
   // Hàm xử lý sự kiện liên quan đến MESSAGE_CREATED từ WebSocket
   // =======================================================================
-  const chatBoxMessageHandlerRef = useRef<
-    ((message: MessageResponse) => void) | null
-  >(null);
-
-  const onRegisterMessageHandler = (
-    handler: (message: MessageResponse) => void
-  ) => {
-    chatBoxMessageHandlerRef.current = handler;
-  };
+  const chatBoxRef = useRef<ChatBoxRef>(null);
 
   const handleNewMessage = useCallback((event: MessageCreatedEventPayload) => {
     if (
       selectedRoomIdRef.current === event.messageResponse.roomId &&
-      chatBoxMessageHandlerRef.current
+      chatBoxRef.current
     ) {
       const message = event.messageResponse;
-      chatBoxMessageHandlerRef.current(message);
+      chatBoxRef.current.handleIncomingMessage(message);
     }
     return;
   }, []);
@@ -231,12 +224,7 @@ export default function MessagesPage() {
       </div>
 
       {selectedChat ? (
-        <ChatBox
-          selectedChat={selectedChat}
-          onRegisterMessageHandler={(handler) =>
-            onRegisterMessageHandler(handler)
-          }
-        />
+        <ChatBox ref={chatBoxRef} selectedChat={selectedChat} />
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
