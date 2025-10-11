@@ -10,6 +10,7 @@ import DeviceManagementPage from "@/pages/main-routes-page/user-page/device-mana
 import UserInfoPage from "@/pages/main-routes-page/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
+import BlogPage from "@/pages/main-routes-page/blog-page";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/home" /> },
       { path: "home", element: <HomePage /> },
       { path: "auth", element: <AuthPage /> },
+      { path: "blogs", element: <BlogPage /> },
       {
         path: "profile",
         element: (

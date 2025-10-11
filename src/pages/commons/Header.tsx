@@ -12,6 +12,7 @@ export default function Header() {
 
   const navigationItems = [
     { name: "Trang chủ", href: "/" },
+    { name: "Blogs", href: "/blogs" },
     { name: "Trò chuyện", href: "/chat/messages" },
     { name: "Danh bạ", href: "/chat/contacts" },
   ];
@@ -35,33 +36,38 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            {isLogin ? (
-              <>
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="text-gray-600 hover:text-purple-600 font-medium transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+            {navigationItems.map((item) => {
+              if (
+                !isLogin &&
+                (item.href.includes("/chat") || item.href.includes("/contacts"))
+              ) {
+                return null;
+              }
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="text-gray-600 hover:text-purple-600 font-medium transition-colors"
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
 
-                {/* User Menu */}
-                <UserMenu />
-              </>
+            {isLogin ? (
+              <UserMenu />
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to={"/auth?mode=login"}>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-gray-600 hover:text-purple-600"
+                    className="text-gray-600 hover:text-purple-600"
                   >
                     Đăng nhập
                   </Button>
                 </Link>
                 <Link to={"/auth?mode=register"}>
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                     Đăng ký
                   </Button>
                 </Link>
@@ -90,30 +96,44 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-purple-100">
-              {isLogin ? (
-                <>
-                  {navigationItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md"
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </>
-              ) : (
-                <div className="space-y-2 px-3">
-                  <Link to={"/auth?mode=login"}>
+              {navigationItems.map((item) => {
+                if (
+                  !isLogin &&
+                  (item.href.includes("/chat") ||
+                    item.href.includes("/contacts"))
+                ) {
+                  return null;
+                }
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+
+              {!isLogin && (
+                <div className="space-y-3 px-3 pt-4 border-t border-purple-100 mt-4 ">
+                  <Link
+                    to={"/auth?mode=login"}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
                     <Button
-                      variant="ghost"
-                      className="w-full justify-start text-gray-600 hover:text-purple-600"
+                      variant="outline"
+                      className="w-full my-1 justify-center border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent"
                     >
                       Đăng nhập
                     </Button>
                   </Link>
-                  <Link to={"/auth?mode=register"}>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                  <Link
+                    to={"/auth?mode=register"}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button className="w-full my-1 justify-center bg-purple-600 hover:bg-purple-700 text-white">
                       Đăng ký
                     </Button>
                   </Link>

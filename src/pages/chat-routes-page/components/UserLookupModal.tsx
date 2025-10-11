@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +33,7 @@ import { createOrGetDirectRoomApi } from "@/services/chatApi.ts";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;
-  setSelectedChat?: (room: RoomResponse) => void; // Added setSelectedChat prop to handle room selection
+  setSelectedChat?: (room: RoomResponse) => void;
 }
 
 export function UserLookupModal({

@@ -5,5 +5,5 @@ export interface UserSummaryResponse {
   email: string;
   name: string;
   avatarUrl: string;
-  friendshipSummary: FriendshipSummary;
+  friendshipSummary: FriendshipSummary | null;
 }

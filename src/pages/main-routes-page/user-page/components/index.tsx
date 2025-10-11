@@ -1,5 +1,9 @@
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -118,7 +122,7 @@ const UserAvatarPanel = () => {
     <>
       <div className="bg-gradient-to-r from-purple-500 to-purple-600 h-64 relative overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/bg_office.jpg')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-purple-500/80 to-purple-600/90"></div>
