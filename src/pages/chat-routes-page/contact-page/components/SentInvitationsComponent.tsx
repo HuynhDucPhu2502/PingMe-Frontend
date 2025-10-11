@@ -119,11 +119,9 @@ export const SentInvitationsComponent = forwardRef<
       try {
         await cancelInvitationApi(friendshipId);
 
-        // Xóa lời mời khỏi danh sách local
         setSentInvitations((prev) => {
-          // Nếu lời mời được chấp nhận hoặc từ chối, xóa khỏi danh sách
           return prev.filter(
-            (invitation) => invitation.friendshipSummary.id !== friendshipId
+            (invitation) => invitation.friendshipSummary?.id !== friendshipId
           );
         });
 
@@ -244,21 +242,22 @@ export const SentInvitationsComponent = forwardRef<
                     Đang chờ
                   </Badge>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      handleCancelInvitation(invitation.friendshipSummary.id)
-                    }
-                    className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Hủy
-                  </Button>
+                  {invitation.friendshipSummary && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleCancelInvitation(invitation.friendshipSummary!.id)
+                      }
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Hủy
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
-
             {isLoadingRef.current && hasMoreInvitations && (
               <div className="flex justify-center py-4">
                 <div className="flex items-center space-x-2 text-purple-600">
@@ -267,7 +266,6 @@ export const SentInvitationsComponent = forwardRef<
                 </div>
               </div>
             )}
-
             {!hasMoreInvitations && sentInvitations.length > 0 && (
               <div className="text-center py-4 text-gray-500">
                 <p>Đã hiển thị tất cả lời mời</p>

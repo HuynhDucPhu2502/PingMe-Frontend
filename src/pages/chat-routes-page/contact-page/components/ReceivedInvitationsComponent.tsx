@@ -123,10 +123,9 @@ export const ReceivedInvitationsComponent = forwardRef<
 
         await acceptInvitationApi(friendshipId);
 
-        // Xóa lời mời khỏi danh sách local
         setReceivedInvitations((prev) =>
           prev.filter(
-            (invitation) => invitation.friendshipSummary.id !== friendshipId
+            (invitation) => invitation.friendshipSummary?.id !== friendshipId
           )
         );
 
@@ -161,10 +160,9 @@ export const ReceivedInvitationsComponent = forwardRef<
 
         await rejectInvitationApi(friendshipId);
 
-        // Xóa lời mời khỏi danh sách local
         setReceivedInvitations((prev) =>
           prev.filter(
-            (invitation) => invitation.friendshipSummary.id !== friendshipId
+            (invitation) => invitation.friendshipSummary?.id !== friendshipId
           )
         );
 
@@ -266,8 +264,10 @@ export const ReceivedInvitationsComponent = forwardRef<
         ) : (
           <div className="p-4 space-y-3">
             {receivedInvitations.map((invitation) => {
-              const friendshipId = invitation.friendshipSummary.id;
-              const isProcessing = processingInvitations.has(friendshipId);
+              const friendshipId = invitation.friendshipSummary?.id;
+              const isProcessing = friendshipId
+                ? processingInvitations.has(friendshipId)
+                : false;
 
               return (
                 <div
@@ -294,36 +294,37 @@ export const ReceivedInvitationsComponent = forwardRef<
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleAcceptInvitation(friendshipId)}
-                      disabled={isProcessing}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      {isProcessing ? (
-                        <LoadingSpinner className="w-4 h-4 mr-2" />
-                      ) : (
-                        <Check className="w-4 h-4 mr-2" />
-                      )}
-                      Chấp nhận
-                    </Button>
+                  {friendshipId && (
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleAcceptInvitation(friendshipId)}
+                        disabled={isProcessing}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {isProcessing ? (
+                          <LoadingSpinner className="w-4 h-4 mr-2" />
+                        ) : (
+                          <Check className="w-4 h-4 mr-2" />
+                        )}
+                        Chấp nhận
+                      </Button>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRejectInvitation(friendshipId)}
-                      disabled={isProcessing}
-                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Từ chối
-                    </Button>
-                  </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRejectInvitation(friendshipId)}
+                        disabled={isProcessing}
+                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Từ chối
+                      </Button>
+                    </div>
+                  )}
                 </div>
               );
             })}
-
             {/* Loading indicator khi load thêm */}
             {isLoadingRef.current && hasMoreInvitations && (
               <div className="flex justify-center py-4">

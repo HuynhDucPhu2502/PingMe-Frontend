@@ -1,5 +1,3 @@
-"use client";
-
 import {
   useState,
   useEffect,
@@ -92,7 +90,7 @@ export const FriendsListComponent = forwardRef<
         isLoadingRef.current = false;
       }
     },
-    [] // Removed friends.length dependency to prevent infinite loop
+    []
   );
 
   // Xử lý infinite scroll
@@ -117,7 +115,7 @@ export const FriendsListComponent = forwardRef<
         await deleteFriendshipApi(friendshipId);
 
         setFriends((prev) =>
-          prev.filter((friend) => friend.friendshipSummary.id !== friendshipId)
+          prev.filter((friend) => friend.friendshipSummary?.id !== friendshipId)
         );
 
         onStatsUpdate((prev) => ({
@@ -227,20 +225,21 @@ export const FriendsListComponent = forwardRef<
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    handleRemoveFriend(friend.friendshipSummary.id)
-                  }
-                  className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                >
-                  <UserMinus className="w-4 h-4 mr-2" />
-                  Xóa bạn
-                </Button>
+                {friend.friendshipSummary && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      handleRemoveFriend(friend.friendshipSummary!.id)
+                    }
+                    className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                  >
+                    <UserMinus className="w-4 h-4 mr-2" />
+                    Xóa bạn
+                  </Button>
+                )}
               </div>
             ))}
-
             {isLoadingRef.current && hasMoreFriends && (
               <div className="flex justify-center py-4">
                 <div className="flex items-center space-x-2 text-purple-600">
@@ -249,7 +248,6 @@ export const FriendsListComponent = forwardRef<
                 </div>
               </div>
             )}
-
             {!hasMoreFriends && friends.length > 0 && (
               <div className="text-center py-4 text-gray-500">
                 <p>Đã hiển thị tất cả bạn bè</p>
