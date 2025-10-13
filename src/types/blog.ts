@@ -23,4 +23,5 @@ export interface BlogReviewResponse {
   category: BlogCategory;
   user: UserSummaryResponse;
   imgPreviewUrl?: string;
+  isApproved: boolean;
 }

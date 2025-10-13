@@ -1,33 +1,13 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { BlogCategory, BlogReviewResponse } from "@/types/blog";
-import { getUserInitials } from "@/utils/authFieldHandler";
-
-const GRADIENT_COLORS = [
-  "from-blue-500 to-purple-600",
-  "from-green-500 to-teal-600",
-  "from-orange-500 to-red-600",
-  "from-pink-500 to-rose-600",
-  "from-indigo-500 to-blue-600",
-  "from-yellow-500 to-orange-600",
-  "from-cyan-500 to-blue-600",
-  "from-violet-500 to-purple-600",
-];
-
-const getGradientForBlog = (id: number): string => {
-  return GRADIENT_COLORS[id % GRADIENT_COLORS.length];
-};
+import { Button } from "@/components/ui/button";
+import type { BlogReviewResponse } from "@/types/blog";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/features/store";
+import { HeroSection } from "./components/HeroSection";
+import { SearchAndFilterSection } from "./components/SearchAndFilterSection";
+import { BlogGrid } from "./components/BlogGrid";
+import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const MOCK_BLOGS: BlogReviewResponse[] = [
   {
@@ -37,6 +17,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Learn how to build scalable real-time chat applications with WebSocket and modern web technologies.",
     category: "TECHNOLOGY",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 1,
       email: "sarah.chen@example.com",
@@ -52,6 +33,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Exploring how messaging platforms are reshaping the way teams collaborate across distances.",
     category: "BUSINESS",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 2,
       email: "michael.torres@example.com",
@@ -67,6 +49,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Design principles and best practices for creating intuitive messaging interfaces that users love.",
     category: "LIFESTYLE",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 3,
       email: "emma.wilson@example.com",
@@ -82,6 +65,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Essential security measures every messaging application should implement to protect user data.",
     category: "TECHNOLOGY",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 4,
       email: "david.kim@example.com",
@@ -97,6 +81,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Tips and strategies for using messaging tools effectively without getting overwhelmed.",
     category: "EDUCATION",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 5,
       email: "lisa.anderson@example.com",
@@ -112,6 +97,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Understanding how online messaging affects our relationships and mental well-being.",
     category: "LIFESTYLE",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 6,
       email: "james.park@example.com",
@@ -127,6 +113,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Discover how artificial intelligence is transforming messaging platforms with smart features.",
     category: "TECHNOLOGY",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 7,
       email: "alex.rivera@example.com",
@@ -142,6 +129,7 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
       "Essential apps and strategies for maintaining communication while traveling internationally.",
     category: "TRAVEL",
     imgPreviewUrl: undefined,
+    isApproved: true,
     user: {
       id: 8,
       email: "sophie.martin@example.com",
@@ -152,160 +140,143 @@ const MOCK_BLOGS: BlogReviewResponse[] = [
   },
 ];
 
-const CATEGORY_LABELS: Record<BlogCategory, string> = {
-  TECHNOLOGY: "Technology",
-  LIFESTYLE: "Lifestyle",
-  EDUCATION: "Education",
-  BUSINESS: "Business",
-  TRAVEL: "Travel",
-  FOOD: "Food",
-  ENTERTAINMENT: "Entertainment",
-  OTHER: "Other",
-};
+const MOCK_MY_BLOGS: BlogReviewResponse[] = [
+  {
+    id: 101,
+    title: "My Journey Building a Chat Application",
+    description:
+      "A detailed walkthrough of the challenges and solutions I encountered while building my first real-time messaging app.",
+    category: "TECHNOLOGY",
+    imgPreviewUrl: undefined,
+    isApproved: true,
+    user: {
+      id: 999,
+      email: "currentuser@example.com",
+      name: "Current User",
+      avatarUrl: "",
+      friendshipSummary: null,
+    },
+  },
+  {
+    id: 102,
+    title: "Understanding WebSocket Performance",
+    description:
+      "Deep dive into optimizing WebSocket connections for better performance and scalability.",
+    category: "TECHNOLOGY",
+    imgPreviewUrl: undefined,
+    isApproved: false,
+    user: {
+      id: 999,
+      email: "currentuser@example.com",
+      name: "Current User",
+      avatarUrl: "",
+      friendshipSummary: null,
+    },
+  },
+  {
+    id: 103,
+    title: "Best Practices for Team Collaboration",
+    description:
+      "Lessons learned from managing remote teams using modern communication tools.",
+    category: "BUSINESS",
+    imgPreviewUrl: undefined,
+    isApproved: true,
+    user: {
+      id: 999,
+      email: "currentuser@example.com",
+      name: "Current User",
+      avatarUrl: "",
+      friendshipSummary: null,
+    },
+  },
+  {
+    id: 104,
+    title: "The Future of Digital Communication",
+    description:
+      "Exploring emerging trends and technologies that will shape how we communicate online.",
+    category: "TECHNOLOGY",
+    imgPreviewUrl: undefined,
+    isApproved: false,
+    user: {
+      id: 999,
+      email: "currentuser@example.com",
+      name: "Current User",
+      avatarUrl: "",
+      friendshipSummary: null,
+    },
+  },
+];
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<"all" | "my">("all");
+
+  const { isLogin } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
+
+  const displayBlogs = activeTab === "all" ? MOCK_BLOGS : MOCK_MY_BLOGS;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="border-b border-border relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: "url('/bg_office.jpg')",
-            backgroundSize: "400px 400px",
-            backgroundRepeat: "repeat",
-            backgroundPosition: "center",
-          }}
-        />
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 text-balance">
-            Discover Our Blog
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty">
-            Insights, tutorials, and stories about modern communication and
-            technology.
-          </p>
-        </div>
-      </div>
+      <HeroSection />
 
-      {/* Search and Filter Section */}
-      <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row gap-4 max-w-4xl">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search articles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11"
-              />
+      {isLogin && (
+        <div className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-md shadow-sm">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between py-2">
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={`rounded-lg px-6 py-3 font-semibold transition-all ${
+                    activeTab === "all"
+                      ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                  onClick={() => setActiveTab("all")}
+                >
+                  Tất cả bài viết
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={`rounded-lg px-6 py-3 font-semibold transition-all ${
+                    activeTab === "my"
+                      ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                  onClick={() => setActiveTab("my")}
+                >
+                  Bài viết của tôi
+                </Button>
+              </div>
+              <Button
+                onClick={() => navigate("/blogs/create")}
+                className="gap-2"
+                size="lg"
+              >
+                <Plus className="h-5 w-5" />
+                Tạo Blog
+              </Button>
             </div>
-
-            {/* Category Filter */}
-            <Select
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
-            >
-              <SelectTrigger className="w-full md:w-[200px] h-11">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="TECHNOLOGY">Technology</SelectItem>
-                <SelectItem value="LIFESTYLE">Lifestyle</SelectItem>
-                <SelectItem value="EDUCATION">Education</SelectItem>
-                <SelectItem value="BUSINESS">Business</SelectItem>
-                <SelectItem value="TRAVEL">Travel</SelectItem>
-                <SelectItem value="FOOD">Food</SelectItem>
-                <SelectItem value="ENTERTAINMENT">Entertainment</SelectItem>
-                <SelectItem value="OTHER">Other</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
-      </div>
+      )}
+
+      <SearchAndFilterSection
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
       {/* Blog Grid */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MOCK_BLOGS.map((blog) => (
-            <Card
-              key={blog.id}
-              className="group cursor-pointer hover:border-primary/50 transition-colors overflow-hidden"
-            >
-              <div className="relative h-48 overflow-hidden">
-                {blog.imgPreviewUrl ? (
-                  <img
-                    src={blog.imgPreviewUrl || "/placeholder.svg"}
-                    alt={blog.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div
-                    className={`w-full h-full bg-gradient-to-br ${getGradientForBlog(
-                      blog.id
-                    )} group-hover:scale-105 transition-transform duration-300`}
-                  />
-                )}
-              </div>
-
-              <CardHeader className="space-y-3">
-                {/* Category Badge */}
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-xs">
-                    {CATEGORY_LABELS[blog.category]}
-                  </Badge>
-                </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 text-balance">
-                  {blog.title}
-                </h3>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground line-clamp-3 text-pretty">
-                  {blog.description}
-                </p>
-
-                <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={blog.user.avatarUrl || "/placeholder.svg"}
-                      alt={blog.user.name}
-                    />
-                    <AvatarFallback>
-                      {getUserInitials(blog.user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {blog.user.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {blog.user.email}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Empty State (shown when no results) */}
-        {MOCK_BLOGS.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-lg text-muted-foreground">
-              No articles found. Try adjusting your search or filters.
-            </p>
-          </div>
-        )}
+        <BlogGrid
+          blogs={displayBlogs}
+          showApprovalStatus={activeTab === "my"}
+        />
       </div>
     </div>
   );

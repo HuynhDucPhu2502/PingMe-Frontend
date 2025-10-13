@@ -11,6 +11,11 @@ import UserInfoPage from "@/pages/main-routes-page/user-page/user-info-page";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
 import BlogPage from "@/pages/main-routes-page/blog-page";
+import AdminPage from "@/pages/admin-route-pages";
+import AccountManagementPage from "@/pages/admin-route-pages/account-management-page";
+import BlogManagementPage from "@/pages/admin-route-pages/blog-management-page";
+import StatisticsManagementPage from "@/pages/admin-route-pages/statistics-management-page";
+import CreateBlogPage from "@/pages/main-routes-page/blog-page/create-blog-page";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +26,14 @@ export const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "auth", element: <AuthPage /> },
       { path: "blogs", element: <BlogPage /> },
+      {
+        path: "blogs/create",
+        element: (
+          <ProtectedRoute>
+            <CreateBlogPage />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: "profile",
         element: (
@@ -48,6 +61,20 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/chat/messages" /> },
       { path: "messages", element: <MessagesPage /> },
       { path: "contacts", element: <ContactsPage /> },
+    ],
+  },
+  {
+    path: "admin",
+    element: (
+      <ProtectedRoute>
+        <AdminPage />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <Navigate to="/admin/accounts" /> },
+      { path: "accounts", element: <AccountManagementPage /> },
+      { path: "blogs", element: <BlogManagementPage /> },
+      { path: "statistics", element: <StatisticsManagementPage /> },
     ],
   },
 ]);
