@@ -25,3 +25,10 @@ export interface BlogReviewResponse {
   imgPreviewUrl?: string;
   isApproved: boolean;
 }
+
+export interface CreateBlogRequest {
+  title: string;
+  description: string;
+  content: string;
+  category: BlogCategory;
+}
