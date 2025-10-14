@@ -5,6 +5,7 @@ import { FileText } from "lucide-react";
 import type { BlogCategory, BlogReviewResponse } from "@/types/blog";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import { EmptyState } from "@/components/custom/EmptyState";
+import LoadingSpinner from "@/components/custom/LoadingSpinner";
 
 const GRADIENT_COLORS = [
   "from-blue-500 to-purple-600",
@@ -35,21 +36,34 @@ const CATEGORY_LABELS: Record<BlogCategory, string> = {
 interface BlogGridProps {
   blogs: BlogReviewResponse[];
   showApprovalStatus?: boolean;
+  loading?: boolean;
 }
 
-export function BlogGrid({ blogs, showApprovalStatus = false }: BlogGridProps) {
+export function BlogGrid({
+  blogs,
+  showApprovalStatus = false,
+  loading = false,
+}: BlogGridProps) {
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <LoadingSpinner className="h-12 w-12 text-primary" />
+      </div>
+    );
+  }
+
   if (blogs.length === 0) {
     return (
       <EmptyState
         icon={FileText}
-        title="No articles found"
-        description="Try adjusting your search or filters to find what you're looking for."
+        title="Không tìm thấy Blogs nào"
+        description="Hãy tùy chỉnh lại bộ lọc của bạn."
       />
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px]">
       {blogs.map((blog) => (
         <Card
           key={blog.id}

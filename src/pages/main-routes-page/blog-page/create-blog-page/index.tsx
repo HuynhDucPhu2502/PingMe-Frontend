@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 
 import { useState } from "react";
@@ -22,9 +24,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import RichTextEditor from "@/components/custom/RichText";
-import { BLOG_CATEGORIES, type BlogCategory } from "@/types/blog";
+import {
+  BLOG_CATEGORIES,
+  type BlogCategory,
+  type CreateBlogRequest,
+} from "@/types/blog";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
+import { saveBlog } from "@/services/blogApi";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 export default function CreateBlogPage() {
   const navigate = useNavigate();
@@ -85,13 +93,32 @@ export default function CreateBlogPage() {
     setIsSubmitting(true);
 
     try {
-      // TODO: Call API to create blog
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const formDataToSend = new FormData();
+
+      const blogRequest: CreateBlogRequest = {
+        title: formData.title,
+        description: formData.description,
+        content: formData.content,
+        category: formData.category as BlogCategory,
+      };
+
+      const blogBlob = new Blob([JSON.stringify(blogRequest)], {
+        type: "application/json",
+      });
+      formDataToSend.append("blog", blogBlob);
+
+      if (imageFile) {
+        formDataToSend.append("blogImage", imageFile);
+      }
+
+      await saveBlog(formDataToSend);
 
       toast.success("Tạo blog thành công! Đang chờ duyệt...");
       navigate("/blogs");
-    } catch {
-      toast.error("Tạo blog thất bại. Vui lòng thử lại!");
+    } catch (error) {
+      toast.error(
+        getErrorMessage(error, "Tạo blog thất bại. Vui lòng thử lại!")
+      );
     } finally {
       setIsSubmitting(false);
     }

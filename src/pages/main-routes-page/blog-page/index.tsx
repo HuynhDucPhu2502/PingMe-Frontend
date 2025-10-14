@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { BlogReviewResponse } from "@/types/blog";
 import { useSelector } from "react-redux";
@@ -8,214 +10,90 @@ import { SearchAndFilterSection } from "./components/SearchAndFilterSection";
 import { BlogGrid } from "./components/BlogGrid";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getAllApprovedBlogs } from "@/services/blogApi";
+import { toast } from "sonner";
+import { useDebounce } from "@/hooks/use-debounce";
+import { usePagination } from "@/hooks/use-pagination";
+import Pagination from "@/components/custom/Pagination";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 
-const MOCK_BLOGS: BlogReviewResponse[] = [
-  {
-    id: 1,
-    title: "Getting Started with Real-Time Messaging",
-    description:
-      "Learn how to build scalable real-time chat applications with WebSocket and modern web technologies.",
-    category: "TECHNOLOGY",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 1,
-      email: "sarah.chen@example.com",
-      name: "Sarah Chen",
-      avatarUrl: "/modern-tech-workspace.png",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 2,
-    title: "The Future of Remote Communication",
-    description:
-      "Exploring how messaging platforms are reshaping the way teams collaborate across distances.",
-    category: "BUSINESS",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 2,
-      email: "michael.torres@example.com",
-      name: "Michael Torres",
-      avatarUrl: "/remote-team-collaboration.png",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 3,
-    title: "Building Better User Experiences in Chat Apps",
-    description:
-      "Design principles and best practices for creating intuitive messaging interfaces that users love.",
-    category: "LIFESTYLE",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 3,
-      email: "emma.wilson@example.com",
-      name: "Emma Wilson",
-      avatarUrl: "/modern-chat-interface.jpg",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 4,
-    title: "Security Best Practices for Messaging Platforms",
-    description:
-      "Essential security measures every messaging application should implement to protect user data.",
-    category: "TECHNOLOGY",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 4,
-      email: "david.kim@example.com",
-      name: "David Kim",
-      avatarUrl: "/cybersecurity-concept.jpg",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 5,
-    title: "How to Stay Productive with Team Chat",
-    description:
-      "Tips and strategies for using messaging tools effectively without getting overwhelmed.",
-    category: "EDUCATION",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 5,
-      email: "lisa.anderson@example.com",
-      name: "Lisa Anderson",
-      avatarUrl: "/productive-workspace.png",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 6,
-    title: "The Psychology of Digital Communication",
-    description:
-      "Understanding how online messaging affects our relationships and mental well-being.",
-    category: "LIFESTYLE",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 6,
-      email: "james.park@example.com",
-      name: "Dr. James Park",
-      avatarUrl: "/digital-communication-network.png",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 7,
-    title: "Integrating AI into Chat Applications",
-    description:
-      "Discover how artificial intelligence is transforming messaging platforms with smart features.",
-    category: "TECHNOLOGY",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 7,
-      email: "alex.rivera@example.com",
-      name: "Alex Rivera",
-      avatarUrl: "/ai-technology.png",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 8,
-    title: "Travel Tips: Staying Connected Abroad",
-    description:
-      "Essential apps and strategies for maintaining communication while traveling internationally.",
-    category: "TRAVEL",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 8,
-      email: "sophie.martin@example.com",
-      name: "Sophie Martin",
-      avatarUrl: "/travel-and-technology.jpg",
-      friendshipSummary: null,
-    },
-  },
-];
-
-const MOCK_MY_BLOGS: BlogReviewResponse[] = [
-  {
-    id: 101,
-    title: "My Journey Building a Chat Application",
-    description:
-      "A detailed walkthrough of the challenges and solutions I encountered while building my first real-time messaging app.",
-    category: "TECHNOLOGY",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 999,
-      email: "currentuser@example.com",
-      name: "Current User",
-      avatarUrl: "",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 102,
-    title: "Understanding WebSocket Performance",
-    description:
-      "Deep dive into optimizing WebSocket connections for better performance and scalability.",
-    category: "TECHNOLOGY",
-    imgPreviewUrl: undefined,
-    isApproved: false,
-    user: {
-      id: 999,
-      email: "currentuser@example.com",
-      name: "Current User",
-      avatarUrl: "",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 103,
-    title: "Best Practices for Team Collaboration",
-    description:
-      "Lessons learned from managing remote teams using modern communication tools.",
-    category: "BUSINESS",
-    imgPreviewUrl: undefined,
-    isApproved: true,
-    user: {
-      id: 999,
-      email: "currentuser@example.com",
-      name: "Current User",
-      avatarUrl: "",
-      friendshipSummary: null,
-    },
-  },
-  {
-    id: 104,
-    title: "The Future of Digital Communication",
-    description:
-      "Exploring emerging trends and technologies that will shape how we communicate online.",
-    category: "TECHNOLOGY",
-    imgPreviewUrl: undefined,
-    isApproved: false,
-    user: {
-      id: 999,
-      email: "currentuser@example.com",
-      name: "Current User",
-      avatarUrl: "",
-      friendshipSummary: null,
-    },
-  },
-];
+const MOCK_MY_BLOGS: BlogReviewResponse[] = [];
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
+  const [allBlogs, setAllBlogs] = useState<BlogReviewResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const {
+    currentPage,
+    itemsPerPage,
+    totalElements,
+    totalPages,
+    setCurrentPage,
+    setItemsPerPage,
+    setTotalElements,
+    setTotalPages,
+    resetPagination,
+  } = usePagination(20);
 
   const { isLogin } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  const displayBlogs = activeTab === "all" ? MOCK_BLOGS : MOCK_MY_BLOGS;
+  const fetchBlogs = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const filters: string[] = [];
+
+      if (debouncedSearchQuery.trim()) {
+        filters.push(`title ~ '*${debouncedSearchQuery.trim()}*'`);
+      }
+
+      if (selectedCategory !== "all") {
+        filters.push(`category = '${selectedCategory}'`);
+      }
+
+      const filter = filters.length > 0 ? filters.join(" and ") : undefined;
+
+      const response = await getAllApprovedBlogs({
+        page: currentPage - 1,
+        size: itemsPerPage,
+        filter,
+      });
+
+      setAllBlogs(response.data.data.content);
+      setTotalElements(response.data.data.totalElements);
+      setTotalPages(response.data.data.totalPages);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể tải danh sách blog"));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    debouncedSearchQuery,
+    selectedCategory,
+    currentPage,
+    itemsPerPage,
+    setTotalElements,
+    setTotalPages,
+  ]);
+
+  useEffect(() => {
+    if (activeTab === "all") {
+      resetPagination();
+    }
+  }, [debouncedSearchQuery, selectedCategory, activeTab, resetPagination]);
+
+  useEffect(() => {
+    if (activeTab === "all") {
+      fetchBlogs();
+    }
+  }, [activeTab, currentPage, itemsPerPage, fetchBlogs]);
+
+  const displayBlogs = activeTab === "all" ? allBlogs : MOCK_MY_BLOGS;
 
   return (
     <div className="min-h-screen bg-background">
@@ -276,7 +154,22 @@ export default function BlogPage() {
         <BlogGrid
           blogs={displayBlogs}
           showApprovalStatus={activeTab === "my"}
+          loading={isLoading}
         />
+
+        {activeTab === "all" && !isLoading && allBlogs.length > 0 && (
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              itemsPerPage={itemsPerPage}
+              setItemsPerPage={setItemsPerPage}
+              showItemsPerPageSelect={true}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
