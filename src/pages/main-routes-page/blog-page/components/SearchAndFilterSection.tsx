@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CATEGORY_LABELS } from "../utils/blog-utils";
 
 interface SearchAndFilterSectionProps {
   searchQuery: string;
@@ -30,7 +31,7 @@ export function SearchAndFilterSection({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search articles..."
+              placeholder="Tìm kiếm bài viết..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-10 h-12 shadow-sm border-border/50 focus-visible:ring-2"
@@ -40,18 +41,15 @@ export function SearchAndFilterSection({
           {/* Category Filter */}
           <Select value={selectedCategory} onValueChange={onCategoryChange}>
             <SelectTrigger className="w-full md:w-[200px] h-12 shadow-sm border-border/50">
-              <SelectValue placeholder="All Categories" />
+              <SelectValue placeholder="Tất cả danh mục" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="TECHNOLOGY">Technology</SelectItem>
-              <SelectItem value="LIFESTYLE">Lifestyle</SelectItem>
-              <SelectItem value="EDUCATION">Education</SelectItem>
-              <SelectItem value="BUSINESS">Business</SelectItem>
-              <SelectItem value="TRAVEL">Travel</SelectItem>
-              <SelectItem value="FOOD">Food</SelectItem>
-              <SelectItem value="ENTERTAINMENT">Entertainment</SelectItem>
-              <SelectItem value="OTHER">Other</SelectItem>
+              <SelectItem value="all">Tất cả danh mục</SelectItem>
+              {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

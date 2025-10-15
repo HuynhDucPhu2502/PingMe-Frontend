@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState } from "react";
@@ -27,14 +25,14 @@ import RichTextEditor from "@/components/custom/RichText";
 import {
   BLOG_CATEGORIES,
   type BlogCategory,
-  type CreateBlogRequest,
+  type UpsertBlogRequest,
 } from "@/types/blog";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { saveBlog } from "@/services/blogApi";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 
-export default function CreateBlogPage() {
+export default function UpsertBlogPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -95,7 +93,7 @@ export default function CreateBlogPage() {
     try {
       const formDataToSend = new FormData();
 
-      const blogRequest: CreateBlogRequest = {
+      const blogRequest: UpsertBlogRequest = {
         title: formData.title,
         description: formData.description,
         content: formData.content,

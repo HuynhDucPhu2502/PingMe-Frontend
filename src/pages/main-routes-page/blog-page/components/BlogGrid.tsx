@@ -2,36 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileText } from "lucide-react";
-import type { BlogCategory, BlogReviewResponse } from "@/types/blog";
+import type { BlogReviewResponse } from "@/types/blog";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import { EmptyState } from "@/components/custom/EmptyState";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
-
-const GRADIENT_COLORS = [
-  "from-blue-500 to-purple-600",
-  "from-green-500 to-teal-600",
-  "from-orange-500 to-red-600",
-  "from-pink-500 to-rose-600",
-  "from-indigo-500 to-blue-600",
-  "from-yellow-500 to-orange-600",
-  "from-cyan-500 to-blue-600",
-  "from-violet-500 to-purple-600",
-];
-
-const getGradientForBlog = (id: number): string => {
-  return GRADIENT_COLORS[id % GRADIENT_COLORS.length];
-};
-
-const CATEGORY_LABELS: Record<BlogCategory, string> = {
-  TECHNOLOGY: "Technology",
-  LIFESTYLE: "Lifestyle",
-  EDUCATION: "Education",
-  BUSINESS: "Business",
-  TRAVEL: "Travel",
-  FOOD: "Food",
-  ENTERTAINMENT: "Entertainment",
-  OTHER: "Other",
-};
+import { useNavigate } from "react-router-dom";
+import { getGradientForBlog, CATEGORY_LABELS } from "../utils/blog-utils";
 
 interface BlogGridProps {
   blogs: BlogReviewResponse[];
@@ -44,6 +20,8 @@ export function BlogGrid({
   showApprovalStatus = false,
   loading = false,
 }: BlogGridProps) {
+  const navigate = useNavigate();
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -56,8 +34,8 @@ export function BlogGrid({
     return (
       <EmptyState
         icon={FileText}
-        title="Không tìm thấy Blogs nào"
-        description="Hãy tùy chỉnh lại bộ lọc của bạn."
+        title="Không tìm thấy bài viết"
+        description="Thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm những gì bạn đang tìm kiếm."
       />
     );
   }
@@ -67,6 +45,7 @@ export function BlogGrid({
       {blogs.map((blog) => (
         <Card
           key={blog.id}
+          onClick={() => navigate(`/blogs/${blog.id}`)}
           className="group cursor-pointer hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 overflow-hidden border-border/50 pt-0 px-0 pb-6"
         >
           <div className="relative h-48 overflow-hidden">
@@ -74,7 +53,7 @@ export function BlogGrid({
               <img
                 src={blog.imgPreviewUrl || "/placeholder.svg"}
                 alt={blog.title}
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
               <div

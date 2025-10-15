@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { BlogReviewResponse } from "@/types/blog";
@@ -10,21 +8,21 @@ import { SearchAndFilterSection } from "./components/SearchAndFilterSection";
 import { BlogGrid } from "./components/BlogGrid";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getAllApprovedBlogs } from "@/services/blogApi";
+import { getAllApprovedBlogs, getCurrentUserBlogs } from "@/services/blogApi";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePagination } from "@/hooks/use-pagination";
 import Pagination from "@/components/custom/Pagination";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 
-const MOCK_MY_BLOGS: BlogReviewResponse[] = [];
-
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
   const [allBlogs, setAllBlogs] = useState<BlogReviewResponse[]>([]);
+  const [myBlogs, setMyBlogs] = useState<BlogReviewResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMyBlogsLoading, setIsMyBlogsLoading] = useState(false);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
@@ -59,7 +57,7 @@ export default function BlogPage() {
       const filter = filters.length > 0 ? filters.join(" and ") : undefined;
 
       const response = await getAllApprovedBlogs({
-        page: currentPage - 1,
+        page: currentPage,
         size: itemsPerPage,
         filter,
       });
@@ -81,19 +79,58 @@ export default function BlogPage() {
     setTotalPages,
   ]);
 
-  useEffect(() => {
-    if (activeTab === "all") {
-      resetPagination();
+  const fetchMyBlogs = useCallback(async () => {
+    setIsMyBlogsLoading(true);
+    try {
+      const filters: string[] = [];
+
+      if (debouncedSearchQuery.trim()) {
+        filters.push(`title ~ '*${debouncedSearchQuery.trim()}*'`);
+      }
+
+      if (selectedCategory !== "all") {
+        filters.push(`category = '${selectedCategory}'`);
+      }
+
+      const filter = filters.length > 0 ? filters.join(" and ") : undefined;
+
+      const response = await getCurrentUserBlogs({
+        page: currentPage,
+        size: itemsPerPage,
+        filter,
+      });
+
+      setMyBlogs(response.data.data.content);
+      setTotalElements(response.data.data.totalElements);
+      setTotalPages(response.data.data.totalPages);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể tải bài viết của bạn"));
+    } finally {
+      setIsMyBlogsLoading(false);
     }
+  }, [
+    debouncedSearchQuery,
+    selectedCategory,
+    currentPage,
+    itemsPerPage,
+    setTotalElements,
+    setTotalPages,
+  ]);
+
+  useEffect(() => {
+    resetPagination();
   }, [debouncedSearchQuery, selectedCategory, activeTab, resetPagination]);
 
   useEffect(() => {
     if (activeTab === "all") {
       fetchBlogs();
+    } else if (activeTab === "my") {
+      fetchMyBlogs();
     }
-  }, [activeTab, currentPage, itemsPerPage, fetchBlogs]);
+  }, [activeTab, currentPage, itemsPerPage, fetchBlogs, fetchMyBlogs]);
 
-  const displayBlogs = activeTab === "all" ? allBlogs : MOCK_MY_BLOGS;
+  const displayBlogs = activeTab === "all" ? allBlogs : myBlogs;
+  const currentLoading = activeTab === "all" ? isLoading : isMyBlogsLoading;
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,7 +167,7 @@ export default function BlogPage() {
                 </Button>
               </div>
               <Button
-                onClick={() => navigate("/blogs/create")}
+                onClick={() => navigate("/blogs/upsert")}
                 className="gap-2"
                 size="lg"
               >
@@ -149,15 +186,14 @@ export default function BlogPage() {
         onCategoryChange={setSelectedCategory}
       />
 
-      {/* Blog Grid */}
       <div className="container mx-auto px-4 py-12">
         <BlogGrid
           blogs={displayBlogs}
           showApprovalStatus={activeTab === "my"}
-          loading={isLoading}
+          loading={currentLoading}
         />
 
-        {activeTab === "all" && !isLoading && allBlogs.length > 0 && (
+        {!currentLoading && displayBlogs.length > 0 && (
           <div className="mt-8">
             <Pagination
               currentPage={currentPage}

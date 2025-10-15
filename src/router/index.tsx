@@ -15,7 +15,8 @@ import AdminPage from "@/pages/admin-route-pages";
 import AccountManagementPage from "@/pages/admin-route-pages/account-management-page";
 import BlogManagementPage from "@/pages/admin-route-pages/blog-management-page";
 import StatisticsManagementPage from "@/pages/admin-route-pages/statistics-management-page";
-import CreateBlogPage from "@/pages/main-routes-page/blog-page/create-blog-page";
+import UpsertBlogPage from "@/pages/main-routes-page/blog-page/upsert-blog-page";
+import BlogDetailsPage from "@/pages/main-routes-page/blog-page/blog-details-page";
 
 export const router = createBrowserRouter([
   {
@@ -26,11 +27,12 @@ export const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "auth", element: <AuthPage /> },
       { path: "blogs", element: <BlogPage /> },
+      { path: "blogs/:id", element: <BlogDetailsPage /> },
       {
-        path: "blogs/create",
+        path: "blogs/upsert",
         element: (
           <ProtectedRoute>
-            <CreateBlogPage />
+            <UpsertBlogPage />
           </ProtectedRoute>
         ),
       },

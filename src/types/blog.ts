@@ -26,7 +26,18 @@ export interface BlogReviewResponse {
   isApproved: boolean;
 }
 
-export interface CreateBlogRequest {
+export interface BlogDetailsResponse {
+  id: number;
+  title: string;
+  description: string;
+  category: BlogCategory;
+  user: UserSummaryResponse;
+  imgPreviewUrl?: string;
+  isApproved: boolean;
+  content: string;
+}
+
+export interface UpsertBlogRequest {
   title: string;
   description: string;
   content: string;
