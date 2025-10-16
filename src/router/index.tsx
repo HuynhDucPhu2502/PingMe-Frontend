@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
       { path: "blogs", element: <BlogPage /> },
       { path: "blogs/:id", element: <BlogDetailsPage /> },
       {
-        path: "blogs/upsert",
+        path: "blogs/upsert/:id?",
         element: (
           <ProtectedRoute>
             <UpsertBlogPage />

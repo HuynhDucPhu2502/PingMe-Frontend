@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText, Pencil } from "lucide-react";
 import type { BlogReviewResponse } from "@/types/blog";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import { EmptyState } from "@/components/custom/EmptyState";
@@ -13,12 +14,14 @@ interface BlogGridProps {
   blogs: BlogReviewResponse[];
   showApprovalStatus?: boolean;
   loading?: boolean;
+  showEditButton?: boolean;
 }
 
 export function BlogGrid({
   blogs,
   showApprovalStatus = false,
   loading = false,
+  showEditButton = false,
 }: BlogGridProps) {
   const navigate = useNavigate();
 
@@ -46,8 +49,22 @@ export function BlogGrid({
         <Card
           key={blog.id}
           onClick={() => navigate(`/blogs/${blog.id}`)}
-          className="group cursor-pointer hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 overflow-hidden border-border/50 pt-0 px-0 pb-6"
+          className="group cursor-pointer hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 overflow-hidden border-border/50 pt-0 px-0 pb-6 relative"
         >
+          {showEditButton && (
+            <Button
+              size="icon"
+              variant="secondary"
+              className="absolute top-2 right-2 z-10 h-8 w-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/blogs/upsert/${blog.id}`);
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+
           <div className="relative h-48 overflow-hidden">
             {blog.imgPreviewUrl ? (
               <img

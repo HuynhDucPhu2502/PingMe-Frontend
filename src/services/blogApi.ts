@@ -10,6 +10,13 @@ export const saveBlog = (data: FormData) => {
   return axiosClient.post<ApiResponse<BlogReviewResponse>>("/blogs", data);
 };
 
+export const updateBlog = (data: FormData, blogId: number) => {
+  return axiosClient.put<ApiResponse<BlogReviewResponse>>(
+    `/blogs/${blogId}`,
+    data
+  );
+};
+
 export const getBlogDetailsById = (id: number) => {
   return axiosClient.get<ApiResponse<BlogDetailsResponse>>(
     `/blogs/details/${id}`

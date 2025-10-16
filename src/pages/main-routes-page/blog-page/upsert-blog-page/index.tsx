@@ -1,7 +1,7 @@
 import type React from "react";
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,12 +29,17 @@ import {
 } from "@/types/blog";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { saveBlog } from "@/services/blogApi";
+import { saveBlog, updateBlog, getBlogDetailsById } from "@/services/blogApi";
+import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 export default function UpsertBlogPage() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = !!id;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingBlog, setIsLoadingBlog] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -46,6 +51,37 @@ export default function UpsertBlogPage() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const fetchBlogDetails = async () => {
+        setIsLoadingBlog(true);
+        try {
+          const response = await getBlogDetailsById(Number(id));
+          const blog = response.data.data;
+
+          setFormData({
+            title: blog.title,
+            description: blog.description,
+            category: blog.category,
+            content: blog.content,
+            imgPreviewUrl: blog.imgPreviewUrl || "",
+          });
+
+          if (blog.imgPreviewUrl) {
+            setImagePreview(blog.imgPreviewUrl);
+          }
+        } catch (error) {
+          toast.error(getErrorMessage(error, "Không thể tải thông tin blog"));
+          navigate("/blogs");
+        } finally {
+          setIsLoadingBlog(false);
+        }
+      };
+
+      fetchBlogDetails();
+    }
+  }, [isEditMode, id, navigate]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,18 +145,34 @@ export default function UpsertBlogPage() {
         formDataToSend.append("blogImage", imageFile);
       }
 
-      await saveBlog(formDataToSend);
+      if (isEditMode && id) {
+        await updateBlog(formDataToSend, Number(id));
+        toast.success("Cập nhật blog thành công!");
+      } else {
+        await saveBlog(formDataToSend);
+        toast.success("Tạo blog thành công! Đang chờ duyệt...");
+      }
 
-      toast.success("Tạo blog thành công! Đang chờ duyệt...");
       navigate("/blogs");
     } catch (error) {
       toast.error(
-        getErrorMessage(error, "Tạo blog thất bại. Vui lòng thử lại!")
+        getErrorMessage(
+          error,
+          isEditMode ? "Cập nhật blog thất bại" : "Tạo blog thất bại"
+        )
       );
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoadingBlog) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
+        <LoadingSpinner className="h-12 w-12 text-purple-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
@@ -139,7 +191,7 @@ export default function UpsertBlogPage() {
               <BreadcrumbSeparator className="text-white/60" />
               <BreadcrumbItem>
                 <BreadcrumbPage className="font-bold text-white">
-                  Tạo Blog mới
+                  {isEditMode ? "Chỉnh sửa Blog" : "Tạo Blog mới"}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -153,7 +205,7 @@ export default function UpsertBlogPage() {
           <div className="flex items-center gap-3 mb-10 pb-6 border-b-2 border-purple-100">
             <div className="h-10 w-1 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Tạo Blog mới
+              {isEditMode ? "Chỉnh sửa Blog" : "Tạo Blog mới"}
             </h1>
           </div>
 
@@ -301,7 +353,13 @@ export default function UpsertBlogPage() {
                 disabled={isSubmitting}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
               >
-                {isSubmitting ? "Đang tạo..." : "Tạo Blog"}
+                {isSubmitting
+                  ? isEditMode
+                    ? "Đang cập nhật..."
+                    : "Đang tạo..."
+                  : isEditMode
+                  ? "Cập nhật Blog"
+                  : "Tạo Blog"}
               </Button>
             </div>
           </form>

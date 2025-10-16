@@ -191,6 +191,7 @@ export default function BlogPage() {
           blogs={displayBlogs}
           showApprovalStatus={activeTab === "my"}
           loading={currentLoading}
+          showEditButton={activeTab === "my"}
         />
 
         {!currentLoading && displayBlogs.length > 0 && (
