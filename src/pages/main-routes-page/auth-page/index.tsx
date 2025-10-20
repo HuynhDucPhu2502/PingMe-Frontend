@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import LoginForm from "./components/LoginForm.tsx";
 import RegisterForm from "./components/RegisterForm.tsx";
 import { useAppSelector } from "@/features/hooks";
@@ -10,9 +11,6 @@ export default function AuthPage() {
   const mode = params.get("mode");
 
   const { isLogin } = useAppSelector((state) => state.auth);
-
-  const loginRef = useRef<HTMLDivElement | null>(null);
-  const registerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (mode !== "login" && mode !== "register") {
@@ -26,27 +24,31 @@ export default function AuthPage() {
     }
   }, [isLogin, navigate]);
 
-  useEffect(() => {
-    if (mode === "login" && loginRef.current) {
-      loginRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-    if (mode === "register" && registerRef.current) {
-      registerRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [mode]);
+  const isMovingToRegister = mode === "register";
 
   return (
-    <>
-      {mode === "login" && (
-        <div ref={loginRef}>
-          <LoginForm />
-        </div>
-      )}
-      {mode === "register" && (
-        <div ref={registerRef}>
-          <RegisterForm />
-        </div>
-      )}
-    </>
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={mode}
+        initial={{
+          x: isMovingToRegister ? -100 : 100,
+          opacity: 0,
+        }}
+        animate={{
+          x: 0,
+          opacity: 1,
+        }}
+        exit={{
+          x: isMovingToRegister ? 100 : -100,
+          opacity: 0,
+        }}
+        transition={{
+          duration: 0.4,
+          ease: [0.4, 0, 0.2, 1],
+        }}
+      >
+        {mode === "login" ? <LoginForm /> : <RegisterForm />}
+      </motion.div>
+    </AnimatePresence>
   );
 }
