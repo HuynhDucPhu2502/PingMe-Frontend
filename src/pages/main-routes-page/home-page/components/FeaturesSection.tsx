@@ -1,99 +1,199 @@
+import { Card, CardContent } from "@/components/ui/card.tsx";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card.tsx";
-import {
-  FileText,
+  BookOpen,
   MessageCircle,
-  Shield,
-  Smartphone,
-  Users,
   Video,
+  Users,
+  Contact,
+  ArrowRight,
+  type LucideIcon,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useInView } from "framer-motion";
+import { useRef } from "react";
+
+interface Feature {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  image: string;
+  gradient: string;
+  link: string;
+}
+
+interface FeatureCardProps {
+  feature: Feature;
+  index: number;
+  isEven: boolean;
+  Icon: LucideIcon;
+  navigate: (path: string) => void;
+}
 
 const FeaturesSection = () => {
-  const features = [
+  const navigate = useNavigate();
+
+  const features: Feature[] = [
     {
       icon: MessageCircle,
-      title: "Tin nhắn nhanh chóng",
+      title: "Nhật ký",
       description:
-        "Gửi và nhận tin nhắn tức thì với giao diện thân thiện và dễ sử dụng.",
+        "Chia sẻ khoảnh khắc hàng ngày, cảm xúc và suy nghĩ của bạn với bạn bè. Giống như mạng xã hội, đăng tức thì không cần duyệt.",
+      image: "/images/feature-diary.jpg",
+      gradient: "from-blue-500 to-cyan-500",
+      link: "/nhat-ky",
     },
     {
-      icon: Shield,
-      title: "Bảo mật tuyệt đối",
+      icon: BookOpen,
+      title: "Blog",
       description:
-        "Mã hóa end-to-end đảm bảo cuộc trò chuyện của bạn luôn được bảo vệ.",
-    },
-    {
-      icon: Users,
-      title: "Nhóm chat",
-      description:
-        "Tạo nhóm chat với bạn bè, gia đình hoặc đồng nghiệp một cách dễ dàng.",
+        "Viết và chia sẻ bài viết chuyên sâu, hướng dẫn và kiến thức. Nội dung được kiểm duyệt để đảm bảo chất lượng cao.",
+      image: "/images/feature-blog.jpg",
+      gradient: "from-purple-500 to-pink-500",
+      link: "/blogs",
     },
     {
       icon: Video,
-      title: "Video call HD",
+      title: "Video Call",
       description:
-        "Gọi video chất lượng cao với âm thanh rõ nét, kết nối mọi lúc mọi nơi.",
+        "Gọi video HD chất lượng cao với bạn bè và gia đình. Kết nối mặt đối mặt mọi lúc mọi nơi với âm thanh và hình ảnh rõ nét.",
+      image: "/images/feature-video.jpg",
+      gradient: "from-green-500 to-emerald-500",
+      link: "/chat",
     },
     {
-      icon: FileText,
-      title: "Chia sẻ file",
+      icon: Users,
+      title: "Chat Nhóm",
       description:
-        "Gửi hình ảnh, video, tài liệu và nhiều loại file khác một cách nhanh chóng.",
+        "Tạo nhóm chat với bạn bè, đồng nghiệp hoặc cộng đồng. Trò chuyện, chia sẻ file và tổ chức cuộc họp dễ dàng.",
+      image: "/images/feature-group.jpg",
+      gradient: "from-orange-500 to-red-500",
+      link: "/chat",
     },
     {
-      icon: Smartphone,
-      title: "Đa nền tảng",
+      icon: Contact,
+      title: "Danh bạ",
       description:
-        "Sử dụng trên web, mobile và desktop. Đồng bộ dữ liệu mọi thiết bị.",
+        "Quản lý danh sách bạn bè, tìm kiếm người dùng mới và kết nối với những người bạn quan tâm. Xây dựng mạng lưới của bạn.",
+      image: "/images/feature-contacts.jpg",
+      gradient: "from-indigo-500 to-purple-500",
+      link: "/chat/contact",
     },
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-purple-50">
+    <section className="py-20 bg-gradient-to-b from-white via-purple-50/30 to-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Tính năng nổi bật
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 space-y-4"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+            Khám phá tính năng
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Khám phá những tính năng mạnh mẽ giúp bạn kết nối và trò chuyện hiệu
-            quả hơn
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            PingMe mang đến trải nghiệm giao tiếp toàn diện với đầy đủ các tính
+            năng hiện đại
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Features Grid */}
+        <div className="space-y-12">
           {features.map((feature, index) => {
             const Icon = feature.icon;
+            const isEven = index % 2 === 0;
+
             return (
-              <Card
+              <FeatureCard
                 key={index}
-                className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm"
-              >
-                <CardHeader className="text-center pb-4">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4 mx-auto">
-                    <Icon className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <CardTitle className="text-xl font-semibold text-gray-900">
-                    {feature.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-gray-600 text-center leading-relaxed">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                feature={feature}
+                index={index}
+                isEven={isEven}
+                Icon={Icon}
+                navigate={navigate}
+              />
             );
           })}
         </div>
       </div>
     </section>
+  );
+};
+
+const FeatureCard = ({
+  feature,
+  index,
+  isEven,
+  Icon,
+  navigate,
+}: FeatureCardProps) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+    >
+      <Card
+        onClick={() => navigate(feature.link)}
+        className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer group bg-white"
+      >
+        <CardContent className="p-0">
+          <div
+            className={`grid md:grid-cols-2 gap-0 ${
+              !isEven ? "md:grid-flow-dense" : ""
+            }`}
+          >
+            {/* Image Side */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+              className={`relative h-64 md:h-auto overflow-hidden ${
+                !isEven ? "md:col-start-2" : ""
+              }`}
+            >
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}
+              />
+              <img
+                src={feature.image || "/placeholder.svg"}
+                alt={feature.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={isInView ? { scale: 1 } : { scale: 0 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                className={`absolute top-6 left-6 w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center shadow-lg`}
+              >
+                <Icon className="w-8 h-8 text-white" />
+              </motion.div>
+            </motion.div>
+
+            {/* Content Side */}
+            <div className="p-8 md:p-12 flex flex-col justify-center">
+              <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-600 transition-colors">
+                {feature.title}
+              </h3>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                {feature.description}
+              </p>
+              <div className="mt-6 flex items-center text-purple-600 font-semibold group-hover:gap-3 gap-2 transition-all">
+                Khám phá ngay
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
