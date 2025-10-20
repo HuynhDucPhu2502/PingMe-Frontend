@@ -1,10 +1,24 @@
+"use client";
+
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/features/store";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { isLogin } = useSelector((state: RootState) => state.auth);
+
+  const handleGetStarted = () => {
+    if (isLogin) {
+      const featuresSection = document.querySelector("#features-section");
+      featuresSection?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/auth?mode=login");
+    }
+  };
 
   return (
     <section className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 overflow-hidden">
@@ -69,19 +83,11 @@ const HeroSection = () => {
             >
               <Button
                 size="lg"
-                onClick={() => navigate("/auth?mode=register")}
+                onClick={handleGetStarted}
                 className="bg-white text-purple-600 hover:bg-purple-50 px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                Bắt đầu ngay
+                Bắt đầu
                 <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("/auth?mode=login")}
-                className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-6 text-lg font-semibold bg-transparent"
-              >
-                Đăng nhập
               </Button>
             </motion.div>
           </motion.div>

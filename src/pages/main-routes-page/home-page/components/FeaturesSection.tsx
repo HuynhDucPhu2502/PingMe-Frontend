@@ -1,10 +1,11 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card.tsx";
 import {
   BookOpen,
   MessageCircle,
-  Video,
-  Users,
   Contact,
+  MessageSquare,
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
@@ -12,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/features/store";
 
 interface Feature {
   icon: LucideIcon;
@@ -32,6 +35,7 @@ interface FeatureCardProps {
 
 const FeaturesSection = () => {
   const navigate = useNavigate();
+  const { isLogin } = useSelector((state: RootState) => state.auth);
 
   const features: Feature[] = [
     {
@@ -41,7 +45,7 @@ const FeaturesSection = () => {
         "Chia sẻ khoảnh khắc hàng ngày, cảm xúc và suy nghĩ của bạn với bạn bè. Giống như mạng xã hội, đăng tức thì không cần duyệt.",
       image: "/images/feature-diary.jpg",
       gradient: "from-blue-500 to-cyan-500",
-      link: "/nhat-ky",
+      link: "/diaries",
     },
     {
       icon: BookOpen,
@@ -53,22 +57,13 @@ const FeaturesSection = () => {
       link: "/blogs",
     },
     {
-      icon: Video,
-      title: "Video Call",
+      icon: MessageSquare,
+      title: "Chat",
       description:
-        "Gọi video HD chất lượng cao với bạn bè và gia đình. Kết nối mặt đối mặt mọi lúc mọi nơi với âm thanh và hình ảnh rõ nét.",
+        "Trò chuyện trực tiếp với bạn bè, chia sẻ tin nhắn, hình ảnh và cảm xúc. Kết nối nhanh chóng và tiện lợi mọi lúc mọi nơi.",
       image: "/images/feature-video.jpg",
       gradient: "from-green-500 to-emerald-500",
-      link: "/chat",
-    },
-    {
-      icon: Users,
-      title: "Chat Nhóm",
-      description:
-        "Tạo nhóm chat với bạn bè, đồng nghiệp hoặc cộng đồng. Trò chuyện, chia sẻ file và tổ chức cuộc họp dễ dàng.",
-      image: "/images/feature-group.jpg",
-      gradient: "from-orange-500 to-red-500",
-      link: "/chat",
+      link: "/chat/messages",
     },
     {
       icon: Contact,
@@ -77,12 +72,23 @@ const FeaturesSection = () => {
         "Quản lý danh sách bạn bè, tìm kiếm người dùng mới và kết nối với những người bạn quan tâm. Xây dựng mạng lưới của bạn.",
       image: "/images/feature-contacts.jpg",
       gradient: "from-indigo-500 to-purple-500",
-      link: "/chat/contact",
+      link: "/chat/contacts",
     },
   ];
 
+  const handleFeatureClick = (link: string) => {
+    if (isLogin) {
+      navigate(link);
+    } else {
+      navigate("/auth?mode=login");
+    }
+  };
+
   return (
-    <section className="py-20 bg-gradient-to-b from-white via-purple-50/30 to-white">
+    <section
+      id="features-section"
+      className="py-20 bg-gradient-to-b from-white via-purple-50/30 to-white"
+    >
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -114,7 +120,7 @@ const FeaturesSection = () => {
                 index={index}
                 isEven={isEven}
                 Icon={Icon}
-                navigate={navigate}
+                navigate={handleFeatureClick}
               />
             );
           })}

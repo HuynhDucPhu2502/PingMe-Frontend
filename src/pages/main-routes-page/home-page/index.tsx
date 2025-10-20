@@ -1,7 +1,6 @@
 import HeroSection from "./components/HeroSection.tsx";
 import FeaturesSection from "./components/FeaturesSection.tsx";
 import StatsSection from "./components/StatsSection.tsx";
-import CTASection from "./components/CTASection.tsx";
 
 export default function HomePage() {
   return (
@@ -14,9 +13,6 @@ export default function HomePage() {
 
       {/* Features Section */}
       <FeaturesSection />
-
-      {/* CTA Section */}
-      <CTASection />
     </div>
   );
 }
