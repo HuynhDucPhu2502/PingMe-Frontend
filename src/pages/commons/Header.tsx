@@ -1,3 +1,5 @@
+import type React from "react";
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -13,15 +15,35 @@ export default function Header() {
 
   const navigationItems = [
     { name: "Trang chủ", href: "/" },
-    { name: "Nhật ký", href: "/diary" },
-    { name: "Blog", href: "/blogs" },
-    { name: "Trò chuyện", href: "/chat/messages", requireAuth: true },
-    { name: "Danh bạ", href: "/chat/contacts", requireAuth: true },
+    { name: "Nhật ký", href: "/diary", requireAuth: true },
+    { name: "Blog", href: "/blogs", requireAuth: true },
+    {
+      name: "Trò chuyện",
+      href: "/chat/messages",
+      requireAuth: true,
+      openInNewTab: true,
+    },
+    {
+      name: "Danh bạ",
+      href: "/chat/contacts",
+      requireAuth: true,
+      openInNewTab: true,
+    },
   ];
 
   const isActiveLink = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
+  };
+
+  const handleNavClick = (
+    e: React.MouseEvent,
+    item: (typeof navigationItems)[0]
+  ) => {
+    if (item.openInNewTab) {
+      e.preventDefault();
+      window.open(item.href, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -58,6 +80,7 @@ export default function Header() {
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={(e) => handleNavClick(e, item)}
                   className={`
                     relative px-4 py-2 font-medium transition-all duration-300 rounded-lg
                     ${
@@ -131,6 +154,10 @@ export default function Header() {
                   <Link
                     key={item.name}
                     to={item.href}
+                    onClick={(e) => {
+                      handleNavClick(e, item);
+                      setIsMobileMenuOpen(false);
+                    }}
                     className={`
                       block px-4 py-3 text-base font-medium rounded-lg transition-all duration-300
                       ${
@@ -139,7 +166,6 @@ export default function Header() {
                           : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
                       }
                     `}
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
