@@ -1,3 +1,4 @@
+import { PageHeader } from "../components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText, CheckCircle, TrendingUp } from "lucide-react";
 
@@ -39,13 +40,10 @@ const stats = [
 export default function StatisticsManagementPage() {
   return (
     <div className="flex-1 overflow-auto">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-8 py-6">
-        <h1 className="text-2xl font-bold text-gray-900">Thống kê</h1>
-        <p className="text-gray-600 mt-1">
-          Tổng quan về hoạt động của hệ thống
-        </p>
-      </div>
+      <PageHeader
+        title="Thống kê"
+        description="Tổng quan về hoạt động của hệ thống"
+      />
 
       {/* Content */}
       <div className="p-8">
@@ -54,7 +52,10 @@ export default function StatisticsManagementPage() {
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.title}>
+              <Card
+                key={stat.title}
+                className="border-purple-100 hover:shadow-lg transition-shadow"
+              >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">
                     {stat.title}
@@ -78,9 +79,11 @@ export default function StatisticsManagementPage() {
 
         {/* Additional Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+          <Card className="border-purple-100">
             <CardHeader>
-              <CardTitle>Hoạt động gần đây</CardTitle>
+              <CardTitle className="text-purple-900">
+                Hoạt động gần đây
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -117,9 +120,11 @@ export default function StatisticsManagementPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-purple-100">
             <CardHeader>
-              <CardTitle>Danh mục phổ biến</CardTitle>
+              <CardTitle className="text-purple-900">
+                Danh mục phổ biến
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

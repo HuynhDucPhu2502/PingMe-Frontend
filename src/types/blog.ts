@@ -24,6 +24,8 @@ export interface BlogReviewResponse {
   user: UserSummaryResponse;
   imgPreviewUrl?: string;
   isApproved: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface BlogDetailsResponse {
@@ -35,6 +37,8 @@ export interface BlogDetailsResponse {
   imgPreviewUrl?: string;
   isApproved: boolean;
   content: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UpsertBlogRequest {

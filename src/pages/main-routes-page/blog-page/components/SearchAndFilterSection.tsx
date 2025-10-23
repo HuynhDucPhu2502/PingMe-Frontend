@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORY_LABELS } from "../utils/blog-utils";
+import { CATEGORY_LABELS } from "@/utils/blogFieldHandler";
 
 interface SearchAndFilterSectionProps {
   searchQuery: string;

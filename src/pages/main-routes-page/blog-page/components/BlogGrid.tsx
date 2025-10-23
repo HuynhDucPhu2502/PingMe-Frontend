@@ -2,13 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil } from "lucide-react";
+import { FileText, Pencil, Clock, RefreshCw } from "lucide-react";
 import type { BlogReviewResponse } from "@/types/blog";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import { EmptyState } from "@/components/custom/EmptyState";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
-import { getGradientForBlog, CATEGORY_LABELS } from "../utils/blog-utils";
+import { getGradientForBlog, CATEGORY_LABELS } from "@/utils/blogFieldHandler";
+import { formatRelativeTime } from "@/utils/dateFormatter";
 
 interface BlogGridProps {
   blogs: BlogReviewResponse[];
@@ -108,6 +109,21 @@ export function BlogGrid({
             <p className="text-sm text-muted-foreground line-clamp-3 text-pretty">
               {blog.description}
             </p>
+
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-purple-500" />
+                <span>{formatRelativeTime(blog.createdAt)}</span>
+              </div>
+              {blog.updatedAt &&
+                new Date(blog.updatedAt).getTime() !==
+                  new Date(blog.createdAt).getTime() && (
+                  <div className="flex items-center gap-1.5">
+                    <RefreshCw className="h-3.5 w-3.5 text-pink-500" />
+                    <span>{formatRelativeTime(blog.updatedAt)}</span>
+                  </div>
+                )}
+            </div>
 
             <div className="flex items-center gap-3 pt-4 border-t border-purple-200/30 dark:border-purple-800/30">
               <Avatar className="h-8 w-8">

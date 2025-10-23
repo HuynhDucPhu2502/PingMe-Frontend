@@ -40,6 +40,23 @@ export const getAllApprovedBlogs = ({
   );
 };
 
+export const getAllBlogs = ({
+  page = 0,
+  size = 10,
+  filter,
+}: PaginationParams) => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    size: size.toString(),
+  });
+
+  if (filter) params.append("filter", filter);
+
+  return axiosClient.get<ApiResponse<PageResponse<BlogReviewResponse>>>(
+    `/blogs?${params.toString()}`
+  );
+};
+
 export const getCurrentUserBlogs = ({
   page = 0,
   size = 10,

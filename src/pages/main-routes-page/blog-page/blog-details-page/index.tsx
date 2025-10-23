@@ -19,7 +19,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { CATEGORY_LABELS, getGradientForBlog } from "../utils/blog-utils";
+import { CATEGORY_LABELS, getGradientForBlog } from "@/utils/blogFieldHandler";
 
 export default function BlogDetailsPage() {
   const { id } = useParams<{ id: string }>();

@@ -10,19 +10,6 @@ export const getPasswordStrength = (password: string) => {
   return { strength: 3, text: "Mạnh", color: "text-blue-500" };
 };
 
-export const getGenderDisplay = (gender?: string) => {
-  switch (gender) {
-    case "MALE":
-      return "Nam";
-    case "FEMALE":
-      return "Nữ";
-    case "OTHER":
-      return "Khác";
-    default:
-      return "Chưa cập nhật";
-  }
-};
-
 export const getUserInitials = (name?: string) => {
   if (!name) return "U";
   return name
