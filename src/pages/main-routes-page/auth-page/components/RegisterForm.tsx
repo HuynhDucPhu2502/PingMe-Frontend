@@ -79,7 +79,7 @@ export default function RegisterForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center p-4 py-12">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-0 bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* Left Side - Image & Branding */}
+        {/* Trái - Ảnh */}
         <div className="relative hidden lg:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-pink-500 via-purple-500 to-purple-600">
           <div className="absolute inset-0 bg-black/10" />
 
@@ -121,7 +121,7 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        {/* Right Side - Register Form */}
+        {/* Phải - Register Form */}
         <div className="flex flex-col justify-center p-8 lg:p-12 max-h-screen overflow-y-auto">
           <div className="w-full max-w-md mx-auto space-y-6">
             {/* Mobile Logo */}
