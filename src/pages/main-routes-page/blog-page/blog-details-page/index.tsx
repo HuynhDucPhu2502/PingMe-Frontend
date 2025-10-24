@@ -122,12 +122,14 @@ export default function BlogDetailsPage() {
             </Badge>
 
             {/* Title */}
-            <h1 className="text-4xl font-bold text-foreground leading-tight">
+            <h1 className="text-4xl font-bold text-foreground leading-tight line-clamp-2 text-balance break-words">
               {blog.title}
             </h1>
 
             {/* Description */}
-            <p className="text-lg text-muted-foreground">{blog.description}</p>
+            <p className="text-lg text-muted-foreground line-clamp-3 text-pretty break-words">
+              {blog.description}
+            </p>
 
             {/* Author Info */}
             <div className="flex items-center gap-4 py-4 border-y border-border">

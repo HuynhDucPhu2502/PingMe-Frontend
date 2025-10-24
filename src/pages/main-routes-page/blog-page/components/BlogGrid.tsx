@@ -100,13 +100,13 @@ export function BlogGrid({
               )}
             </div>
 
-            <h3 className="text-xl font-semibold text-foreground group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 line-clamp-2 text-balance">
+            <h3 className="text-xl font-semibold text-foreground group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 line-clamp-2 text-balance break-words">
               {blog.title}
             </h3>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground line-clamp-3 text-pretty">
+            <p className="text-sm text-muted-foreground line-clamp-3 text-pretty break-words">
               {blog.description}
             </p>
 

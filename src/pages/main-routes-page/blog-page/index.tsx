@@ -7,7 +7,7 @@ import { HeroSection } from "./components/HeroSection";
 import { SearchAndFilterSection } from "./components/SearchAndFilterSection";
 import { BlogGrid } from "./components/BlogGrid";
 import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAllApprovedBlogs, getCurrentUserBlogs } from "@/services/blogApi";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -16,9 +16,24 @@ import Pagination from "@/components/custom/Pagination";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 export default function BlogPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  // Auth State
+  const { isLogin } = useSelector((state: RootState) => state.auth);
+
+  // Navigation
+  const navigate = useNavigate();
+
+  // Search
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [activeTab, setActiveTab] = useState<"all" | "my">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Query Url
+  const [searchParams, setSearchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+  const [activeTab, setActiveTab] = useState<"all" | "my">(
+    mode === "self" ? "my" : "all"
+  );
+
+  // Data
   const [allBlogs, setAllBlogs] = useState<BlogReviewResponse[]>([]);
   const [myBlogs, setMyBlogs] = useState<BlogReviewResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +41,7 @@ export default function BlogPage() {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
+  // Pagination
   const {
     currentPage,
     itemsPerPage,
@@ -38,8 +54,17 @@ export default function BlogPage() {
     resetPagination,
   } = usePagination(20);
 
-  const { isLogin } = useSelector((state: RootState) => state.auth);
-  const navigate = useNavigate();
+  // ==========================================================
+  // Fetch Data
+  // ==========================================================
+  useEffect(() => {
+    const currentMode = searchParams.get("mode");
+    if (currentMode === "self" && activeTab !== "my") {
+      setActiveTab("my");
+    } else if ((!currentMode || currentMode === "all") && activeTab !== "all") {
+      setActiveTab("all");
+    }
+  }, [searchParams, activeTab]);
 
   const fetchBlogs = useCallback(async () => {
     setIsLoading(true);
@@ -121,6 +146,15 @@ export default function BlogPage() {
     resetPagination();
   }, [debouncedSearchQuery, selectedCategory, activeTab, resetPagination]);
 
+  // ==========================================================
+  // Change Tab
+  // ==========================================================
+  const handleTabChange = (tab: "all" | "my") => {
+    setActiveTab(tab);
+    const newMode = tab === "my" ? "self" : "all";
+    setSearchParams({ mode: newMode });
+  };
+
   useEffect(() => {
     if (activeTab === "all") {
       fetchBlogs();
@@ -149,7 +183,7 @@ export default function BlogPage() {
                       ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
-                  onClick={() => setActiveTab("all")}
+                  onClick={() => handleTabChange("all")}
                 >
                   Tất cả bài viết
                 </Button>
@@ -161,7 +195,7 @@ export default function BlogPage() {
                       ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
-                  onClick={() => setActiveTab("my")}
+                  onClick={() => handleTabChange("my")}
                 >
                   Bài viết của tôi
                 </Button>

@@ -115,6 +115,10 @@ export default function UpsertBlogPage() {
       toast.error("Vui lòng nhập mô tả ngắn");
       return;
     }
+    if (formData.description.length > 150) {
+      toast.error("Mô tả không được quá 150 ký tự");
+      return;
+    }
     if (!formData.category) {
       toast.error("Vui lòng chọn danh mục");
       return;
@@ -150,7 +154,12 @@ export default function UpsertBlogPage() {
         toast.success("Cập nhật blog thành công!");
       } else {
         await saveBlog(formDataToSend);
-        toast.success("Tạo blog thành công! Đang chờ duyệt...");
+        toast.success("Tạo blog thành công! Đang chờ duyệt...", {
+          action: {
+            label: "Xem bài viết của bạn",
+            onClick: () => navigate("/blogs?mode=self"),
+          },
+        });
       }
 
       navigate("/blogs");
@@ -246,7 +255,11 @@ export default function UpsertBlogPage() {
                   setFormData({ ...formData, description: e.target.value })
                 }
                 className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                maxLength={150}
               />
+              <p className="text-sm text-muted-foreground text-right">
+                {formData.description.length}/150 ký tự
+              </p>
             </div>
 
             {/* Category */}
