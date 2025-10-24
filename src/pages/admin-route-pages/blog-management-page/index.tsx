@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
-import { SearchFilters } from "./components/SearchFilters";
+import { BlogSearchFilters } from "./components/BlogSearchFilters";
 import { BlogManagementTable } from "./components/BlogManagementTable";
 import Pagination from "@/components/custom/Pagination";
 import { getAllBlogs } from "@/services/blogApi";
@@ -32,8 +31,6 @@ export default function BlogManagementPage() {
     setTotalPages,
     resetPagination,
   } = usePagination(10);
-
-  const navigate = useNavigate();
 
   const fetchBlogs = useCallback(async () => {
     setIsLoading(true);
@@ -88,12 +85,10 @@ export default function BlogManagementPage() {
   }, [fetchBlogs]);
 
   const handleDelete = (blogId: number) => {
-    // TODO: Implement delete functionality
     console.log("Delete blog:", blogId);
   };
 
   const handleApprove = (blogId: number) => {
-    // TODO: Implement approve functionality
     console.log("Approve blog:", blogId);
   };
 
@@ -104,7 +99,7 @@ export default function BlogManagementPage() {
         description="Duyệt và quản lý các bài viết blog"
       />
 
-      <SearchFilters
+      <BlogSearchFilters
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         selectedCategory={selectedCategory}

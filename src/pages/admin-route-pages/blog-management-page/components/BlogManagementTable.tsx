@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Table,
   TableBody,
@@ -30,7 +28,7 @@ export const BlogManagementTable = ({
   const navigate = useNavigate();
 
   const handleViewDetails = (id: number) => {
-    window.open(`/blogs/${id}`, "_blank");
+    navigate(`/blogs/${id}`);
   };
 
   return (
