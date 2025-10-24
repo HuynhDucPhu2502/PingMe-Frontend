@@ -1,7 +1,7 @@
 import { User, Key, Monitor } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
-import UserAvatarPanel from "./components";
+import UserAvatarPanel from "./components/UserAvatarPanel";
 
 const navigationItems = [
   {

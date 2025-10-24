@@ -8,12 +8,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { logout } from "@/features/slices/authThunk";
-import { getUserInitials } from "@/utils/authFieldHandler";
+import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 
 interface UserMenuProps {
   openInNewTab?: boolean;
@@ -54,9 +54,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
                 }
                 alt={userSession?.name || "User"}
               />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 font-semibold text-white">
-                {getUserInitials(userSession?.name) || "U"}
-              </AvatarFallback>
+              <UserAvatarFallback name={userSession?.name} size="sm" />
             </Avatar>
           </div>
         </Button>
@@ -78,9 +76,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
               }
               alt={userSession?.name || "User"}
             />
-            <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 font-semibold text-white">
-              {getUserInitials(userSession?.name)}
-            </AvatarFallback>
+            <UserAvatarFallback name={userSession?.name} size="md" />
           </Avatar>
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold text-gray-900">

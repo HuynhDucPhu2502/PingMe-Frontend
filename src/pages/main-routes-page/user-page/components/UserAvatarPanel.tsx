@@ -1,3 +1,7 @@
+"use client";
+
+import type React from "react";
+
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import {
   Avatar,
@@ -14,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Progress } from "@/components/ui/progress.tsx";
-import { getUserInitials } from "@/utils/authFieldHandler.ts";
+import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
@@ -144,9 +148,11 @@ const UserAvatarPanel = () => {
                   alt={userSession?.name || "User"}
                   className="object-cover"
                 />
-                <AvatarFallback className="bg-gradient-to-br from-purple-400 to-purple-600 font-bold text-white text-lg">
-                  {getUserInitials(userSession?.name)}
-                </AvatarFallback>
+                <UserAvatarFallback
+                  name={userSession?.name}
+                  size={96}
+                  className="text-lg"
+                />
               </Avatar>
 
               {/* Simple Camera Overlay */}

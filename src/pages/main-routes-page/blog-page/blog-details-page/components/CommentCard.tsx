@@ -1,8 +1,8 @@
 import { memo } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { getUserInitials } from "@/utils/authFieldHandler";
+import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 import { formatRelativeTime } from "@/utils/dateFormatter";
 import type { BlogCommentResponse } from "@/types/blogComment";
 import {
@@ -49,7 +49,7 @@ const CommentCard = memo(function CommentCard({
           src={comment.user.avatarUrl || "/placeholder.svg"}
           alt={comment.user.name}
         />
-        <AvatarFallback>{getUserInitials(comment.user.name)}</AvatarFallback>
+        <UserAvatarFallback name={comment.user.name} size={40} />
       </Avatar>
       <div className="flex-1 space-y-2">
         <div className="flex items-center justify-between">
