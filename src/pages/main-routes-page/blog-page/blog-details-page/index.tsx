@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowUp } from "lucide-react";
 import { getBlogDetailsById } from "@/services/blogApi";
 import type { BlogDetailsResponse } from "@/types/blog";
-import { getUserInitials } from "@/utils/authFieldHandler";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
-import RichTextPreview from "@/components/custom/RichText/RichTextPreview";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,7 +15,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { CATEGORY_LABELS, getGradientForBlog } from "@/utils/blogFieldHandler";
+import BlogDetails from "./components/BlogDetails";
+import BlogComments from "./components/BlogComments";
 
 export default function BlogDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -113,68 +110,8 @@ export default function BlogDetailsPage() {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Blog Header */}
-          <div className="space-y-6 mb-8">
-            {/* Category Badge */}
-            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300">
-              {CATEGORY_LABELS[blog.category]}
-            </Badge>
-
-            {/* Title */}
-            <h1 className="text-4xl font-bold text-foreground leading-tight line-clamp-2 text-balance break-words">
-              {blog.title}
-            </h1>
-
-            {/* Description */}
-            <p className="text-lg text-muted-foreground line-clamp-3 text-pretty break-words">
-              {blog.description}
-            </p>
-
-            {/* Author Info */}
-            <div className="flex items-center gap-4 py-4 border-y border-border">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src={blog.user.avatarUrl || "/placeholder.svg"}
-                  alt={blog.user.name}
-                />
-                <AvatarFallback>
-                  {getUserInitials(blog.user.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-foreground">
-                  {blog.user.name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {blog.user.email}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Featured Image */}
-          <div className="mb-8 rounded-lg overflow-hidden">
-            {blog.imgPreviewUrl ? (
-              <img
-                src={blog.imgPreviewUrl || "/placeholder.svg"}
-                alt={blog.title}
-                className="w-full h-[400px] object-cover"
-              />
-            ) : (
-              <div
-                className={`w-full h-[400px] bg-gradient-to-br ${getGradientForBlog(
-                  blog.id
-                )}`}
-              />
-            )}
-          </div>
-
-          {/* Blog Content */}
-          <div className="prose prose-xl max-w-none dark:prose-invert [&_p]:text-lg [&_p]:leading-relaxed [&_li]:text-lg">
-            <RichTextPreview content={blog.content} />
-          </div>
-        </div>
+        <BlogDetails blog={blog} />
+        <BlogComments blogId={blog.id} />
       </div>
 
       {/* Floating Scroll-to-Top Button */}
