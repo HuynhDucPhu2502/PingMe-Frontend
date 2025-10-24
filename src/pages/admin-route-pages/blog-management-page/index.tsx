@@ -3,7 +3,7 @@ import { PageHeader } from "../components/PageHeader";
 import { BlogSearchFilters } from "./components/BlogSearchFilters";
 import { BlogManagementTable } from "./components/BlogManagementTable";
 import Pagination from "@/components/custom/Pagination";
-import { getAllBlogs } from "@/services/blogApi";
+import { getAllBlogs, approveBlog, deleteBlog } from "@/services/blogApi";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -53,7 +53,7 @@ export default function BlogManagementPage() {
       const filter = filters.length > 0 ? filters.join(" and ") : undefined;
 
       const response = await getAllBlogs({
-        page: currentPage - 1, // API uses 0-based indexing
+        page: currentPage,
         size: itemsPerPage,
         filter,
       });
@@ -84,12 +84,28 @@ export default function BlogManagementPage() {
     fetchBlogs();
   }, [fetchBlogs]);
 
-  const handleDelete = (blogId: number) => {
-    console.log("Delete blog:", blogId);
+  const handleDelete = async (blogId: number) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa blog này?")) {
+      return;
+    }
+
+    try {
+      await deleteBlog(blogId);
+      toast.success("Xóa blog thành công");
+      fetchBlogs();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể xóa blog"));
+    }
   };
 
-  const handleApprove = (blogId: number) => {
-    console.log("Approve blog:", blogId);
+  const handleApprove = async (blogId: number) => {
+    try {
+      await approveBlog(blogId);
+      toast.success("Duyệt blog thành công");
+      fetchBlogs();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể duyệt blog"));
+    }
   };
 
   return (

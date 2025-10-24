@@ -73,3 +73,11 @@ export const getCurrentUserBlogs = ({
     `/blogs/me?${params.toString()}`
   );
 };
+
+export const approveBlog = (blogId: number) => {
+  return axiosClient.post<ApiResponse<void>>(`/blogs/approve/${blogId}`);
+};
+
+export const deleteBlog = (blogId: number) => {
+  return axiosClient.delete<ApiResponse<void>>(`/blogs/${blogId}`);
+};
