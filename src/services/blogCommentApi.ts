@@ -3,11 +3,11 @@ import type {
   ApiResponse,
   PageResponse,
   PaginationParams,
-} from "@/types/apiResponse";
+} from "@/types/common/apiResponse";
 import type {
   BlogCommentResponse,
   UpsertBlogCommentRequest,
-} from "@/types/blogComment";
+} from "@/types/blog/blogComment";
 
 export const saveBlogComment = (
   data: UpsertBlogCommentRequest,

@@ -1,7 +1,7 @@
 import { UAParser } from "ua-parser-js";
-import type { SessionMetaRequest } from "@/types/userAccount";
+import type { SubmitSessionMetaRequest } from "@/types/authentication";
 
-export const getSessionMetaRequest = (): SessionMetaRequest => {
+export const getSessionMetaRequest = (): SubmitSessionMetaRequest => {
   const parser = new UAParser();
   const result = parser.getResult();
 

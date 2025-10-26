@@ -1,4 +1,4 @@
-import type { UserSummaryResponse } from "@/types/userSummary";
+import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";

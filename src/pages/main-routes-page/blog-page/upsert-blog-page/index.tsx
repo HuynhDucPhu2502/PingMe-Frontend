@@ -26,7 +26,7 @@ import {
   BLOG_CATEGORIES,
   type BlogCategory,
   type UpsertBlogRequest,
-} from "@/types/blog";
+} from "@/types/blog/blog.ts";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { saveBlog, updateBlog, getBlogDetailsById } from "@/services/blogApi";

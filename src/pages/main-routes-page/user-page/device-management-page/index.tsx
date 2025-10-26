@@ -2,7 +2,7 @@ import {
   deleteCurrentUserDeviceMetaApi,
   getCurrentUserAllDeviceMetasApi,
 } from "@/services/userAccountApi.ts";
-import type { SessionMetaResponse } from "@/types/userAccount";
+import type { CurrentUserSessionMetaResponse } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { normalizeDeviceType } from "@/utils/sessionMetaHandler.ts";
 import { useCallback, useEffect, useState } from "react";
@@ -28,7 +28,7 @@ import {
 
 const DeviceManagementPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [sessions, setSessions] = useState<SessionMetaResponse[]>([]);
+  const [sessions, setSessions] = useState<CurrentUserSessionMetaResponse[]>([]);
   const [deletingSessionId, setDeletingSessionId] = useState<string | null>(
     null
   );
@@ -63,7 +63,7 @@ const DeviceManagementPage = () => {
       const data = res.data.data;
 
       const sortedSessions = data.sort(
-        (a: SessionMetaResponse, b: SessionMetaResponse) => {
+        (a: CurrentUserSessionMetaResponse, b: CurrentUserSessionMetaResponse) => {
           if (a.current && !b.current) return -1;
           if (!a.current && b.current) return 1;
           return (

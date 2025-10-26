@@ -9,10 +9,10 @@ import {
   disconnectFriendshipWS,
   type FriendshipEventPayload,
 } from "@/services/ws/friendshipSocket.ts";
-import type { UserSummaryResponse } from "@/types/userSummary";
+import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import type { UserFriendshipStatsResponse } from "@/types/friendship.js";
+import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendshipApi.ts";
 import { useAppSelector } from "@/features/hooks.ts";
 

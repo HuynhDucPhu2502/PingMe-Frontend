@@ -1,11 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import type { RoomResponse } from "@/types/room";
-import type { UserSessionResponse } from "@/types/userAccount";
+import type { RoomResponse } from "@/types/chat/room";
+import type { CurrentUserSessionResponse } from "@/types/authentication";
 
 interface ChatCardProps {
   room: RoomResponse;
-  userSession: UserSessionResponse | null;
+  userSession: CurrentUserSessionResponse | null;
   isSelected: boolean;
   onClick: () => void;
 }

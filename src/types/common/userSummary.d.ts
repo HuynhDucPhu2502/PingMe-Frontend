@@ -1,4 +1,4 @@
-import type { FriendshipSummary } from "./friendship";
+import type { FriendshipSummary } from "../friendship";
 
 export interface UserSummaryResponse {
   id: number;

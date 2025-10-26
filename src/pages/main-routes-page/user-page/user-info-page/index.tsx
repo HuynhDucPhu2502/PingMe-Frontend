@@ -27,7 +27,7 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
 import { toast } from "sonner";
-import type { ChangeProfileRequest } from "@/types/userAccount";
+import type { ChangeProfileRequest } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
   getCurrentUserInfoApi,

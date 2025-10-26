@@ -5,8 +5,8 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import type { MessageResponse, HistoryMessageResponse } from "@/types/message";
-import type { RoomResponse } from "@/types/room";
+import type { MessageResponse, HistoryMessageResponse } from "@/types/chat/message";
+import type { RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getHistoryMessagesApi, sendMessageApi } from "@/services/chatApi.ts";

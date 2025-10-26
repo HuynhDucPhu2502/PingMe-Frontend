@@ -1,19 +1,19 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/apiResponse";
+import type { ApiResponse } from "@/types/common/apiResponse";
 import type {
   ChangePasswordRequest,
   ChangeProfileRequest,
   DefaultAuthResponse,
-  LocalLoginRequest,
-  LocalRegisterRequest,
-  SessionMetaResponse,
-  UserInfoResponse,
-  UserSessionResponse,
-} from "@/types/userAccount";
+  LoginRequest,
+  RegisterRequest,
+  CurrentUserSessionMetaResponse,
+  CurrentUserProfileResponse,
+  CurrentUserSessionResponse,
+} from "@/types/authentication";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler.ts";
 import axios from "axios";
 
-export const registerLocalApi = (data: LocalRegisterRequest) => {
+export const registerLocalApi = (data: RegisterRequest) => {
   return axios.post<ApiResponse<DefaultAuthResponse>>(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/register`,
     data,
@@ -21,7 +21,7 @@ export const registerLocalApi = (data: LocalRegisterRequest) => {
   );
 };
 
-export const loginLocalApi = (data: LocalLoginRequest) => {
+export const loginLocalApi = (data: LoginRequest) => {
   const sessionMetaRequest = getSessionMetaRequest();
 
   return axios.post<ApiResponse<DefaultAuthResponse>>(
@@ -52,15 +52,15 @@ export const refreshSessionApi = () => {
 };
 
 export const getCurrentUserSessionApi = () => {
-  return axiosClient.get<ApiResponse<UserSessionResponse>>("/auth/me");
+  return axiosClient.get<ApiResponse<CurrentUserSessionResponse>>("/auth/me");
 };
 
 export const getCurrentUserInfoApi = () => {
-  return axiosClient.get<ApiResponse<UserInfoResponse>>("/auth/me/info");
+  return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>("/auth/me/info");
 };
 
 export const getCurrentUserAllDeviceMetasApi = () => {
-  return axiosClient.get<ApiResponse<SessionMetaResponse[]>>(
+  return axiosClient.get<ApiResponse<CurrentUserSessionMetaResponse[]>>(
     "/auth/me/sessions"
   );
 };
@@ -68,7 +68,7 @@ export const getCurrentUserAllDeviceMetasApi = () => {
 export const updateCurrentUserPasswordApi = (
   changePasswordRequest: ChangePasswordRequest
 ) => {
-  return axiosClient.post<ApiResponse<UserSessionResponse>>(
+  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/auth/me/password",
     changePasswordRequest
   );
@@ -77,21 +77,21 @@ export const updateCurrentUserPasswordApi = (
 export const updateCurrentUserProfileApi = (
   changeProfileRequest: ChangeProfileRequest
 ) => {
-  return axiosClient.post<ApiResponse<UserSessionResponse>>(
+  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/auth/me/profile",
     changeProfileRequest
   );
 };
 
 export const updateCurrentUserAvatarApi = (data: FormData) => {
-  return axiosClient.post<ApiResponse<UserSessionResponse>>(
+  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/auth/me/avatar",
     data
   );
 };
 
 export const deleteCurrentUserDeviceMetaApi = (sessionId: string) => {
-  return axiosClient.delete<ApiResponse<UserSessionResponse>>(
+  return axiosClient.delete<ApiResponse<CurrentUserSessionResponse>>(
     `/auth/me/sessions/${sessionId}`
   );
 };

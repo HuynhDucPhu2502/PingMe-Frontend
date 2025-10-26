@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import { UserLookupModal } from "./UserLookupModal.tsx";
-import type { RoomResponse } from "@/types/room";
+import type { RoomResponse } from "@/types/chat/room";
 
 interface SharedTopBarProps {
   onFriendAdded?: () => void;

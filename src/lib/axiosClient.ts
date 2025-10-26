@@ -1,8 +1,8 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosError } from "axios";
-import type { ApiResponse } from "@/types/apiResponse";
+import type { ApiResponse } from "@/types/common/apiResponse";
 import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
-import type { DefaultAuthResponse } from "@/types/userAccount";
+import type { DefaultAuthResponse } from "@/types/authentication";
 
 // ============================================================
 // Cấu hình cơ bản

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { FileText, Pencil, Clock, RefreshCw } from "lucide-react";
-import type { BlogReviewResponse } from "@/types/blog";
+import type { BlogReviewResponse } from "@/types/blog/blog.ts";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import { EmptyState } from "@/components/custom/EmptyState";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";

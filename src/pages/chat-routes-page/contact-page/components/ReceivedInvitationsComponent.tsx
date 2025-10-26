@@ -16,7 +16,7 @@ import {
   getReceivedHistoryInvitationsApi,
   rejectInvitationApi,
 } from "@/services/friendshipApi";
-import type { UserSummaryResponse } from "@/types/userSummary";
+import type { UserSummaryResponse } from "@/types/common/userSummary";
 import type { HistoryFriendshipResponse } from "@/types/friendship";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserInitials } from "@/utils/authFieldHandler";

@@ -1,4 +1,4 @@
-import type { UserSummaryResponse } from "./userSummary";
+import type { UserSummaryResponse } from "../common/userSummary";
 
 export type UpsertBlogCommentRequest = {
   content: string;

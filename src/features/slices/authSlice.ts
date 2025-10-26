@@ -1,7 +1,7 @@
 import type {
   DefaultAuthResponse,
-  UserSessionResponse,
-} from "@/types/userAccount";
+  CurrentUserSessionResponse,
+} from "@/types/authentication";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
   getCurrentUserSession,
@@ -11,14 +11,14 @@ import {
 } from "./authThunk";
 
 export type AuthState = {
-  userSession: UserSessionResponse;
+  userSession: CurrentUserSessionResponse;
   isLogin: boolean;
   isLoading: boolean;
   error: string | null;
 };
 
 const initialValue: AuthState = {
-  userSession: {} as UserSessionResponse,
+  userSession: {} as CurrentUserSessionResponse,
   isLogin: false,
   isLoading: false,
   error: null,
@@ -63,7 +63,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.userSession = {} as UserSessionResponse;
+        state.userSession = {} as CurrentUserSessionResponse;
 
         state.isLogin = false;
         state.isLoading = false;
@@ -104,7 +104,7 @@ const authSlice = createSlice({
       })
       .addCase(
         getCurrentUserSession.fulfilled,
-        (state, action: PayloadAction<UserSessionResponse>) => {
+        (state, action: PayloadAction<CurrentUserSessionResponse>) => {
           state.userSession = action.payload;
 
           state.isLogin = true;

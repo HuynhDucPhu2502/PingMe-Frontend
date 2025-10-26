@@ -1,4 +1,4 @@
-import type { MessageResponse } from "@/types/message";
+import type { MessageResponse } from "@/types/chat/message";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;

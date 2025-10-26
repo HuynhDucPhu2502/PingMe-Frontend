@@ -3,14 +3,14 @@ import type {
   ApiResponse,
   PageResponse,
   PaginationParams,
-} from "@/types/apiResponse";
+} from "@/types/common/apiResponse";
 import type {
   HistoryMessageResponse,
   MarkReadRequest,
   MessageResponse,
   SendMessageRequest,
-} from "@/types/message";
-import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/room";
+} from "@/types/chat/message";
+import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/chat/room";
 
 export const createOrGetDirectRoomApi = (
   data: CreateOrGetDirectRoomRequest

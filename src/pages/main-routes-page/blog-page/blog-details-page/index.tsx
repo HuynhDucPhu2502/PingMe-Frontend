@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowUp } from "lucide-react";
 import { getBlogDetailsById } from "@/services/blogApi";
-import type { BlogDetailsResponse } from "@/types/blog";
+import type { BlogDetailsResponse } from "@/types/blog/blog.ts";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";

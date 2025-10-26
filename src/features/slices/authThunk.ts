@@ -6,16 +6,16 @@ import {
 } from "@/services/userAccountApi.ts";
 import type {
   DefaultAuthResponse,
-  LocalLoginRequest,
-  UserSessionResponse,
-} from "@/types/userAccount";
+  LoginRequest,
+  CurrentUserSessionResponse,
+} from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 
 export const login = createAsyncThunk<
   DefaultAuthResponse,
-  LocalLoginRequest,
+  LoginRequest,
   { rejectValue: string }
 >("auth/login", async (data, thunkAPI) => {
   try {
@@ -53,7 +53,7 @@ export const refreshSession = createAsyncThunk<
 });
 
 export const getCurrentUserSession = createAsyncThunk<
-  UserSessionResponse,
+  CurrentUserSessionResponse,
   void,
   { rejectValue: string }
 >("auth/me", async (_, thunkAPI) => {

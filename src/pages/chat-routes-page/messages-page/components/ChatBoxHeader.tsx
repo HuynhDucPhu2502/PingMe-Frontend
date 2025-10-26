@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/features/hooks";
-import type { RoomResponse } from "@/types/room";
+import type { RoomResponse } from "@/types/chat/room";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 interface ChatBoxHeaderProps {

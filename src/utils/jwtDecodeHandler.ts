@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import type { DefaultAuthResponse } from "@/types/userAccount";
+import type { DefaultAuthResponse } from "@/types/authentication";
 import axios from "axios";
 
 type Decoded = { exp: number };

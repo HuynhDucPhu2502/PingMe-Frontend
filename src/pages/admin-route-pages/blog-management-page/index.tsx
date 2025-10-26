@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePagination } from "@/hooks/use-pagination";
-import type { BlogReviewResponse } from "@/types/blog";
+import type { BlogReviewResponse } from "@/types/blog/blog.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 
 export default function BlogManagementPage() {

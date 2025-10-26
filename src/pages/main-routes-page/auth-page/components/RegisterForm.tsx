@@ -31,7 +31,7 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
 import { Link, useNavigate } from "react-router-dom";
-import type { LocalRegisterRequest } from "@/types/userAccount";
+import type { RegisterRequest } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { registerLocalApi } from "@/services/userAccountApi.ts";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<LocalRegisterRequest>({
+  const [formData, setFormData] = useState<RegisterRequest>({
     email: "",
     password: "",
     name: "",
@@ -60,7 +60,7 @@ export default function RegisterForm() {
 
     try {
       setIsLoading(true);
-      const payload: LocalRegisterRequest = {
+      const payload: RegisterRequest = {
         ...formData,
         dob: dob?.toLocaleDateString("en-CA"),
       };

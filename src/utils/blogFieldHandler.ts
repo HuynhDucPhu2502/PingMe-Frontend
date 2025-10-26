@@ -1,4 +1,4 @@
-import type { BlogCategory } from "@/types/blog";
+import type { BlogCategory } from "@/types/blog/blog.ts";
 
 export const GRADIENT_COLORS = [
   "from-purple-500 to-pink-500",

@@ -23,12 +23,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { lookupApi } from "@/services/userLookupApi.ts";
-import type { UserSummaryResponse } from "@/types/userSummary";
+import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { FriendInvitationRequest } from "@/types/friendship";
 import { sendInvitationApi } from "@/services/friendshipApi.ts";
-import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/room";
+import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/chat/room";
 import { createOrGetDirectRoomApi } from "@/services/chatApi.ts";
 
 interface UserLookupModalProps {

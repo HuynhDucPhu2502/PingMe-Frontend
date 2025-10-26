@@ -3,10 +3,10 @@
 // =============================
 export interface DefaultAuthResponse {
   accessToken: string;
-  userSession: UserSessionResponse;
+  userSession: CurrentUserSessionResponse;
 }
 
-export interface UserSessionResponse {
+export interface CurrentUserSessionResponse {
   id: number;
   email: string;
   name: string;
@@ -14,7 +14,7 @@ export interface UserSessionResponse {
   updatedAt: string;
 }
 
-export interface UserInfoResponse {
+export interface CurrentUserProfileResponse {
   email: string;
   name: string;
   avatarUrl: string;
@@ -23,7 +23,7 @@ export interface UserInfoResponse {
   dob?: string;
 }
 
-export interface LocalRegisterRequest {
+export interface RegisterRequest {
   email: string;
   name: string;
   gender: "MALE" | "FEMALE" | "OTHER";
@@ -32,19 +32,19 @@ export interface LocalRegisterRequest {
   dob?: string;
 }
 
-export interface LocalLoginRequest {
+export interface LoginRequest {
   email: string;
   password: string;
-  sessionMetaRequest?: SessionMetaRequest;
+  sessionMetaRequest?: SubmitSessionMetaRequest;
 }
 
-export interface SessionMetaRequest {
+export interface SubmitSessionMetaRequest {
   deviceType?: string;
   browser?: string;
   os?: string;
 }
 
-export interface SessionMetaResponse {
+export interface CurrentUserSessionMetaResponse {
   sessionId: string;
   deviceType: string;
   browser: string;

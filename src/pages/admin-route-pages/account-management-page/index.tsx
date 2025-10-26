@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageHeader } from "../components/PageHeader";
 import { AccountSearchFilters } from "./components/AccountSearchFilters";
 import { AccountManagementTable } from "./components/AccountManagementTable";
-import type { UserSummaryResponse } from "@/types/userSummary";
+import type { UserSummaryResponse } from "@/types/common/userSummary";
 
 // Mock data
 const mockUsers: UserSummaryResponse[] = [

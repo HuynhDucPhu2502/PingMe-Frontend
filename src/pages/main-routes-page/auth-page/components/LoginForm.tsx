@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Eye, EyeOff, Mail, Lock, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { LocalLoginRequest } from "@/types/userAccount";
+import type { LoginRequest } from "@/types/authentication";
 import { useAppDispatch } from "@/features/hooks.ts";
 import { login } from "@/features/slices/authThunk.ts";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    const loginRequestDto: LocalLoginRequest = {
+    const loginRequestDto: LoginRequest = {
       email,
       password,
     };

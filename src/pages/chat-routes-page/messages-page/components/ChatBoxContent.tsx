@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
-import type { MessageResponse } from "@/types/message";
-import type { RoomResponse } from "@/types/room";
+import type { MessageResponse } from "@/types/chat/message";
+import type { RoomResponse } from "@/types/chat/room";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import SentMessageBubble from "./SentMessageBubble.tsx";

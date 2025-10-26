@@ -3,8 +3,8 @@ import type {
   ApiResponse,
   PageResponse,
   PaginationParams,
-} from "@/types/apiResponse";
-import type { BlogDetailsResponse, BlogReviewResponse } from "@/types/blog";
+} from "@/types/common/apiResponse";
+import type { BlogDetailsResponse, BlogReviewResponse } from "@/types/blog/blog.ts";
 
 export const saveBlog = (data: FormData) => {
   return axiosClient.post<ApiResponse<BlogReviewResponse>>("/blogs", data);

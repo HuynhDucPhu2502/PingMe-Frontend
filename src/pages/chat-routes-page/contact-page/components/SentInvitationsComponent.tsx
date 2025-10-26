@@ -22,7 +22,7 @@ import {
   cancelInvitationApi,
   getSentHistoryInvitationsApi,
 } from "@/services/friendshipApi";
-import type { UserSummaryResponse } from "@/types/userSummary.d.ts";
+import type { UserSummaryResponse } from "@/types/common/userSummary.d.ts";
 import type { HistoryFriendshipResponse } from "@/types/friendship";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserInitials } from "@/utils/authFieldHandler";

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import type { BlogReviewResponse } from "@/types/blog";
+import type { BlogReviewResponse } from "@/types/blog/blog.ts";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/features/store";
 import { HeroSection } from "./components/HeroSection";

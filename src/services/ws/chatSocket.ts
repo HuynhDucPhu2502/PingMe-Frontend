@@ -1,5 +1,5 @@
-import type { MessageResponse } from "@/types/message";
-import type { RoomResponse } from "@/types/room";
+import type { MessageResponse } from "@/types/chat/message";
+import type { RoomResponse } from "@/types/chat/room";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 
