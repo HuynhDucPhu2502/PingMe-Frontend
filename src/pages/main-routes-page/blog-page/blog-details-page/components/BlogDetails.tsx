@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import type { BlogDetailsResponse } from "@/types/blog";
+import type { BlogDetailsResponse } from "@/types/blog/blog";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import RichTextPreview from "@/components/custom/RichText/RichTextPreview";
 import { CATEGORY_LABELS, getGradientForBlog } from "@/utils/blogFieldHandler";

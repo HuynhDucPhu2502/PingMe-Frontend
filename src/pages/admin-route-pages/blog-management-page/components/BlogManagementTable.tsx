@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, Trash2, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { BlogReviewResponse } from "@/types/blog";
+import type { BlogReviewResponse } from "@/types/blog/blog";
 import { CATEGORY_LABELS } from "@/utils/blogFieldHandler";
 import { formatRelativeTime } from "@/utils/dateFormatter";
 import { Badge } from "@/components/ui/badge";

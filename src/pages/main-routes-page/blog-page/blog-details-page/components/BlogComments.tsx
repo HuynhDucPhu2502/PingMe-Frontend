@@ -14,7 +14,7 @@ import {
 import type {
   BlogCommentResponse,
   UpsertBlogCommentRequest,
-} from "@/types/blogComment";
+} from "@/types/blog/blogComment";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";

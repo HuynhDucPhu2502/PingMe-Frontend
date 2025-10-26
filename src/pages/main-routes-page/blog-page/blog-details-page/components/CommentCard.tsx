@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 import { formatRelativeTime } from "@/utils/dateFormatter";
-import type { BlogCommentResponse } from "@/types/blogComment";
+import type { BlogCommentResponse } from "@/types/blog/blogComment";
 import {
   DropdownMenu,
   DropdownMenuContent,
