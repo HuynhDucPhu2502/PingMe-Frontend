@@ -12,6 +12,7 @@ export interface CurrentUserSessionResponse {
   name: string;
   avatarUrl: string;
   updatedAt: string;
+  roleName: string | null;
 }
 
 export interface CurrentUserProfileResponse {
@@ -21,6 +22,7 @@ export interface CurrentUserProfileResponse {
   gender: "MALE" | "FEMALE" | "OTHER";
   address?: string;
   dob?: string;
+  roleName: string | null;
 }
 
 export interface RegisterRequest {
@@ -35,7 +37,7 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
-  sessionMetaRequest?: SubmitSessionMetaRequest;
+  submitSessionMetaRequest?: SubmitSessionMetaRequest;
 }
 
 export interface SubmitSessionMetaRequest {

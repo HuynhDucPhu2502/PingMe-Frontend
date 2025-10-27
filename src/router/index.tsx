@@ -17,6 +17,7 @@ import BlogManagementPage from "@/pages/admin-route-pages/blog-management-page";
 import StatisticsManagementPage from "@/pages/admin-route-pages/statistics-management-page";
 import UpsertBlogPage from "@/pages/main-routes-page/blog-page/upsert-blog-page";
 import BlogDetailsPage from "@/pages/main-routes-page/blog-page/blog-details-page";
+import { AdminRoute } from "@/pages/commons/AdminRoute";
 
 export const router = createBrowserRouter([
   {
@@ -68,9 +69,9 @@ export const router = createBrowserRouter([
   {
     path: "admin",
     element: (
-      <ProtectedRoute>
+      <AdminRoute>
         <AdminPage />
-      </ProtectedRoute>
+      </AdminRoute>
     ),
     children: [
       { index: true, element: <Navigate to="/admin/accounts" /> },
