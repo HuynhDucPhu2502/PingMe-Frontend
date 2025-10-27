@@ -22,14 +22,11 @@ export const registerLocalApi = (data: RegisterRequest) => {
 };
 
 export const loginLocalApi = (data: LoginRequest) => {
-  const sessionMetaRequest = getSessionMetaRequest();
+  data.submitSessionMetaRequest = getSessionMetaRequest();
 
   return axios.post<ApiResponse<DefaultAuthResponse>>(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/login`,
-    {
-      ...data,
-      sessionMetaRequest,
-    },
+    data,
     { withCredentials: true }
   );
 };
@@ -56,7 +53,9 @@ export const getCurrentUserSessionApi = () => {
 };
 
 export const getCurrentUserInfoApi = () => {
-  return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>("/auth/me/info");
+  return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>(
+    "/auth/me/info"
+  );
 };
 
 export const getCurrentUserAllDeviceMetasApi = () => {
