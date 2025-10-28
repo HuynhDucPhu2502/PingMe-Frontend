@@ -7,6 +7,6 @@ export interface UserSummaryResponse {
   name: string;
   avatarUrl: string;
 
-  status: UserStatus;
+  status?: UserStatus;
   friendshipSummary: FriendshipSummary | null;
 }
