@@ -1,42 +1,12 @@
 import type { UserStatusPayload } from "@/types/common/userStatus";
-import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 
-// =================================================================
-// Type
-// =================================================================
-export type FriendshipEventType =
-  | "INVITED"
-  | "ACCEPTED"
-  | "REJECTED"
-  | "CANCELED"
-  | "DELETED";
-
-export interface FriendshipEventPayload {
-  type: FriendshipEventType;
-  userSummaryResponse: UserSummaryResponse;
-}
-
-//Thêm interface cho DTO UserOnlineStatusRespone (bên phía Back End) trả về
-export interface FriendShipPresenceEventPayload {
-  userId: string;
-  name: string;
-  isOnline: boolean;
-}
-
-export interface FriendshipWSOptions {
+export interface userStatusWSOptions {
   baseUrl: string;
-  onEvent: (ev: FriendshipEventPayload) => void;
-  onStatus: (ev: FriendShipPresenceEventPayload) => void;
-}
-
-//Thêm interface FriendStatusWS (tách ra từ FriendshipWSOptions) để chỉ chuyên nhận payload status người dùng.
-export interface FriendStatusWS {
-  baseUrl: string;
-  onStatus: (ev: FriendShipPresenceEventPayload) => void;
+  onStatus: (ev: UserStatusPayload) => void;
 }
 
 // =================================================================
@@ -51,7 +21,11 @@ let subStatus: StompSubscription | null = null;
 // ================================================================
 // Connect / Disconnect
 // ================================================================
-export async function connectFriendshipWS(opts: FriendshipWSOptions) {
+//Thêm phương thức kết nối ws mới là connectFriendStatusWS phục vụ cho ChatCard
+// (vì ChatCard nhận danh sách room nên phải tách ra một ws khác cho dễ kết nối,
+//không dùng chung ws connectFriendshipWS)
+
+export async function connectUserStatusSocket(opts: userStatusWSOptions) {
   if (client?.connected) return;
   manualDisconnect = false;
 
@@ -70,21 +44,15 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
   });
 
   client.onConnect = () => {
-    sub?.unsubscribe();
-    sub = client!.subscribe("/user/queue/friendship", (msg: IMessage) => {
-      try {
-        const ev = JSON.parse(msg.body) as FriendshipEventPayload;
-        opts.onEvent(ev);
-      } catch (e) {
-        console.error("[FriendshipWS] parse error:", e, msg.body);
-      }
-    });
-
     subStatus?.unsubscribe();
     subStatus = client!.subscribe("/user/queue/status", (msg: IMessage) => {
       try {
-        const ev = JSON.parse(msg.body) as UserStatusPayload;
-        opts.onStatus?.(ev);
+        const ev = JSON.parse(msg.body) as {
+          userId: string;
+          name: string;
+          isOnline: boolean;
+        };
+        opts.onStatus?.(ev); // thêm callback mới
       } catch (e) {
         console.error("[PresenceWS] parse error:", e, msg.body);
       }
@@ -111,7 +79,7 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
   client.activate();
 }
 
-export function disconnectFriendshipWS() {
+export function disconnectUserStatusSocket() {
   manualDisconnect = true;
   try {
     sub?.unsubscribe();
