@@ -1,4 +1,8 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
@@ -57,6 +61,13 @@ export function ChatCard({
     }
   };
 
+  const getOtherParticipant = (room: RoomResponse) => {
+    if (room.roomType === "DIRECT" && userSession) {
+      return room.participants.find((p) => p.userId !== userSession.id);
+    }
+    return null;
+  };
+
   return (
     <div
       onClick={onClick}
@@ -67,6 +78,27 @@ export function ChatCard({
       }`}
     >
       <div className="flex items-center space-x-3">
+        {/* <div className="relative">
+          <Avatar
+            className={`w-12 h-12 transition-all duration-200 ${
+              isSelected ? "ring-2 ring-purple-300 ring-offset-2" : ""
+            }`}
+          >
+            <AvatarImage src={getRoomAvatar(room) || "/placeholder.svg"} />
+            <AvatarFallback
+              className={`${
+                isSelected
+                  ? "bg-purple-200 text-purple-700"
+                  : "bg-purple-100 text-purple-600"
+              }`}
+            >
+              {getRoomDisplayName(room).charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        </div> */}
+
+        {/* Đoạn code sau đã được sửa từ đoạn code đã được comment ở trên. 
+        Hiển thị chấm xanh nếu người dùng online, ngược lại nếu người dùng offline thì chấm xanh biến mất */}
         <div className="relative">
           <Avatar
             className={`w-12 h-12 transition-all duration-200 ${
@@ -84,7 +116,14 @@ export function ChatCard({
               {getRoomDisplayName(room).charAt(0)}
             </AvatarFallback>
           </Avatar>
+
+          {/* 👇 Hiển thị chấm online nếu direct room và người kia online */}
+          {room.roomType === "DIRECT" &&
+            getOtherParticipant(room)?.status === "ONLINE" && (
+              <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full ring-2 ring-white"></span>
+            )}
         </div>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <h3
