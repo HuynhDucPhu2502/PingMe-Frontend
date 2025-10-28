@@ -25,6 +25,7 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserInitials } from "@/utils/authFieldHandler";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { type UserStatusPayload } from "@/types/common/userStatus";
 
 interface FriendListComponentRef {
   handleNewFriend: (user: UserSummaryResponse) => void;
@@ -35,13 +36,15 @@ interface FriendsListComponentProps {
   onStatsUpdate: (
     updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse
   ) => void;
+
+  statusPayload?: UserStatusPayload | null;
 }
 
 export const FriendsListComponent = forwardRef<
   FriendListComponentRef,
   FriendsListComponentProps
 >((props, ref) => {
-  const { onStatsUpdate } = props;
+  const { onStatsUpdate, statusPayload } = props;
 
   // State quản lý danh sách bạn bè và infinite scroll
   const [friends, setFriends] = useState<UserSummaryResponse[]>([]);
@@ -167,6 +170,22 @@ export const FriendsListComponent = forwardRef<
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // Thêm useEffect này để bắt sự kiện payload trả về, từ đó cập nhật trạng thái
+  // online/offline của người dùng
+  useEffect(() => {
+    if (!statusPayload) return;
+    setFriends((prev) =>
+      prev.map((friend) =>
+        friend.id === Number(statusPayload.userId)
+          ? {
+              ...friend,
+              status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+            }
+          : friend
+      )
+    );
+  }, [statusPayload]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -210,7 +229,7 @@ export const FriendsListComponent = forwardRef<
                 className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center space-x-3">
-                  <Avatar className="w-12 h-12">
+                  {/* <Avatar className="w-12 h-12">
                     <AvatarImage
                       src={friend.avatarUrl || "/placeholder.svg"}
                       alt={friend.name}
@@ -218,7 +237,26 @@ export const FriendsListComponent = forwardRef<
                     <AvatarFallback className="bg-purple-100 text-purple-600">
                       {getUserInitials(friend.name)}
                     </AvatarFallback>
-                  </Avatar>
+                  </Avatar> */}
+
+                  {/* Đoạn code sau đã được sửa từ đoạn code đã được comment ở trên. 
+                  Hiển thị chấm xanh nếu người dùng online, ngược lại nếu người dùng offline thì chấm xanh biến mất */}
+                  <div className="relative">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage
+                        src={friend.avatarUrl || "/placeholder.svg"}
+                        alt={friend.name}
+                      />
+                      <AvatarFallback className="bg-purple-100 text-purple-600">
+                        {getUserInitials(friend.name)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    {friend.status === "ONLINE" && (
+                      <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full ring-2 ring-white"></span>
+                    )}
+                  </div>
+
                   <div>
                     <h3 className="font-medium text-gray-900">{friend.name}</h3>
                     <p className="text-sm text-gray-500">{friend.email}</p>
