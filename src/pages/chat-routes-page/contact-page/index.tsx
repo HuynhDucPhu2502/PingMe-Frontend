@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Users, Send, Inbox } from "lucide-react";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";
@@ -15,6 +16,7 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendshipApi.ts";
 import { useAppSelector } from "@/features/hooks.ts";
+import type { UserStatusPayload } from "@/types/common/userStatus"; // Fixed import to use inline type keyword for erasableSyntaxOnly compatibility
 
 const tabs = [
   {
@@ -46,6 +48,11 @@ export default function ContactsPage() {
       totalSentInvites: 0,
       totalReceivedInvites: 0,
     } as UserFriendshipStatsResponse);
+
+  //Thêm statusPayload để lấy thông tin online/offline của người dùng
+  const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
+    null
+  );
 
   const [activeTab, setActiveTab] = useState("friends");
 
@@ -161,6 +168,11 @@ export default function ContactsPage() {
             toast.error(getErrorMessage(error, "Không thể kết nối"));
           }
         },
+
+        //Thêm onStatus (lấy từ bên services/ws/friendshipSocket.ts)
+        onStatus: ({ userId, name, isOnline }) => {
+          setStatusPayload({ userId, name, isOnline }); //  update state khi có event
+        },
       });
     };
 
@@ -202,6 +214,8 @@ export default function ContactsPage() {
           <FriendsListComponent
             ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
+            //Đẩy statusPayload vào FriendsListComponent
+            statusPayload={statusPayload}
           />
         );
       case "received-invitations":
@@ -223,6 +237,8 @@ export default function ContactsPage() {
           <FriendsListComponent
             ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
+            //Đẩy statusPayload vào FriendsListComponent
+            statusPayload={statusPayload}
           />
         );
     }
