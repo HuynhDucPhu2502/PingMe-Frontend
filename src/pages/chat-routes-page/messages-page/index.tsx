@@ -16,9 +16,13 @@ import {
   enterRoom,
   leaveRoom,
   type MessageCreatedEventPayload,
-  type ReadStateChangedEvent,
   type RoomUpdatedEventPayload,
 } from "@/services/ws/chatSocket";
+import { type UserStatusPayload } from "@/types/common/userStatus";
+import {
+  connectUserStatusSocket,
+  disconnectUserStatusSocket,
+} from "@/services/ws/userStatusSocket.ts";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -163,6 +167,8 @@ export default function MessagesPage() {
   // Setup WebSocket connection và event handlers
   // Chạy một lần khi component mount
   // =======================================================================
+
+  // Websocket cho cập nhật tin nhắn, phòng chat
   useEffect(() => {
     connectChatWS({
       baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
@@ -172,12 +178,7 @@ export default function MessagesPage() {
       onMessageCreated: (ev: MessageCreatedEventPayload) => {
         handleNewMessage(ev);
       },
-      onReadStateChanged: (ev: ReadStateChangedEvent) => {
-        // TODO: Implement read state handling
-        console.log("[ChatWS] Read state changed:", ev);
-      },
       onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
-        console.log("[ChatWS] Room updated:", ev);
         upsertRoom(ev.roomResponse);
       },
     });
@@ -186,6 +187,42 @@ export default function MessagesPage() {
       disconnectChatWS();
     };
   }, [upsertRoom, handleNewMessage]);
+
+  // Websocket cho hiển thị trạng thái trực tuyến người dùng
+  const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
+    null
+  );
+
+  useEffect(() => {
+    connectUserStatusSocket({
+      baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
+      onStatus: ({ userId, name, isOnline }) => {
+        setStatusPayload({ userId, name, isOnline });
+      },
+    });
+
+    return () => {
+      disconnectUserStatusSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!statusPayload) return;
+
+    setRooms((prevRooms) =>
+      prevRooms.map((room) => ({
+        ...room,
+        participants: room.participants.map((participant) =>
+          participant.userId === Number(statusPayload.userId)
+            ? {
+                ...participant,
+                status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+              }
+            : participant
+        ),
+      }))
+    );
+  }, [statusPayload]);
 
   // =======================================================================
 
