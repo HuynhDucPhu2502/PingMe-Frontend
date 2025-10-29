@@ -9,7 +9,7 @@ import { ChatCard } from "./components/ChatCard.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { getCurrentUserRoomsApi } from "@/services/chatApi.ts";
+import { getCurrentUserRoomsApi } from "@/services/chat";
 import {
   connectChatWS,
   disconnectChatWS,

@@ -15,7 +15,7 @@ import {
   acceptInvitationApi,
   getReceivedHistoryInvitationsApi,
   rejectInvitationApi,
-} from "@/services/friendshipApi";
+} from "@/services/friendship";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 import type { HistoryFriendshipResponse } from "@/types/friendship";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";

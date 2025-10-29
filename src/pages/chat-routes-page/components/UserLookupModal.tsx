@@ -22,14 +22,14 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { lookupApi } from "@/services/userLookupApi.ts";
+import { lookupApi } from "@/services/common/userLookupApi.ts";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { FriendInvitationRequest } from "@/types/friendship";
-import { sendInvitationApi } from "@/services/friendshipApi.ts";
+import { sendInvitationApi } from "@/services/friendship";
 import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/chat/room";
-import { createOrGetDirectRoomApi } from "@/services/chatApi.ts";
+import { createOrGetDirectRoomApi } from "@/services/chat";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;

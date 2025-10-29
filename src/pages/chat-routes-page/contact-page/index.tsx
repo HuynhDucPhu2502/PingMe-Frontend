@@ -14,7 +14,7 @@ import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
-import { getUserFriendshipStatsApi } from "@/services/friendshipApi.ts";
+import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
 import type { UserStatusPayload } from "@/types/common/userStatus"; // Fixed import to use inline type keyword for erasableSyntaxOnly compatibility
 

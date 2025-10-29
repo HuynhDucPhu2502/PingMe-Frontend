@@ -10,7 +10,14 @@ import type {
   MessageResponse,
   SendMessageRequest,
 } from "@/types/chat/message";
-import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/chat/room";
+import type {
+  CreateOrGetDirectRoomRequest,
+  RoomResponse,
+} from "@/types/chat/room";
+
+// ==================================================================================
+// Rooms Service
+// ==================================================================================
 
 export const createOrGetDirectRoomApi = (
   data: CreateOrGetDirectRoomRequest
@@ -32,8 +39,19 @@ export const getCurrentUserRoomsApi = ({
   );
 };
 
+// ==================================================================================
+// Messages Service
+// ==================================================================================
+
 export const sendMessageApi = (data: SendMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>("/messages/send", data);
+};
+
+export const sendFileMessageApi = (data: FormData) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>(
+    "/messages/files",
+    data
+  );
 };
 
 export const markAsReadApi = (data: MarkReadRequest) => {

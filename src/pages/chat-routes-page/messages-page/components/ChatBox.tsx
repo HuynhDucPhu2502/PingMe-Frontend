@@ -9,7 +9,7 @@ import type { MessageResponse, HistoryMessageResponse } from "@/types/chat/messa
 import type { RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { getHistoryMessagesApi, sendMessageApi } from "@/services/chatApi.ts";
+import { getHistoryMessagesApi, sendMessageApi } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./ChatBoxInput.tsx";
 import { ChatBoxContent } from "./ChatBoxContent.tsx";

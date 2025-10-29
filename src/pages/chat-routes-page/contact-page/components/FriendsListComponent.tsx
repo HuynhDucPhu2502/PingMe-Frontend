@@ -18,7 +18,7 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import {
   getAcceptedFriendshipHistoryListApi,
   deleteFriendshipApi,
-} from "@/services/friendshipApi.ts";
+} from "@/services/friendship";
 import type { UserSummaryResponse } from "@/types/common/userSummary.d.ts";
 import type { HistoryFriendshipResponse } from "@/types/friendship";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
