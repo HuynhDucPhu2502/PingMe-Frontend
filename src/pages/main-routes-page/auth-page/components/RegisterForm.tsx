@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils.ts";
 import { Link, useNavigate } from "react-router-dom";
 import type { RegisterRequest } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { registerLocalApi } from "@/services/userAccountApi.ts";
+import { registerLocalApi } from "@/services/authentication";
 import { toast } from "sonner";
 import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 

@@ -3,7 +3,7 @@ import { PageHeader } from "../components/PageHeader";
 import { BlogSearchFilters } from "./components/BlogSearchFilters";
 import { BlogManagementTable } from "./components/BlogManagementTable";
 import Pagination from "@/components/custom/Pagination";
-import { getAllBlogs, approveBlog, deleteBlog } from "@/services/blogApi";
+import { getAllBlogs, approveBlog, deleteBlog } from "@/services/blog/blogApi.ts";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { useDebounce } from "@/hooks/use-debounce";

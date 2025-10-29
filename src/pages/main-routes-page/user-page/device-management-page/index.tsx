@@ -1,7 +1,7 @@
 import {
   deleteCurrentUserDeviceMetaApi,
   getCurrentUserAllDeviceMetasApi,
-} from "@/services/userAccountApi.ts";
+} from "@/services/authentication";
 import type { CurrentUserSessionMetaResponse } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { normalizeDeviceType } from "@/utils/sessionMetaHandler.ts";

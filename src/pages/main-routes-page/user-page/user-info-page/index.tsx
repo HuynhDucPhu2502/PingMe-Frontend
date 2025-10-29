@@ -32,7 +32,7 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
   getCurrentUserInfoApi,
   updateCurrentUserProfileApi,
-} from "@/services/userAccountApi.ts";
+} from "@/services/authentication";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 

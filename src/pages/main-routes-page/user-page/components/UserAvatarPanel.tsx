@@ -22,7 +22,7 @@ import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { updateCurrentUserAvatarApi } from "@/services/userAccountApi.ts";
+import { updateCurrentUserAvatarApi } from "@/services/authentication";
 import { Camera, Upload, Loader2, X, ImageIcon } from "lucide-react";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
 

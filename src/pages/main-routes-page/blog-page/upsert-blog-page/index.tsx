@@ -29,7 +29,7 @@ import {
 } from "@/types/blog/blog.ts";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { saveBlog, updateBlog, getBlogDetailsById } from "@/services/blogApi";
+import { saveBlog, updateBlog, getBlogDetailsById } from "@/services/blog/blogApi.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 

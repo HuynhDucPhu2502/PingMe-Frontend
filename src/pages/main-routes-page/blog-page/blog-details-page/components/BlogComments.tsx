@@ -10,7 +10,7 @@ import {
   saveBlogComment,
   updateBlogComment,
   deleteBlogComment,
-} from "@/services/blogCommentApi";
+} from "@/services/blog/blogCommentApi.ts";
 import type {
   BlogCommentResponse,
   UpsertBlogCommentRequest,

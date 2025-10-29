@@ -3,7 +3,7 @@ import {
   loginLocalApi,
   logoutApi,
   refreshSessionApi,
-} from "@/services/userAccountApi.ts";
+} from "@/services/authentication";
 import type {
   DefaultAuthResponse,
   LoginRequest,

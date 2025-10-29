@@ -8,7 +8,7 @@ import { SearchAndFilterSection } from "./components/SearchAndFilterSection";
 import { BlogGrid } from "./components/BlogGrid";
 import { Plus } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { getAllApprovedBlogs, getCurrentUserBlogs } from "@/services/blogApi";
+import { getAllApprovedBlogs, getCurrentUserBlogs } from "@/services/blog/blogApi.ts";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePagination } from "@/hooks/use-pagination";

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { Eye, EyeOff, Loader2, Lock, Shield, X } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { updateCurrentUserPasswordApi } from "@/services/userAccountApi.ts";
+import { updateCurrentUserPasswordApi } from "@/services/authentication";
 import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 
 const ChangePasswordPage = () => {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowUp } from "lucide-react";
-import { getBlogDetailsById } from "@/services/blogApi";
+import { getBlogDetailsById } from "@/services/blog/blogApi.ts";
 import type { BlogDetailsResponse } from "@/types/blog/blog.ts";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { toast } from "sonner";
