@@ -1,4 +1,7 @@
 import type { MessageResponse } from "@/types/chat/message";
+import MessageImage from "./MessageImage";
+import MessageVideo from "./MessageVideo";
+import MessageFile from "./MessageFile";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -29,12 +32,32 @@ export default function ReceivedMessageBubble({
     return colors[index];
   };
 
+  const renderMessageContent = () => {
+    switch (message.type) {
+      case "IMAGE":
+        return <MessageImage src={message.content} alt="Received image" />;
+      case "VIDEO":
+        return <MessageVideo src={message.content} />;
+      case "FILE": {
+        const fileName = message.content.split("/").pop() || "file";
+        return <MessageFile src={message.content} fileName={fileName} />;
+      }
+      case "TEXT":
+      default:
+        return (
+          <p className="text-sm leading-relaxed break-words">
+            {message.content}
+          </p>
+        );
+    }
+  };
+
   return (
-    <div className="flex items-start mb-4">
+    <div className="flex items-start mb-4 group">
       <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-sm ${
+        className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-sm ring-2 ring-purple-100 ${
           senderAvatar && senderAvatar !== "/placeholder.svg"
-            ? "bg-gray-100"
+            ? "bg-white"
             : getAvatarColor(senderName)
         }`}
       >
@@ -42,19 +65,19 @@ export default function ReceivedMessageBubble({
           <img
             src={senderAvatar || "/placeholder.svg"}
             alt={senderName}
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-full h-full rounded-full object-cover"
           />
         ) : (
-          <span className="text-xs font-semibold text-white">
+          <span className="text-sm font-semibold text-white">
             {senderName?.charAt(0).toUpperCase()}
           </span>
         )}
       </div>
       <div className="max-w-[80%]">
-        <div className="bg-gray-100 text-gray-900 rounded-lg px-6 py-2 rounded-bl-sm break-all">
-          <p className="text-sm break-all">{message.content}</p>
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 text-foreground rounded-2xl rounded-bl-md px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 border border-purple-100/50">
+          {renderMessageContent()}
         </div>
-        <div className="text-xs text-gray-500 mt-1">
+        <div className="text-xs text-muted-foreground mt-1.5 opacity-70">
           {new Date(message.createdAt).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",

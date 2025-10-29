@@ -5,11 +5,18 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import type { MessageResponse, HistoryMessageResponse } from "@/types/chat/message";
+import type {
+  MessageResponse,
+  HistoryMessageResponse,
+} from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { getHistoryMessagesApi, sendMessageApi } from "@/services/chat";
+import {
+  getHistoryMessagesApi,
+  sendMessageApi,
+  sendFileMessageApi,
+} from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./ChatBoxInput.tsx";
 import { ChatBoxContent } from "./ChatBoxContent.tsx";
@@ -147,6 +154,37 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       }
     };
 
+    const handleSendFile = async (
+      file: File,
+      type: "IMAGE" | "VIDEO" | "FILE"
+    ) => {
+      try {
+        const formData = new FormData();
+
+        const messageRequest = {
+          content: type.toLowerCase(),
+          clientMsgId: crypto.randomUUID(),
+          type: type,
+          roomId: selectedChat.roomId,
+        };
+
+        formData.append(
+          "message",
+          new Blob([JSON.stringify(messageRequest)], {
+            type: "application/json",
+          })
+        );
+        formData.append("file", file);
+
+        const response = await sendFileMessageApi(formData);
+        const sentMessage = response.data.data;
+
+        setMessages((prev) => [...prev, sentMessage]);
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể gửi file"));
+      }
+    };
+
     // =======================================================================
     // Xử lý các sự kiện nhận tin nhắn từ Websocket
     // =======================================================================
@@ -225,6 +263,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           newMessage={newMessage}
           setNewMessage={setNewMessage}
           onSendMessage={handleSendMessage}
+          onSendFile={handleSendFile}
           disabled={isLoadingMessages}
         />
       </div>
