@@ -8,6 +8,11 @@ interface SentMessageBubbleProps {
 }
 
 export default function SentMessageBubble({ message }: SentMessageBubbleProps) {
+  const isMediaMessage =
+    message.type === "IMAGE" ||
+    message.type === "VIDEO" ||
+    message.type === "FILE";
+
   const renderMessageContent = () => {
     switch (message.type) {
       case "IMAGE":
@@ -16,7 +21,13 @@ export default function SentMessageBubble({ message }: SentMessageBubbleProps) {
         return <MessageVideo src={message.content} />;
       case "FILE": {
         const fileName = message.content.split("/").pop() || "file";
-        return <MessageFile src={message.content} fileName={fileName} />;
+        return (
+          <MessageFile
+            src={message.content}
+            fileName={fileName}
+            isSent={true}
+          />
+        );
       }
       case "TEXT":
       default:
@@ -31,9 +42,13 @@ export default function SentMessageBubble({ message }: SentMessageBubbleProps) {
   return (
     <div className="flex justify-end mb-4 group">
       <div className="max-w-[80%]">
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl rounded-br-md px-4 py-3 shadow-md hover:shadow-lg transition-all duration-200">
-          {renderMessageContent()}
-        </div>
+        {isMediaMessage ? (
+          <div>{renderMessageContent()}</div>
+        ) : (
+          <div className="bg-blue-500 text-white rounded-2xl rounded-br-md px-4 py-3 shadow-sm">
+            {renderMessageContent()}
+          </div>
+        )}
         <div className="text-xs text-muted-foreground mt-1.5 text-right opacity-70">
           {new Date(message.createdAt).toLocaleTimeString([], {
             hour: "2-digit",

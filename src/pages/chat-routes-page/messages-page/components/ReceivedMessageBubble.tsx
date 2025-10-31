@@ -32,6 +32,11 @@ export default function ReceivedMessageBubble({
     return colors[index];
   };
 
+  const isMediaMessage =
+    message.type === "IMAGE" ||
+    message.type === "VIDEO" ||
+    message.type === "FILE";
+
   const renderMessageContent = () => {
     switch (message.type) {
       case "IMAGE":
@@ -40,7 +45,13 @@ export default function ReceivedMessageBubble({
         return <MessageVideo src={message.content} />;
       case "FILE": {
         const fileName = message.content.split("/").pop() || "file";
-        return <MessageFile src={message.content} fileName={fileName} />;
+        return (
+          <MessageFile
+            src={message.content}
+            fileName={fileName}
+            isSent={false}
+          />
+        );
       }
       case "TEXT":
       default:
@@ -74,9 +85,13 @@ export default function ReceivedMessageBubble({
         )}
       </div>
       <div className="max-w-[80%]">
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 text-foreground rounded-2xl rounded-bl-md px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 border border-purple-100/50">
-          {renderMessageContent()}
-        </div>
+        {isMediaMessage ? (
+          <div>{renderMessageContent()}</div>
+        ) : (
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 text-foreground rounded-2xl rounded-bl-md px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 border border-purple-100/50">
+            {renderMessageContent()}
+          </div>
+        )}
         <div className="text-xs text-muted-foreground mt-1.5 opacity-70">
           {new Date(message.createdAt).toLocaleTimeString([], {
             hour: "2-digit",

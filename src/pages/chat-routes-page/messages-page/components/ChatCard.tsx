@@ -24,7 +24,6 @@ export function ChatCard({
     if (room.name) return room.name;
 
     if (room.roomType === "DIRECT" && userSession) {
-      // For direct rooms, show the other participant's name
       const otherParticipant = room.participants.find(
         (p) => p.name !== userSession.name
       );
@@ -36,7 +35,6 @@ export function ChatCard({
 
   const getRoomAvatar = (room: RoomResponse) => {
     if (room.roomType === "DIRECT" && userSession) {
-      // For direct rooms, show the other participant's avatar
       const otherParticipant = room.participants.find(
         (p) => p.name !== userSession.name
       );
@@ -54,10 +52,28 @@ export function ChatCard({
     );
     const senderName = senderParticipant?.name || "Unknown";
 
+    let messageContent = room.lastMessage.preview;
+
+    switch (room.lastMessage.messageType) {
+      case "IMAGE":
+        messageContent = "[Image]";
+        break;
+      case "VIDEO":
+        messageContent = "[Video]";
+        break;
+      case "FILE":
+        messageContent = "[File]";
+        break;
+      case "TEXT":
+      default:
+        messageContent = room.lastMessage.preview;
+        break;
+    }
+
     if (userSession && senderName === userSession.name) {
-      return `Bạn: ${room.lastMessage.preview}`;
+      return `Bạn: ${messageContent}`;
     } else {
-      return `${senderName}: ${room.lastMessage.preview}`;
+      return `${senderName}: ${messageContent}`;
     }
   };
 
@@ -78,27 +94,6 @@ export function ChatCard({
       }`}
     >
       <div className="flex items-center space-x-3">
-        {/* <div className="relative">
-          <Avatar
-            className={`w-12 h-12 transition-all duration-200 ${
-              isSelected ? "ring-2 ring-purple-300 ring-offset-2" : ""
-            }`}
-          >
-            <AvatarImage src={getRoomAvatar(room) || "/placeholder.svg"} />
-            <AvatarFallback
-              className={`${
-                isSelected
-                  ? "bg-purple-200 text-purple-700"
-                  : "bg-purple-100 text-purple-600"
-              }`}
-            >
-              {getRoomDisplayName(room).charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-        </div> */}
-
-        {/* Đoạn code sau đã được sửa từ đoạn code đã được comment ở trên. 
-        Hiển thị chấm xanh nếu người dùng online, ngược lại nếu người dùng offline thì chấm xanh biến mất */}
         <div className="relative">
           <Avatar
             className={`w-12 h-12 transition-all duration-200 ${
@@ -117,7 +112,7 @@ export function ChatCard({
             </AvatarFallback>
           </Avatar>
 
-          {/* 👇 Hiển thị chấm online nếu direct room và người kia online */}
+          {/* Hiển thị chấm online nếu direct room và người kia online */}
           {room.roomType === "DIRECT" &&
             getOtherParticipant(room)?.status === "ONLINE" && (
               <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full ring-2 ring-white"></span>

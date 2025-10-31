@@ -14,6 +14,7 @@ export interface LastMessage {
   messageId: number;
   senderId: number;
   preview: string;
+  messageType: "TEXT" | "IMAGE" | "VIDEO" | "FILE";
   createdAt: string;
 }
 
