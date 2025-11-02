@@ -21,6 +21,7 @@ import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./ChatBoxInput.tsx";
 import { ChatBoxContent } from "./ChatBoxContent.tsx";
 import ChatBoxHeader from "./ChatBoxHeader.tsx";
+import ConversationSidebar from "./ConversationSidebar.tsx";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -34,8 +35,8 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
   ({ selectedChat }, ref) => {
     const { userSession } = useAppSelector((state) => state.auth);
 
-    // Hàm check xem tin nhắn được gửi có phải là từ
-    // người dùng hiện tại không
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     const isCurrentUserMessage = useCallback(
       (senderId: number) => {
         if (!userSession) return false;
@@ -47,15 +48,12 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       [selectedChat.participants, userSession]
     );
 
-    // =======================================================================
-    // Lấy lịch sử tin nhắn phòng chat
-    // =======================================================================
     const [newMessage, setNewMessage] = useState("");
     const [messages, setMessages] = useState<MessageResponse[]>([]);
 
     const [hasMoreMessages, setHasMoreMessages] = useState(true);
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false); // Fetch lần đầu tiên
-    const [isLoadingMore, setIsLoadingMore] = useState(false); // Fetch theo dạng scroll
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const fetchMessages = useCallback(
       async (beforeMessageId?: number, size = 20, append = false) => {
@@ -110,10 +108,6 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       [selectedChat.roomId]
     );
 
-    /**
-     * Load tin nhắn khi chuyển phòng chat
-     * Reset tất cả state và load tin nhắn mới
-     */
     useEffect(() => {
       if (selectedChat.roomId) {
         setMessages([]);
@@ -129,10 +123,6 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       [fetchMessages]
     );
 
-    /**
-     * Xử lý gửi tin nhắn mới
-     * Gửi API và thêm tin nhắn vào danh sách ngay lập tức (optimistic update)
-     */
     const handleSendMessage = async () => {
       if (newMessage.trim()) {
         try {
@@ -185,14 +175,6 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       }
     };
 
-    // =======================================================================
-    // Xử lý các sự kiện nhận tin nhắn từ Websocket
-    // =======================================================================
-
-    /**
-     * Xử lý tin nhắn mới từ WebSocket
-     * Validate và thêm tin nhắn vào danh sách, tránh duplicate
-     */
     const handleIncomingMessage = useCallback(
       (message: MessageResponse) => {
         if (message.roomId !== selectedChat.roomId) {
@@ -241,30 +223,38 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       [handleIncomingMessage]
     );
 
-    // =======================================================================
-
     return (
-      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden">
-        <ChatBoxHeader selectedChat={selectedChat} />
-
-        <div className="flex-1 overflow-hidden relative">
-          <ChatBoxContent
+      <div className="flex-1 flex bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="flex-1 flex flex-col">
+          <ChatBoxHeader
             selectedChat={selectedChat}
-            messages={messages}
-            isLoadingMessages={isLoadingMessages}
-            isLoadingMore={isLoadingMore}
-            hasMoreMessages={hasMoreMessages}
-            onLoadMore={handleLoadMore}
-            isCurrentUserMessage={isCurrentUserMessage}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
+
+          <div className="flex-1 overflow-hidden relative">
+            <ChatBoxContent
+              selectedChat={selectedChat}
+              messages={messages}
+              isLoadingMessages={isLoadingMessages}
+              isLoadingMore={isLoadingMore}
+              hasMoreMessages={hasMoreMessages}
+              onLoadMore={handleLoadMore}
+              isCurrentUserMessage={isCurrentUserMessage}
+            />
+          </div>
+
+          <ChatBoxInput
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            onSendMessage={handleSendMessage}
+            onSendFile={handleSendFile}
+            disabled={isLoadingMessages}
           />
         </div>
-
-        <ChatBoxInput
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          onSendMessage={handleSendMessage}
-          onSendFile={handleSendFile}
-          disabled={isLoadingMessages}
+        <ConversationSidebar
+          selectedChat={selectedChat}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
         />
       </div>
     );

@@ -2,6 +2,7 @@ import type { MessageResponse } from "@/types/chat/message";
 import MessageImage from "./MessageImage";
 import MessageVideo from "./MessageVideo";
 import MessageFile from "./MessageFile";
+import { formatMessageTime } from "../../utils/formatMessageTime";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -93,10 +94,7 @@ export default function ReceivedMessageBubble({
           </div>
         )}
         <div className="text-xs text-muted-foreground mt-1.5 opacity-70">
-          {new Date(message.createdAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatMessageTime(message.createdAt)}
         </div>
       </div>
     </div>

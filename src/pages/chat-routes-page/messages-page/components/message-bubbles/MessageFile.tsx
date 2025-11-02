@@ -1,5 +1,5 @@
 import { Download, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
 
 interface MessageFileProps {

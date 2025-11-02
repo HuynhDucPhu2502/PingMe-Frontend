@@ -4,8 +4,8 @@ import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
-import SentMessageBubble from "./SentMessageBubble.tsx";
-import ReceivedMessageBubble from "./ReceivedMessageBubble.tsx";
+import SentMessageBubble from "../message-bubbles/SentMessageBubble.tsx";
+import ReceivedMessageBubble from "../message-bubbles/ReceivedMessageBubble.tsx";
 
 interface ChatBoxContentProps {
   selectedChat: RoomResponse;

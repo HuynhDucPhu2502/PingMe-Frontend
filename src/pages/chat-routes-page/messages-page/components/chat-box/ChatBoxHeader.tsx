@@ -1,12 +1,18 @@
 import { useAppSelector } from "@/features/hooks";
 import type { RoomResponse } from "@/types/chat/room";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ChatBoxHeaderProps {
   selectedChat: RoomResponse;
+  onToggleSidebar: () => void;
 }
 
-const ChatBoxHeader = ({ selectedChat }: ChatBoxHeaderProps) => {
+const ChatBoxHeader = ({
+  selectedChat,
+  onToggleSidebar,
+}: ChatBoxHeaderProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
 
   const getOtherParticipant = () => {
@@ -39,6 +45,14 @@ const ChatBoxHeader = ({ selectedChat }: ChatBoxHeaderProps) => {
           </h3>
         </div>
       </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onToggleSidebar}
+        className="hover:bg-purple-100"
+      >
+        <Info className="h-5 w-5 text-purple-600" />
+      </Button>
     </div>
   );
 };

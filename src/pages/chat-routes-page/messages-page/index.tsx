@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector } from "@/features/hooks.ts";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
-import { ChatBox, type ChatBoxRef } from "./components/ChatBox.tsx";
+import { ChatBox, type ChatBoxRef } from "./components/chat-box";
 import { ChatCard } from "./components/ChatCard.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/chat/room";
