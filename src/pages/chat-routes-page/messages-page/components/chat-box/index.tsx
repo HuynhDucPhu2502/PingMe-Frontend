@@ -35,7 +35,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
   ({ selectedChat }, ref) => {
     const { userSession } = useAppSelector((state) => state.auth);
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const isCurrentUserMessage = useCallback(
       (senderId: number) => {
