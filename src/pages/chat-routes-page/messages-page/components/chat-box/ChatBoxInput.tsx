@@ -289,6 +289,15 @@ export function ChatBoxInput({
             onKeyPress={handleKeyPress}
             disabled={disabled || isSending}
           />
+          <span
+            className={`text-sm ${
+              newMessage.length > 1000
+                ? "text-red-500 font-semibold"
+                : "text-gray-500"
+            }`}
+          >
+            {newMessage.length}/1000
+          </span>
           <Button
             variant="ghost"
             size="sm"
