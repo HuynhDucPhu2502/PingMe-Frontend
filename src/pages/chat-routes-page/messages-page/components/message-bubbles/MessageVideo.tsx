@@ -8,7 +8,7 @@ export default function MessageVideo({ src }: MessageVideoProps) {
       <video
         src={src}
         controls
-        className="w-full max-h-96 rounded-lg"
+        className="w-full min-w-[300px] max-w-[500px] max-h-[500px] rounded-lg"
         preload="metadata"
       >
         Trình duyệt của bạn không hỗ trợ video.

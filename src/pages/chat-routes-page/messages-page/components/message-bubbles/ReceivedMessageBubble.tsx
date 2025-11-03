@@ -57,7 +57,7 @@ export default function ReceivedMessageBubble({
       case "TEXT":
       default:
         return (
-          <p className="text-sm leading-relaxed break-words">
+          <p className="text-md leading-relaxed break-words">
             {message.content}
           </p>
         );

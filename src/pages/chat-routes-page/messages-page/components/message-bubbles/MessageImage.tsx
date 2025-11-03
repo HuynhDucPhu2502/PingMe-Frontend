@@ -12,7 +12,7 @@ export default function MessageImage({
       <img
         src={src || "/placeholder.svg"}
         alt={alt}
-        className="max-w-md max-h-96 rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity"
+        className="min-w-[300px] max-w-[500px] max-h-[500px] rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity"
         onClick={() => window.open(src, "_blank")}
       />
     </div>
