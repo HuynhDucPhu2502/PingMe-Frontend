@@ -6,6 +6,7 @@ import {
 import { Badge } from "@/components/ui/badge.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
+import { calculateUnreadCount } from "../utils/calculateUnreadCount.";
 
 interface ChatCardProps {
   room: RoomResponse;
@@ -24,6 +25,7 @@ export function ChatCard({
     if (room.name) return room.name;
 
     if (room.roomType === "DIRECT" && userSession) {
+      // For direct rooms, show the other participant's name
       const otherParticipant = room.participants.find(
         (p) => p.name !== userSession.name
       );
@@ -35,6 +37,7 @@ export function ChatCard({
 
   const getRoomAvatar = (room: RoomResponse) => {
     if (room.roomType === "DIRECT" && userSession) {
+      // For direct rooms, show the other participant's avatar
       const otherParticipant = room.participants.find(
         (p) => p.name !== userSession.name
       );
@@ -84,6 +87,10 @@ export function ChatCard({
     return null;
   };
 
+  const unreadCount = userSession
+    ? calculateUnreadCount(room, userSession.id)
+    : 0;
+
   return (
     <div
       onClick={onClick}
@@ -112,7 +119,7 @@ export function ChatCard({
             </AvatarFallback>
           </Avatar>
 
-          {/* Hiển thị chấm online nếu direct room và người kia online */}
+          {/* 👇 Hiển thị chấm online nếu direct room và người kia online */}
           {room.roomType === "DIRECT" &&
             getOtherParticipant(room)?.status === "ONLINE" && (
               <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full ring-2 ring-white"></span>
@@ -152,7 +159,7 @@ export function ChatCard({
             >
               {getLastMessagePreview(room)}
             </p>
-            {room.unreadCount > 0 && (
+            {unreadCount > 0 && (
               <Badge
                 className={`text-white text-xs px-2 py-1 rounded-full transition-all duration-200 ${
                   isSelected
@@ -160,7 +167,7 @@ export function ChatCard({
                     : "bg-purple-600"
                 }`}
               >
-                {room.unreadCount}
+                {unreadCount}
               </Badge>
             )}
           </div>

@@ -7,7 +7,6 @@ export interface RoomResponse {
   name: string | null;
   lastMessage: LastMessage | null;
   participants: RoomParticipantResponse[];
-  unreadCount: number;
 }
 
 export interface LastMessage {
