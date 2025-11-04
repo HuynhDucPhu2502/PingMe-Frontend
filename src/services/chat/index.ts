@@ -7,6 +7,7 @@ import type {
 import type {
   HistoryMessageResponse,
   MarkReadRequest,
+  MessageRecalledResponse,
   MessageResponse,
   SendMessageRequest,
 } from "@/types/chat/message";
@@ -44,13 +45,19 @@ export const getCurrentUserRoomsApi = ({
 // ==================================================================================
 
 export const sendMessageApi = (data: SendMessageRequest) => {
-  return axiosClient.post<ApiResponse<MessageResponse>>("/messages/send", data);
+  return axiosClient.post<ApiResponse<MessageResponse>>("/messages", data);
 };
 
 export const sendFileMessageApi = (data: FormData) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
     "/messages/files",
     data
+  );
+};
+
+export const recallMessageApi = (messageId: number) => {
+  return axiosClient.delete<ApiResponse<MessageRecalledResponse>>(
+    `/messages/${messageId}/recall`
   );
 };
 

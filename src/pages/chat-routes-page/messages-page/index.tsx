@@ -17,8 +17,9 @@ import {
   leaveRoom,
   type MessageCreatedEventPayload,
   type RoomUpdatedEventPayload,
+  type MessageRecalledEventPayload,
 } from "@/services/ws/chatSocket";
-import { type UserStatusPayload } from "@/types/common/userStatus";
+import type { UserStatusPayload } from "@/types/common/userStatus";
 import {
   connectUserStatusSocket,
   disconnectUserStatusSocket,
@@ -164,6 +165,20 @@ export default function MessagesPage() {
   }, []);
 
   // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến MESSAGE_RECALLED từ WebSocket
+  // =======================================================================
+  const handleRecallMessage = useCallback(
+    (event: MessageRecalledEventPayload) => {
+      if (chatBoxRef.current) {
+        chatBoxRef.current.handleRecallMessage(
+          event.messageRecalledResponse.id
+        );
+      }
+    },
+    []
+  );
+
+  // =======================================================================
   // Setup WebSocket connection và event handlers
   // Chạy một lần khi component mount
   // =======================================================================
@@ -181,12 +196,15 @@ export default function MessagesPage() {
       onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
         upsertRoom(ev.roomResponse);
       },
+      onMessageRecalled: (ev: MessageRecalledEventPayload) => {
+        handleRecallMessage(ev);
+      },
     });
 
     return () => {
       disconnectChatWS();
     };
-  }, [upsertRoom, handleNewMessage]);
+  }, [upsertRoom, handleNewMessage, handleRecallMessage]);
 
   // Websocket cho hiển thị trạng thái trực tuyến người dùng
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(

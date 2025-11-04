@@ -6,6 +6,11 @@ export interface MessageResponse {
   content: string;
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE";
   createdAt: string;
+  isActive: boolean;
+}
+
+export interface MessageRecalledResponse {
+  id: number;
 }
 
 export interface HistoryMessageResponse {

@@ -15,6 +15,7 @@ interface ChatBoxContentProps {
   hasMoreMessages: boolean;
   onLoadMore: (beforeId?: number) => void;
   isCurrentUserMessage: (senderId: number) => boolean;
+  onMessageRecalled: (messageId: number) => void;
 }
 
 export const ChatBoxContent = ({
@@ -25,6 +26,7 @@ export const ChatBoxContent = ({
   hasMoreMessages,
   onLoadMore,
   isCurrentUserMessage,
+  onMessageRecalled,
 }: ChatBoxContentProps) => {
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
@@ -97,7 +99,10 @@ export const ChatBoxContent = ({
       {messages.map((message) => (
         <div key={message.id}>
           {isCurrentUserMessage(message.senderId) ? (
-            <SentMessageBubble message={message} />
+            <SentMessageBubble
+              message={message}
+              onMessageRecalled={onMessageRecalled}
+            />
           ) : (
             <ReceivedMessageBubble
               message={message}

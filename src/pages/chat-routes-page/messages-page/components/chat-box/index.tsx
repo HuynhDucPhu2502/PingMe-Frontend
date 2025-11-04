@@ -29,6 +29,7 @@ interface ChatBoxProps {
 
 export interface ChatBoxRef {
   handleIncomingMessage: (message: MessageResponse) => void;
+  handleRecallMessage: (messageId: number) => void;
 }
 
 export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
@@ -215,12 +216,21 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       ]
     );
 
+    const handleRecallMessage = useCallback((messageId: number) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, isActive: false } : msg
+        )
+      );
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
         handleIncomingMessage,
+        handleRecallMessage,
       }),
-      [handleIncomingMessage]
+      [handleIncomingMessage, handleRecallMessage]
     );
 
     return (
@@ -240,6 +250,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
               hasMoreMessages={hasMoreMessages}
               onLoadMore={handleLoadMore}
               isCurrentUserMessage={isCurrentUserMessage}
+              onMessageRecalled={handleRecallMessage}
             />
           </div>
 

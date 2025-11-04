@@ -3,18 +3,59 @@ import MessageImage from "./MessageImage";
 import MessageVideo from "./MessageVideo";
 import MessageFile from "./MessageFile";
 import { formatMessageTime } from "../../utils/formatMessageTime";
+import { MoreHorizontal, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { recallMessageApi } from "@/services/chat";
+import { toast } from "sonner";
+import { differenceInHours } from "date-fns";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
+  onMessageRecalled?: (messageId: number) => void;
 }
 
-export default function SentMessageBubble({ message }: SentMessageBubbleProps) {
+export default function SentMessageBubble({
+  message,
+  onMessageRecalled,
+}: SentMessageBubbleProps) {
   const isMediaMessage =
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
     message.type === "FILE";
 
+  const handleRecallMessage = async () => {
+    const messageDate = new Date(message.createdAt);
+    const hoursDiff = differenceInHours(new Date(), messageDate);
+
+    if (hoursDiff >= 24) {
+      toast.error("Không thể thu hồi tin nhắn quá 24 giờ");
+      return;
+    }
+
+    try {
+      await recallMessageApi(message.id);
+      toast.success("Đã thu hồi tin nhắn");
+      onMessageRecalled?.(message.id);
+    } catch {
+      toast.error("Không thể thu hồi tin nhắn");
+    }
+  };
+
   const renderMessageContent = () => {
+    if (!message.isActive) {
+      return (
+        <p className="text-md italic text-black select-none">
+          Tin nhắn đã được thu hồi
+        </p>
+      );
+    }
+
     switch (message.type) {
       case "IMAGE":
         return <MessageImage src={message.content} alt="Sent image" />;
@@ -33,7 +74,7 @@ export default function SentMessageBubble({ message }: SentMessageBubbleProps) {
       case "TEXT":
       default:
         return (
-          <p className="text-md leading-relaxed break-words">
+          <p className="text-sm leading-relaxed break-words">
             {message.content}
           </p>
         );
@@ -42,7 +83,30 @@ export default function SentMessageBubble({ message }: SentMessageBubbleProps) {
 
   return (
     <div className="flex justify-end mb-4 group">
-      <div className="max-w-[80%]">
+      <div className="max-w-[80%] relative">
+        {message.isActive && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute -left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onClick={handleRecallMessage}
+                className="cursor-pointer"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Thu hồi tin nhắn
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
         {isMediaMessage ? (
           <div>{renderMessageContent()}</div>
         ) : (

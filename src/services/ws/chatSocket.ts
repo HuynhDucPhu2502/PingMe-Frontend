@@ -1,13 +1,18 @@
-import type { MessageResponse } from "@/types/chat/message";
+import type {
+  MessageRecalledResponse,
+  MessageResponse,
+} from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
+import { toast } from "sonner";
 
 // =================================================================
 // Type
 // =================================================================
 export type ChatEventType =
   | "MESSAGE_CREATED"
+  | "MESSAGE_RECALLED"
   | "READ_STATE_CHANGED"
   | "ROOM_UPDATED";
 
@@ -29,10 +34,16 @@ export interface RoomUpdatedEventPayload {
   roomResponse: RoomResponse;
 }
 
+export interface MessageRecalledEventPayload {
+  chatEventType: "MESSAGE_RECALLED";
+  messageRecalledResponse: MessageRecalledResponse;
+}
+
 export interface ChatWSOptions {
   baseUrl: string;
   onDisconnect?: (reason?: string) => void;
   onMessageCreated?: (ev: MessageCreatedEventPayload) => void;
+  onMessageRecalled?: (ev: MessageRecalledEventPayload) => void;
   onReadStateChanged?: (ev: ReadStateChangedEvent) => void;
   onRoomUpdated?: (ev: RoomUpdatedEventPayload) => void;
 }
@@ -62,6 +73,20 @@ export function connectChatWS(opts: ChatWSOptions) {
   manualDisconnect = false;
   lastOpts = opts;
 
+  // ---------------------------------------------------------------------------------------------------------
+  // WebSocket STOMP Client Configuration
+  //
+  // 1. Gửi HTTP Request yêu cầu nâng cấp kết nối thành kênh hai chiều (Bi-directional connection)
+  //    hay còn gọi là WebSocket connection.
+  //
+  // 2. Gửi kèm param `access_token` của người dùng để Backend xác định session tương ứng.
+  //
+  // 3. Các thông số điều chỉnh quan trọng:
+  //    - heartbeatIncoming:  FE mong đợi nhận heartbeat từ BE (server → client)
+  //    - heartbeatOutgoing:  FE sẽ gửi heartbeat về BE (client → server)
+  //    - reconnectDelay:     Thời gian (ms) chờ trước khi tự động thử kết nối lại sau khi bị disconnect
+  //    - maxWebSocketChunkSize: Giới hạn kích thước tối đa mỗi chunk khi gửi message qua WS (bytes)
+  //
   client = new Client({
     webSocketFactory: () => {
       const token = localStorage.getItem("access_token") ?? "";
@@ -75,31 +100,44 @@ export function connectChatWS(opts: ChatWSOptions) {
     reconnectDelay: 3000,
     maxWebSocketChunkSize: 8 * 1024,
   });
-
+  //
+  // ---------------------------------------------------------------------------------------------------------
+  // WebSocket Connection Handler
+  //
+  // 1. Hàm được gọi khi kết nối STOMP giữa FE ↔ BE được thiết lập thành công.
+  //
+  // 2. Quy trình thực hiện:
+  //    - Unsubscribe kênh cũ (nếu còn tồn tại) để tránh trùng lặp đăng ký.
+  //    - Subscribe lại kênh /user/queue/rooms để lắng nghe các event ROOM_UPDATED từ Backend.
+  //    - Nếu người dùng đang mở một phòng cụ thể, thực hiện resubscribe lại
+  //      các kênh messages và read-states cho phòng đó.
+  //
+  // 3. Hành vi:
+  //    - Khi nhận event ROOM_UPDATED → gọi callback onRoomUpdated để cập nhật danh sách phòng.
+  //    - Khi parse JSON lỗi → hiển thị thông báo lỗi bằng toast.
+  //
   client.onConnect = () => {
-    try {
-      userRoomsSub?.unsubscribe();
-    } catch (e) {
-      console.warn("[ChatWS] unsubscribe old userRoomsSub err:", e);
-    }
+    // Unsubscribe kênh
+    if (client?.connected && userRoomsSub) userRoomsSub.unsubscribe();
+
+    // Subscribe lại kênh /user/queue/rooms để nhận event từ BE
     userRoomsSub = client!.subscribe("/user/queue/rooms", (msg: IMessage) => {
       try {
         const ev = JSON.parse(msg.body) as RoomUpdatedEventPayload;
-        if (ev?.chatEventType === "ROOM_UPDATED") {
-          lastOpts?.onRoomUpdated?.(ev);
-        }
-      } catch (e) {
-        console.error("[ChatWS] parse ROOM_UPDATED error:", e, msg.body);
+        if (ev?.chatEventType === "ROOM_UPDATED") lastOpts?.onRoomUpdated?.(ev);
+      } catch {
+        toast.error("Có lỗi xảy ra trong lúc kết nối tới máy chủ");
       }
     });
 
-    // 2) Nếu trước đó đang mở 1 phòng, khi reconnect thì resubscribe lại
+    // Nếu trước đó đang mở 1 phòng, khi reconnect thì resubscribe lại
     if (currentRoomIdRef != null) {
       _subscribeRoomMessages(currentRoomIdRef);
       _subscribeRoomReadStates(currentRoomIdRef);
     }
   };
-
+  // ---------------------------------------------------------------------------------------------------------
+  // Chưa hoàn thiện
   client.onStompError = (frame) => {
     console.error(
       "[ChatWS] STOMP error:",
@@ -111,6 +149,7 @@ export function connectChatWS(opts: ChatWSOptions) {
   client.onWebSocketError = (ev) => {
     console.error("[ChatWS] WebSocket error:", ev);
   };
+  // ---------------------------------------------------------------------------------------------------------
 
   client.onDisconnect = (frame) => {
     // không clear currentRoomIdRef để reconnect còn biết phòng đang mở
@@ -204,12 +243,21 @@ function _subscribeRoomMessages(roomId: number) {
   const dest = `/topic/rooms/${roomId}/messages`;
   roomMsgSub = client.subscribe(dest, (msg: IMessage) => {
     try {
-      const ev = JSON.parse(msg.body) as MessageCreatedEventPayload;
-      if (ev?.chatEventType === "MESSAGE_CREATED") {
-        lastOpts?.onMessageCreated?.(ev);
+      const ev = JSON.parse(msg.body) as
+        | MessageCreatedEventPayload
+        | MessageRecalledEventPayload;
+
+      switch (ev.chatEventType) {
+        case "MESSAGE_CREATED":
+          lastOpts?.onMessageCreated?.(ev);
+          break;
+
+        case "MESSAGE_RECALLED":
+          lastOpts?.onMessageRecalled?.(ev);
+          break;
       }
     } catch (e) {
-      console.error("[ChatWS] parse MESSAGE_CREATED error:", e, msg.body);
+      console.error("[ChatWS] parse MESSAGE event error:", e, msg.body);
     }
   });
 }

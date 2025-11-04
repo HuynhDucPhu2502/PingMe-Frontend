@@ -39,6 +39,14 @@ export default function ReceivedMessageBubble({
     message.type === "FILE";
 
   const renderMessageContent = () => {
+    if (!message.isActive) {
+      return (
+        <p className="text-md leading-relaxed break-words text-gray-600 italic">
+          Tin nhắn đã được thu hồi
+        </p>
+      );
+    }
+
     switch (message.type) {
       case "IMAGE":
         return <MessageImage src={message.content} alt="Received image" />;
@@ -57,7 +65,7 @@ export default function ReceivedMessageBubble({
       case "TEXT":
       default:
         return (
-          <p className="text-md leading-relaxed break-words">
+          <p className="text-sm leading-relaxed break-words">
             {message.content}
           </p>
         );
