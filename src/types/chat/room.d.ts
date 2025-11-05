@@ -1,5 +1,9 @@
-import type { RoomParticipantResponse } from "./roomParticipant";
+import type {UserStatus} from "@/types/common/userStatus.ts";
 
+
+// =====================================================================
+// RESPONSE
+// =====================================================================
 export interface RoomResponse {
   roomId: number;
   roomType: "DIRECT" | "GROUP";
@@ -7,6 +11,17 @@ export interface RoomResponse {
   name: string | null;
   lastMessage: LastMessage | null;
   participants: RoomParticipantResponse[];
+}
+
+export interface RoomParticipantResponse {
+    userId: number;
+    name: string;
+    avatarUrl: string;
+
+    status: UserStatus;
+    role: "OWNER" | "ADMIN" | "MEMBER";
+    lastReadMessageId: number | null;
+    lastReadAt: string | null;
 }
 
 export interface LastMessage {
@@ -17,6 +32,15 @@ export interface LastMessage {
   createdAt: string;
 }
 
+// =====================================================================
+// Request
+// =====================================================================
+
 export interface CreateOrGetDirectRoomRequest {
   targetUserId: number;
+}
+
+export interface CreateGroupRoomRequest {
+  name: string;
+  memberIds: number[];
 }
