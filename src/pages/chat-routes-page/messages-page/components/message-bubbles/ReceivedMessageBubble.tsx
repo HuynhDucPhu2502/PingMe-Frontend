@@ -3,36 +3,23 @@ import MessageImage from "./MessageImage";
 import MessageVideo from "./MessageVideo";
 import MessageFile from "./MessageFile";
 import { formatMessageTime } from "../../utils/formatMessageTime";
+import { RotateCcw } from "lucide-react";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
   senderName?: string;
   senderAvatar?: string;
+  roomType?: "DIRECT" | "GROUP";
 }
 
 export default function ReceivedMessageBubble({
   message,
   senderName,
   senderAvatar,
+  roomType,
 }: ReceivedMessageBubbleProps) {
-  const getAvatarColor = (name?: string) => {
-    if (!name) return "bg-gray-400";
-
-    const colors = [
-      "bg-purple-500",
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-yellow-500",
-      "bg-red-500",
-      "bg-indigo-500",
-      "bg-pink-500",
-      "bg-teal-500",
-    ];
-
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
-  };
-
   const isMediaMessage =
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
@@ -41,9 +28,10 @@ export default function ReceivedMessageBubble({
   const renderMessageContent = () => {
     if (!message.isActive) {
       return (
-        <p className="text-md leading-relaxed break-words text-gray-600 italic">
-          Tin nhắn đã được thu hồi
-        </p>
+        <div className="flex items-center gap-2 text-gray-700">
+          <RotateCcw className="h-4 w-4 text-gray-500" />
+          <p className="text-sm italic">Tin nhắn đã được thu hồi</p>
+        </div>
       );
     }
 
@@ -74,26 +62,21 @@ export default function ReceivedMessageBubble({
 
   return (
     <div className="flex items-start mb-4 group">
-      <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-sm ring-2 ring-purple-100 ${
-          senderAvatar && senderAvatar !== "/placeholder.svg"
-            ? "bg-white"
-            : getAvatarColor(senderName)
-        }`}
-      >
-        {senderAvatar && senderAvatar !== "/placeholder.svg" ? (
-          <img
-            src={senderAvatar || "/placeholder.svg"}
-            alt={senderName}
-            className="w-full h-full rounded-full object-cover"
-          />
-        ) : (
-          <span className="text-sm font-semibold text-white">
-            {senderName?.charAt(0).toUpperCase()}
-          </span>
-        )}
-      </div>
+      <Avatar className="w-10 h-10 mr-3 flex-shrink-0 ring-2 ring-purple-100">
+        <AvatarImage
+          src={senderAvatar || "/placeholder.svg"}
+          alt={senderName}
+        />
+        <UserAvatarFallback name={senderName} size="md" />
+      </Avatar>
+
       <div className="max-w-[80%]">
+        {roomType === "GROUP" && senderName && (
+          <div className="text-xs font-medium text-gray-600 mb-1 ml-1">
+            {senderName}
+          </div>
+        )}
+
         {isMediaMessage ? (
           <div>{renderMessageContent()}</div>
         ) : (

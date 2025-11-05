@@ -1,5 +1,4 @@
-import type {UserStatus} from "@/types/common/userStatus.ts";
-
+import type { UserStatus } from "@/types/common/userStatus.ts";
 
 // =====================================================================
 // RESPONSE
@@ -11,17 +10,18 @@ export interface RoomResponse {
   name: string | null;
   lastMessage: LastMessage | null;
   participants: RoomParticipantResponse[];
+  avatarUrl: string | null;
 }
 
 export interface RoomParticipantResponse {
-    userId: number;
-    name: string;
-    avatarUrl: string;
+  userId: number;
+  name: string;
+  avatarUrl: string;
 
-    status: UserStatus;
-    role: "OWNER" | "ADMIN" | "MEMBER";
-    lastReadMessageId: number | null;
-    lastReadAt: string | null;
+  status: UserStatus;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+  lastReadMessageId: number | null;
+  lastReadAt: string | null;
 }
 
 export interface LastMessage {

@@ -116,6 +116,7 @@ export const ChatBoxContent = ({
                   (p) => p.userId === message.senderId
                 )?.avatarUrl
               }
+              roomType={selectedChat.roomType}
             />
           )}
         </div>

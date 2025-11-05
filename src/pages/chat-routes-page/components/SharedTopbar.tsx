@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
-import { Search, Users } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import { UserLookupModal } from "./UserLookupModal.tsx";
+import { CreateGroupChatModal } from "./CreateGroupChatModal.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 
 interface SharedTopBarProps {
@@ -51,13 +52,7 @@ export function SharedTopBar({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-gray-500 hover:text-purple-600 hover:bg-purple-50"
-              >
-                <Users className="w-4 h-4" />
-              </Button>
+              <CreateGroupChatModal onGroupCreated={setSelectedChat} />
             </TooltipTrigger>
             <TooltipContent>
               <p>Tạo nhóm chat</p>

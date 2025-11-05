@@ -1,6 +1,8 @@
+"use client";
+
 import { useAppSelector } from "@/features/hooks";
 import type { RoomResponse } from "@/types/chat/room";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -24,25 +26,27 @@ const ChatBoxHeader = ({
 
   const otherParticipant = getOtherParticipant();
 
+  const avatarUrl =
+    selectedChat.roomType === "GROUP"
+      ? selectedChat.avatarUrl
+      : otherParticipant?.avatarUrl;
+
+  const displayName =
+    selectedChat.roomType === "DIRECT"
+      ? otherParticipant?.name
+      : selectedChat.name;
+
   return (
     <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
       <div className="flex items-center space-x-3">
-        <Avatar className="w-10 h-10 rounded-full ring-2 ring-purple-200 flex items-center justify-center">
-          <AvatarImage
-            src={otherParticipant?.avatarUrl || "/placeholder.svg"}
-            className="rounded-full w-full h-full object-cover"
-          />
-          <AvatarFallback className="bg-purple-100 text-purple-700 font-semibold rounded-full flex items-center justify-center w-full h-full">
-            {otherParticipant?.name?.charAt(0).toUpperCase() ||
-              selectedChat.name?.charAt(0).toUpperCase()}
+        <Avatar className="w-10 h-10 ring-2 ring-purple-200">
+          <AvatarImage src={avatarUrl || "/placeholder.svg"} />
+          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 text-white font-semibold">
+            {displayName?.charAt(0) || "?"}
           </AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-semibold text-gray-900">
-            {selectedChat.roomType === "DIRECT"
-              ? otherParticipant?.name
-              : selectedChat.name}
-          </h3>
+          <h3 className="font-semibold text-gray-900">{displayName}</h3>
         </div>
       </div>
       <Button
