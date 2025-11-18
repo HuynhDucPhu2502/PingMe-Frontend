@@ -1,3 +1,5 @@
+import type React from "react";
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -28,7 +30,10 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { FriendInvitationRequest } from "@/types/friendship";
 import { sendInvitationApi } from "@/services/friendship";
-import type { CreateOrGetDirectRoomRequest, RoomResponse } from "@/types/chat/room";
+import type {
+  CreateOrGetDirectRoomRequest,
+  RoomResponse,
+} from "@/types/chat/room";
 import { createOrGetDirectRoomApi } from "@/services/chat";
 
 interface UserLookupModalProps {
@@ -167,12 +172,8 @@ export function UserLookupModal({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-gray-500 hover:text-purple-600 hover:bg-purple-50"
-        >
-          <UserPlus className="w-4 h-4" />
+        <Button variant="ghost" size="lg" className="h-10 w-10 p-0">
+          <UserPlus className="w-6 h-6" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

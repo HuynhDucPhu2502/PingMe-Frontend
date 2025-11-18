@@ -15,7 +15,8 @@ export interface MessageRecalledResponse {
 
 export interface HistoryMessageResponse {
   messageResponses: MessageResponse[];
-  total: number;
+  hasMore: boolean;
+  nextBeforeId: number;
 }
 
 export interface SendMessageRequest {

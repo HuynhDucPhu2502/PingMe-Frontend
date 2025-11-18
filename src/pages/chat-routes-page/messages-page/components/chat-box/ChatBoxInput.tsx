@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 
 import { useState, useRef } from "react";
@@ -147,7 +149,6 @@ export function ChatBoxInput({
   const removeFile = (index: number) => {
     setSelectedFiles((prev) => {
       const newFiles = [...prev];
-      // Revoke object URL to prevent memory leak
       if (newFiles[index].previewUrl) {
         URL.revokeObjectURL(newFiles[index].previewUrl!);
       }
@@ -170,12 +171,12 @@ export function ChatBoxInput({
       <div className="flex items-center space-x-1 p-3 border-b bg-gradient-to-r from-gray-50 to-purple-50">
         <Button
           variant="ghost"
-          size="sm"
+          size="lg"
           className="text-gray-600 hover:text-purple-600 hover:bg-purple-100 transition-all duration-200 rounded-lg"
           onClick={handleImageClick}
           disabled={disabled || isSending}
         >
-          <ImagePlus className="w-4 h-4" />
+          <ImagePlus className="w-24 h-24" />
         </Button>
         <input
           ref={imageInputRef}
@@ -193,7 +194,7 @@ export function ChatBoxInput({
           onClick={handleFileClick}
           disabled={disabled || isSending}
         >
-          <Paperclip className="w-4 h-4" />
+          <Paperclip className="w-5 h-5" />
         </Button>
         <input
           ref={fileInputRef}
@@ -280,33 +281,39 @@ export function ChatBoxInput({
           </div>
         )}
 
-        <div className="flex items-center space-x-3">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Nhập tin nhắn..."
-            className="flex-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg h-11 px-4 transition-all duration-200"
-            onKeyPress={handleKeyPress}
-            disabled={disabled || isSending}
-          />
-          <span
-            className={`text-sm ${
-              newMessage.length > 1000
-                ? "text-red-500 font-semibold"
-                : "text-gray-500"
-            }`}
-          >
-            {newMessage.length}/1000
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleEmojiPicker}
-            className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-all duration-200 rounded-lg p-2"
-            disabled={isSending}
-          >
-            <Smile className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Nhập tin nhắn..."
+              className="w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg h-12 pl-4 pr-24 transition-all duration-200"
+              onKeyPress={handleKeyPress}
+              disabled={disabled || isSending}
+            />
+
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+              <span
+                className={`text-xs ${
+                  newMessage.length > 1000
+                    ? "text-red-500 font-semibold"
+                    : "text-gray-500"
+                }`}
+              >
+                {newMessage.length}/1000
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleEmojiPicker}
+                className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-all duration-200 rounded-lg p-2 h-8 w-8"
+                disabled={isSending}
+              >
+                <Smile className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+
           <Button
             onClick={handleSend}
             disabled={
@@ -314,10 +321,9 @@ export function ChatBoxInput({
               disabled ||
               isSending
             }
-            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 h-11 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white h-12 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Send className="w-4 h-4 mr-2" />
-            {isSending ? "Đang gửi..." : "Gửi"}
+            <Send className="w-5 h-5" />
           </Button>
         </div>
       </div>

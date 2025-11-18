@@ -70,35 +70,29 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
 
           const historyResponse: HistoryMessageResponse = response.data.data;
           const newMessages = historyResponse.messageResponses;
-          const total = historyResponse.total;
+          const hasMore = historyResponse.hasMore;
 
           const sortedMessages = newMessages.sort((a, b) => a.id - b.id);
 
           if (append) {
             setMessages((prev) => {
               const existingIds = new Set(prev.map((msg) => msg.id));
-
               const uniqueNewMessages = sortedMessages.filter(
                 (msg) => !existingIds.has(msg.id)
               );
-
               const updatedMessages = prev.map((existingMsg) => {
                 const updatedMsg = sortedMessages.find(
                   (newMsg) => newMsg.id === existingMsg.id
                 );
                 return updatedMsg || existingMsg;
               });
-
-              const newMessageList = [...uniqueNewMessages, ...updatedMessages];
-
-              setHasMoreMessages(newMessageList.length < total);
-
-              return newMessageList;
+              return [...uniqueNewMessages, ...updatedMessages];
             });
           } else {
             setMessages(sortedMessages);
-            setHasMoreMessages(sortedMessages.length < total);
           }
+
+          setHasMoreMessages(hasMore);
         } catch (err) {
           toast.error(getErrorMessage(err, "Không thể lấy lịch sử tin nhắn"));
         } finally {
