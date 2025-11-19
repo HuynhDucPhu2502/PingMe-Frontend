@@ -41,7 +41,6 @@ export default function LoginForm() {
 
   const handleForgotPassword = () => {
     console.log("Forgot password clicked");
-    // Implement forgot password logic here
   };
 
   return (
@@ -121,7 +120,6 @@ export default function LoginForm() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your.email@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-11 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -143,7 +141,6 @@ export default function LoginForm() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-11 pr-11 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"

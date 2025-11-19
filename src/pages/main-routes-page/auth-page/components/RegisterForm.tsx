@@ -153,7 +153,6 @@ export default function RegisterForm() {
                   <Input
                     id="name"
                     type="text"
-                    placeholder="Nguyễn Văn A"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     className="pl-11 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -175,7 +174,6 @@ export default function RegisterForm() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your.email@example.com"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     className="pl-11 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -197,7 +195,6 @@ export default function RegisterForm() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) =>
                       handleInputChange("password", e.target.value)
