@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Users, Send, Inbox } from "lucide-react";
 import { SharedTopBar } from "../components/SharedTopbar.tsx";

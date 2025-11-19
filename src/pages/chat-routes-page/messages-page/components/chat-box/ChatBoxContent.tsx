@@ -70,7 +70,7 @@ export const ChatBoxContent = ({
   if (isLoadingMessages) {
     return (
       <div className="flex items-center justify-center h-full">
-        <LoadingSpinner />
+        <LoadingSpinner className="w-12 h-12 text-purple-600" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ export const ChatBoxContent = ({
     >
       {isLoadingMore && (
         <div className="flex justify-center py-2">
-          <LoadingSpinner />
+          <LoadingSpinner className="w-8 h-8 text-purple-600" />
         </div>
       )}
 
