@@ -6,7 +6,7 @@ import {
 import { Badge } from "@/components/ui/badge.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
-import { calculateUnreadCount } from "../utils/calculateUnreadCount.";
+import { calculateUnreadCount } from "../../utils/calculateUnreadCount..ts";
 import {
   getLastMessagePreview,
   getOtherParticipant,

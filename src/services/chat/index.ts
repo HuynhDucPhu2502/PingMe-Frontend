@@ -12,6 +12,7 @@ import type {
   SendMessageRequest,
 } from "@/types/chat/message";
 import type {
+  AddGroupMembersRequest,
   CreateGroupRoomRequest,
   CreateOrGetDirectRoomRequest,
   RoomResponse,
@@ -29,6 +30,13 @@ export const createOrGetDirectRoomApi = (
 
 export const createGroupRoomApi = (data: CreateGroupRoomRequest) => {
   return axiosClient.post<ApiResponse<RoomResponse>>("/rooms/group", data);
+};
+
+export const addGroupMembersApi = (data: AddGroupMembersRequest) => {
+  return axiosClient.post<ApiResponse<RoomResponse>>(
+    "/rooms/group/add-members",
+    data
+  );
 };
 
 export const getCurrentUserRoomsApi = ({

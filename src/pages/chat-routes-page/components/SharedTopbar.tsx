@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import { UserLookupModal } from "./UserLookupModal.tsx";
-import { CreateGroupChatModal } from "./CreateGroupChatModal.tsx";
+import { GroupMemberModal } from "./GroupMemberModal.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 
 interface SharedTopBarProps {
@@ -21,16 +21,12 @@ export function SharedTopBar({
 }: SharedTopBarProps) {
   return (
     <TooltipProvider>
-      <div className="p-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center justify-center space-x-2">
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-center gap-3">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-gray-500 hover:text-purple-600 hover:bg-purple-50"
-              >
-                <Search className="w-4 h-4" />
+              <Button variant="ghost" size="lg" className="h-10 w-10 p-0">
+                <Search className="w-6 h-6" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -40,10 +36,12 @@ export function SharedTopBar({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <UserLookupModal
-                onFriendAdded={onFriendAdded}
-                setSelectedChat={setSelectedChat}
-              />
+              <div>
+                <UserLookupModal
+                  onFriendAdded={onFriendAdded}
+                  setSelectedChat={setSelectedChat}
+                />
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               <p>Thêm bạn</p>
@@ -52,7 +50,12 @@ export function SharedTopBar({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <CreateGroupChatModal onGroupCreated={setSelectedChat} />
+              <div>
+                <GroupMemberModal
+                  mode="create"
+                  onGroupCreated={setSelectedChat}
+                />
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               <p>Tạo nhóm chat</p>

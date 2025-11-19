@@ -44,3 +44,8 @@ export interface CreateGroupRoomRequest {
   name: string;
   memberIds: number[];
 }
+
+export interface AddGroupMembersRequest {
+  roomId: number;
+  memberIds: number[];
+}

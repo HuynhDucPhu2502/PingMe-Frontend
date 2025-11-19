@@ -1,7 +1,11 @@
-import { useAppSelector } from "@/features/hooks";
+import { useAppSelector } from "@/features/hooks.ts";
 import type { RoomResponse } from "@/types/chat/room";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import {
   X,
   Users,
@@ -12,7 +16,8 @@ import {
   Phone,
   Video,
 } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react";
+import MemberList from "./member-list";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -26,10 +31,7 @@ const ConversationSidebar = ({
   onClose,
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
-
-  const handleFeatureUnavailable = () => {
-    toast.error("Tính năng chưa mở");
-  };
+  const [currentView, setCurrentView] = useState<"main" | "members">("main");
 
   const getOtherParticipant = () => {
     if (selectedChat.roomType === "DIRECT" && userSession) {
@@ -41,6 +43,19 @@ const ConversationSidebar = ({
   const otherParticipant = getOtherParticipant();
 
   if (!isOpen) return null;
+
+  if (currentView === "members") {
+    return (
+      <div className="w-80 border-l bg-white flex flex-col h-full">
+        <MemberList
+          participants={selectedChat.participants}
+          roomType={selectedChat.roomType}
+          roomId={selectedChat.roomId}
+          onBack={() => setCurrentView("main")}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-80 border-l bg-white flex flex-col h-full">
@@ -84,7 +99,6 @@ const ConversationSidebar = ({
                 size="icon"
                 className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300"
                 title="Trang cá nhân"
-                onClick={handleFeatureUnavailable}
               >
                 <User className="h-5 w-5 text-purple-600" />
               </Button>
@@ -97,7 +111,6 @@ const ConversationSidebar = ({
                 size="icon"
                 className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300"
                 title="Gọi thoại"
-                onClick={handleFeatureUnavailable}
               >
                 <Phone className="h-5 w-5 text-purple-600" />
               </Button>
@@ -110,7 +123,6 @@ const ConversationSidebar = ({
                 size="icon"
                 className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300"
                 title="Gọi video"
-                onClick={handleFeatureUnavailable}
               >
                 <Video className="h-5 w-5 text-purple-600" />
               </Button>
@@ -120,11 +132,10 @@ const ConversationSidebar = ({
         </div>
 
         <div className="p-4 space-y-3">
-          {/* Members Button */}
           <Button
             variant="outline"
             className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-            onClick={handleFeatureUnavailable}
+            onClick={() => setCurrentView("members")}
           >
             <Users className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">
@@ -136,7 +147,6 @@ const ConversationSidebar = ({
           <Button
             variant="outline"
             className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-            onClick={handleFeatureUnavailable}
           >
             <FileImage className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">
@@ -147,7 +157,6 @@ const ConversationSidebar = ({
           <Button
             variant="outline"
             className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-            onClick={handleFeatureUnavailable}
           >
             <Palette className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">Chủ đề</span>
@@ -156,7 +165,6 @@ const ConversationSidebar = ({
           <Button
             variant="outline"
             className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-            onClick={handleFeatureUnavailable}
           >
             <UserCog className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">Biệt danh</span>

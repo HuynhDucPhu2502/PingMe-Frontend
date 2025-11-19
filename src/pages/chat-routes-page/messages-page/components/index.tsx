@@ -18,10 +18,10 @@ import {
   sendFileMessageApi,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
-import { ChatBoxInput } from "./ChatBoxInput.tsx";
-import { ChatBoxContent } from "./ChatBoxContent.tsx";
-import ChatBoxHeader from "./ChatBoxHeader.tsx";
-import ConversationSidebar from "./ConversationSidebar.tsx";
+import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
+import { ChatBoxContent } from "./chat-box/ChatBoxContent.tsx";
+import ChatBoxHeader from "./chat-box/ChatBoxHeader.tsx";
+import ConversationSidebar from "./conversation-sidebar";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
