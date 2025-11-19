@@ -10,6 +10,7 @@ export interface PageResponse<T> {
   size: number;
   totalElements: number;
   totalPages: number;
+  hasMore: boolean;
 }
 
 export interface PaginationParams {

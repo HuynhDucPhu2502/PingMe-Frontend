@@ -73,17 +73,14 @@ export const ReceivedInvitationsComponent = forwardRef<
               (newInvitation) =>
                 !prev.some((existing) => existing.id === newInvitation.id)
             );
-            const currentTotal = prev.length + newInvitations.length;
-            setHasMoreInvitations(currentTotal < response.total);
             return [...prev, ...newInvitations];
           });
         } else {
           // Load lại từ đầu
           setReceivedInvitations(response.userSummaryResponses);
-          setHasMoreInvitations(
-            response.userSummaryResponses.length < response.total
-          );
         }
+
+        setHasMoreInvitations(response.hasMore);
       } catch (error) {
         toast.error(
           getErrorMessage(error, "Không thể tải danh sách lời mời nhận được")
@@ -102,10 +99,9 @@ export const ReceivedInvitationsComponent = forwardRef<
     if (!container || isLoadingRef.current || !hasMoreInvitations) return;
 
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-    // Load thêm khi scroll đến 80% cuối trang
-    if (scrollPercentage > 0.8) {
+    // Load more when scrolled to bottom (with 10px threshold)
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
       const beforeId =
         receivedInvitations.length > 0
           ? receivedInvitations[receivedInvitations.length - 1].id

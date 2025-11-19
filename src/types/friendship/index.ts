@@ -11,7 +11,8 @@ export interface FriendshipSummary {
 
 export interface HistoryFriendshipResponse {
   userSummaryResponses: UserSummaryResponse[];
-  total: number;
+  hasMore: boolean;
+  nextBeforeId: number;
 }
 
 export interface UserFriendshipStatsResponse {

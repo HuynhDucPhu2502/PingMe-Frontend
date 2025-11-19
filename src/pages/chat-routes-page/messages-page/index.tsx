@@ -35,7 +35,7 @@ export default function MessagesPage() {
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
 
   const [roomsPagination, setRoomsPagination] = useState({
-    currentPage: 0,
+    currentPage: 1,
     totalPages: 0,
     hasMore: true,
     isLoadingMore: false,
@@ -63,7 +63,7 @@ export default function MessagesPage() {
         setRoomsPagination({
           currentPage: res.page,
           totalPages: res.totalPages,
-          hasMore: res.page < res.totalPages - 1,
+          hasMore: res.hasMore,
           isLoadingMore: false,
         });
       } catch (err) {
@@ -77,23 +77,23 @@ export default function MessagesPage() {
   );
 
   const refetchRooms = () => {
-    fetchRooms(0, 20);
+    fetchRooms(1, 20);
   };
 
   useEffect(() => {
-    fetchRooms(0, 20);
+    fetchRooms(1, 20);
   }, [fetchRooms]);
 
   // =======================================================================
   // Xử lý scroll để load thêm phòng
-  // Khi scroll đến 80% chiều cao container sẽ load thêm
+  // Khi scroll đến 100% chiều cao container sẽ load thêm
   // =======================================================================
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
 
     if (
-      scrollPercentage > 0.8 &&
+      isAtBottom &&
       roomsPagination.hasMore &&
       !roomsPagination.isLoadingMore
     ) {

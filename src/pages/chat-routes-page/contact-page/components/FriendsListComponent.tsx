@@ -68,7 +68,6 @@ export const FriendsListComponent = forwardRef<
           await getAcceptedFriendshipHistoryListApi(beforeId, 20)
         ).data.data;
         const friendsList = response.userSummaryResponses;
-        const total = response.total;
 
         if (isLoadMore) {
           setFriends((prev) => {
@@ -78,14 +77,13 @@ export const FriendsListComponent = forwardRef<
                   (existingFriend) => existingFriend.id === newFriend.id
                 )
             );
-            const updatedList = [...prev, ...newFriends];
-            setHasMoreFriends(updatedList.length < total);
-            return updatedList;
+            return [...prev, ...newFriends];
           });
         } else {
           setFriends(friendsList);
-          setHasMoreFriends(friendsList.length < total);
         }
+
+        setHasMoreFriends(response.hasMore);
       } catch (error) {
         toast.error(getErrorMessage(error, "Không thể tải danh sách bạn bè"));
       } finally {
@@ -102,9 +100,9 @@ export const FriendsListComponent = forwardRef<
     if (!container || isLoadingRef.current || !hasMoreFriends) return;
 
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-    if (scrollPercentage > 0.8) {
+    // Load more when scrolled to bottom (with 10px threshold)
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
       const beforeId =
         friends.length > 0 ? friends[friends.length - 1].id : undefined;
       fetchFriends(beforeId, true);

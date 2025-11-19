@@ -1,5 +1,3 @@
-"use client";
-
 import {
   useState,
   useEffect,
@@ -68,23 +66,18 @@ export const SentInvitationsComponent = forwardRef<
           .data as HistoryFriendshipResponse;
 
         if (isLoadMore) {
-          // Append thêm lời mời vào cuối danh sách
           setSentInvitations((prev) => {
             const newInvitations = response.userSummaryResponses.filter(
               (newInvitation) =>
                 !prev.some((existing) => existing.id === newInvitation.id)
             );
-            const updatedList = [...prev, ...newInvitations];
-            setHasMoreInvitations(updatedList.length < response.total);
-            return updatedList;
+            return [...prev, ...newInvitations];
           });
         } else {
-          // Load lại từ đầu
           setSentInvitations(response.userSummaryResponses);
-          setHasMoreInvitations(
-            response.userSummaryResponses.length < response.total
-          );
         }
+
+        setHasMoreInvitations(response.hasMore);
       } catch {
         toast.error("Không thể tải danh sách lời mời đã gửi");
       } finally {
@@ -92,7 +85,7 @@ export const SentInvitationsComponent = forwardRef<
         isLoadingRef.current = false;
       }
     },
-    [] // Removed sentInvitations.length dependency to prevent infinite loop
+    []
   );
 
   // Xử lý infinite scroll
@@ -101,10 +94,9 @@ export const SentInvitationsComponent = forwardRef<
     if (!container || isLoadingRef.current || !hasMoreInvitations) return;
 
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-    // Load thêm khi scroll đến 80% cuối trang
-    if (scrollPercentage > 0.8) {
+    // Load more when scrolled to bottom (with 10px threshold)
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
       const beforeId =
         sentInvitations.length > 0
           ? sentInvitations[sentInvitations.length - 1].id
@@ -144,7 +136,6 @@ export const SentInvitationsComponent = forwardRef<
     () => ({
       handleInvitationUpdate: (user: UserSummaryResponse) => {
         setSentInvitations((prev) => {
-          // Nếu lời mời được chấp nhận hoặc từ chối, xóa khỏi danh sách
           return prev.filter((invitation) => invitation.id !== user.id);
         });
       },
