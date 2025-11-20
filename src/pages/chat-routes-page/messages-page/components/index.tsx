@@ -80,13 +80,8 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
               const uniqueNewMessages = sortedMessages.filter(
                 (msg) => !existingIds.has(msg.id)
               );
-              const updatedMessages = prev.map((existingMsg) => {
-                const updatedMsg = sortedMessages.find(
-                  (newMsg) => newMsg.id === existingMsg.id
-                );
-                return updatedMsg || existingMsg;
-              });
-              return [...uniqueNewMessages, ...updatedMessages];
+              // Chỉ thêm messages mới vào đầu (load more = messages cũ hơn)
+              return [...uniqueNewMessages, ...prev];
             });
           } else {
             setMessages(sortedMessages);
@@ -173,40 +168,45 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     const handleIncomingMessage = useCallback(
       (message: MessageResponse) => {
         if (message.roomId !== selectedChat.roomId) {
-          console.warn(
-            "[ChatBox] Phòng tin nhắn không hợp lệ:",
-            message.roomId,
-            "vs",
-            selectedChat.roomId
-          );
+          console.warn("[ChatBox] Phòng tin nhắn không hợp lệ");
           return;
         }
 
+        // ============================
+        //  SYSTEM MESSAGE – LUÔN NHẬN
+        // ============================
+        if (message.type === "SYSTEM") {
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === message.id)) return prev;
+            return [...prev, message];
+          });
+          return;
+        }
+
+        // ============================================
+        // Các loại tin nhắn khác (TEXT / IMAGE / FILE)
+        // ============================================
         const senderExists = selectedChat.participants.some(
           (p) => p.userId === message.senderId
         );
         if (!senderExists) {
-          console.warn(
-            "[ChatBox] Người gửi tin nhắn không tồn tại trong phòng này:",
-            message.senderId
-          );
+          console.warn("[ChatBox] Người gửi không nằm trong phòng");
           return;
         }
 
         if (userSession && isCurrentUserMessage(message.senderId)) return;
 
+        // Add message
         setMessages((prev) => {
-          const messageExists = prev.some((msg) => msg.id === message.id);
-          if (messageExists) return prev;
-
+          if (prev.some((m) => m.id === message.id)) return prev;
           return [...prev, message];
         });
       },
       [
-        isCurrentUserMessage,
-        selectedChat.participants,
         selectedChat.roomId,
+        selectedChat.participants,
         userSession,
+        isCurrentUserMessage,
       ]
     );
 

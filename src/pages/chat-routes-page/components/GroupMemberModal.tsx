@@ -1,3 +1,5 @@
+import type React from "react";
+
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Dialog,
@@ -81,9 +83,29 @@ export function GroupMemberModal({
     if (open) {
       setFriends([]);
       setHasMore(true);
-      fetchFriends();
+      setIsLoading(false);
+
+      // Fetch friends immediately without dependency on fetchFriends callback
+      const loadInitialFriends = async () => {
+        setIsLoading(true);
+        try {
+          const response = await getAcceptedFriendshipHistoryListApi(
+            undefined,
+            20
+          );
+          const { userSummaryResponses, hasMore: responseHasMore } =
+            response.data.data;
+          setFriends(userSummaryResponses);
+          setHasMore(responseHasMore);
+        } catch (error) {
+          toast.error(getErrorMessage(error, "Không thể tải danh sách bạn bè"));
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadInitialFriends();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleScroll = useCallback(() => {

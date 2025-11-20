@@ -4,7 +4,7 @@ export interface MessageResponse {
   clientMsgId: string;
   senderId: number;
   content: string;
-  type: "TEXT" | "IMAGE" | "VIDEO" | "FILE";
+  type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM";
   createdAt: string;
   isActive: boolean;
 }

@@ -3,6 +3,7 @@ import type {
   MessageResponse,
 } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
@@ -14,11 +15,20 @@ export type ChatEventType =
   | "MESSAGE_CREATED"
   | "MESSAGE_RECALLED"
   | "READ_STATE_CHANGED"
-  | "ROOM_UPDATED";
+  | "ROOM_CREATED"
+  | "ROOM_UPDATED"
+  | "MEMBER_ADDED"
+  | "MEMBER_REMOVED"
+  | "MEMBER_ROLE_CHANGED";
 
 export interface MessageCreatedEventPayload {
   chatEventType: "MESSAGE_CREATED";
   messageResponse: MessageResponse;
+}
+
+export interface MessageRecalledEventPayload {
+  chatEventType: "MESSAGE_RECALLED";
+  messageRecalledResponse: MessageRecalledResponse;
 }
 
 export interface ReadStateChangedEvent {
@@ -29,25 +39,60 @@ export interface ReadStateChangedEvent {
   lastReadAt: string;
 }
 
+export interface RoomCreatedEventPayload {
+  chatEventType: "ROOM_CREATED";
+  roomResponse: RoomResponse;
+}
+
 export interface RoomUpdatedEventPayload {
   chatEventType: "ROOM_UPDATED";
   roomResponse: RoomResponse;
 }
 
-export interface MessageRecalledEventPayload {
-  chatEventType: "MESSAGE_RECALLED";
-  messageRecalledResponse: MessageRecalledResponse;
+export interface MemberAddedEventPayload {
+  chatEventType: "MEMBER_ADDED";
+  roomResponse: RoomResponse;
+  targetUserId: number;
+  actorUserId: number;
+}
+
+export interface MemberRemovedEventPayload {
+  chatEventType: "MEMBER_REMOVED";
+  roomResponse: RoomResponse;
+  targetUserId: number;
+  actorUserId: number;
+}
+
+export interface MemberRoleChangedEventPayload {
+  chatEventType: "MEMBER_ROLE_CHANGED";
+  roomResponse: RoomResponse;
+  targetUserId: number;
+  oldRole: "OWNER" | "ADMIN" | "MEMBER";
+  newRole: "OWNER" | "ADMIN" | "MEMBER";
+  actorUserId: number;
 }
 
 export interface ChatWSOptions {
   baseUrl: string;
+
   onDisconnect?: (reason?: string) => void;
+
+  // message events
   onMessageCreated?: (ev: MessageCreatedEventPayload) => void;
   onMessageRecalled?: (ev: MessageRecalledEventPayload) => void;
-  onReadStateChanged?: (ev: ReadStateChangedEvent) => void;
-  onRoomUpdated?: (ev: RoomUpdatedEventPayload) => void;
-}
 
+  // room events
+  onRoomCreated?: (ev: RoomCreatedEventPayload) => void;
+  onRoomUpdated?: (ev: RoomUpdatedEventPayload) => void;
+
+  // member events
+  onMemberAdded?: (ev: MemberAddedEventPayload) => void;
+  onMemberRemoved?: (ev: MemberRemovedEventPayload) => void;
+  onMemberRoleChanged?: (ev: MemberRoleChangedEventPayload) => void;
+
+  // read state
+  onReadStateChanged?: (ev: ReadStateChangedEvent) => void;
+}
 // =================================================================
 // Internal State
 // =================================================================
@@ -123,10 +168,43 @@ export function connectChatWS(opts: ChatWSOptions) {
     // Subscribe lại kênh /user/queue/rooms để nhận event từ BE
     userRoomsSub = client!.subscribe("/user/queue/rooms", (msg: IMessage) => {
       try {
-        const ev = JSON.parse(msg.body) as RoomUpdatedEventPayload;
-        if (ev?.chatEventType === "ROOM_UPDATED") lastOpts?.onRoomUpdated?.(ev);
-      } catch {
-        toast.error("Có lỗi xảy ra trong lúc kết nối tới máy chủ");
+        const ev = JSON.parse(msg.body);
+
+        switch (ev.chatEventType as ChatEventType) {
+          // ============================================
+          // ROOM EVENTS
+          // ============================================
+          case "ROOM_CREATED":
+            lastOpts?.onRoomCreated?.(ev);
+            break;
+
+          case "ROOM_UPDATED":
+            lastOpts?.onRoomUpdated?.(ev);
+            break;
+
+          // ============================================
+          // MEMBER EVENTS
+          // ============================================
+          case "MEMBER_ADDED":
+            lastOpts?.onMemberAdded?.(ev);
+            break;
+
+          case "MEMBER_REMOVED":
+            lastOpts?.onMemberRemoved?.(ev);
+            break;
+
+          case "MEMBER_ROLE_CHANGED":
+            lastOpts?.onMemberRoleChanged?.(ev);
+            break;
+
+          // ============================================
+          // FALLBACK
+          // ============================================
+          default:
+            console.warn("[ChatWS] Unknown event:", ev);
+        }
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Lỗi xử lý dữ liệu từ máy chủ"));
       }
     });
 

@@ -18,6 +18,9 @@ import {
   type MessageCreatedEventPayload,
   type RoomUpdatedEventPayload,
   type MessageRecalledEventPayload,
+  type RoomCreatedEventPayload,
+  type MemberAddedEventPayload,
+  type MemberRemovedEventPayload,
 } from "@/services/ws/chatSocket";
 import type { UserStatusPayload } from "@/types/common/userStatus";
 import {
@@ -35,7 +38,7 @@ export default function MessagesPage() {
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
 
   const [roomsPagination, setRoomsPagination] = useState({
-    currentPage: 1,
+    currentPage: 0,
     totalPages: 0,
     hasMore: true,
     isLoadingMore: false,
@@ -47,15 +50,25 @@ export default function MessagesPage() {
         if (!append) setIsFetchingRooms(true);
         else setRoomsPagination((prev) => ({ ...prev, isLoadingMore: true }));
 
+        console.log(
+          "[v0] Fetching rooms - page:",
+          page,
+          "size:",
+          size,
+          "append:",
+          append
+        );
         const res = (await getCurrentUserRoomsApi({ page, size })).data.data;
+        console.log("[v0] Rooms response:", {
+          page: res.page,
+          totalPages: res.totalPages,
+          hasMore: res.hasMore,
+          contentLength: res.content.length,
+        });
 
         setRooms((prev) => {
           if (append) {
-            const newRooms = res.content.filter(
-              (newRoom: RoomResponse) =>
-                !prev.some((r) => r.roomId === newRoom.roomId)
-            );
-            return [...prev, ...newRooms];
+            return [...prev, ...res.content];
           }
           return res.content;
         });
@@ -179,6 +192,59 @@ export default function MessagesPage() {
   );
 
   // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến ROOM_CREATED từ WebSocket
+  // =======================================================================
+  const handleRoomCreated = useCallback(
+    (event: RoomCreatedEventPayload) => {
+      upsertRoom(event.roomResponse);
+    },
+    [upsertRoom]
+  );
+
+  // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến MEMBER_ADDED từ WebSocket
+  // =======================================================================
+  const handleMemberAdded = useCallback(
+    (event: MemberAddedEventPayload) => {
+      const isCurrentUserAdded = event.targetUserId === userSession?.id;
+
+      if (isCurrentUserAdded) {
+        // Fetch the updated room to show it in the list
+        upsertRoom(event.roomResponse);
+      } else {
+        // Just update the existing room with new member info
+        upsertRoom(event.roomResponse);
+      }
+    },
+    [upsertRoom, userSession?.id]
+  );
+
+  // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến MEMBER_REMOVED từ WebSocket
+  // =======================================================================
+  const handleMemberRemoved = useCallback(
+    (event: MemberRemovedEventPayload) => {
+      const isCurrentUserRemoved = event.targetUserId === userSession?.id;
+
+      if (isCurrentUserRemoved) {
+        // Remove room from list if current user was removed
+        setRooms((prev) =>
+          prev.filter((r) => r.roomId !== event.roomResponse.roomId)
+        );
+
+        // Close chat if the removed room was selected
+        setSelectedChat((prev) =>
+          prev?.roomId === event.roomResponse.roomId ? null : prev
+        );
+      } else {
+        // Just update the room with updated member list
+        upsertRoom(event.roomResponse);
+      }
+    },
+    [upsertRoom, userSession?.id]
+  );
+
+  // =======================================================================
   // Setup WebSocket connection và event handlers
   // Chạy một lần khi component mount
   // =======================================================================
@@ -191,6 +257,7 @@ export default function MessagesPage() {
         console.warn("[ChatWS] disconnected:", reason);
       },
       onMessageCreated: (ev: MessageCreatedEventPayload) => {
+        if (ev.messageResponse.type === "SYSTEM") console.log("Test");
         handleNewMessage(ev);
       },
       onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
@@ -199,12 +266,22 @@ export default function MessagesPage() {
       onMessageRecalled: (ev: MessageRecalledEventPayload) => {
         handleRecallMessage(ev);
       },
+      onRoomCreated: handleRoomCreated,
+      onMemberAdded: handleMemberAdded,
+      onMemberRemoved: handleMemberRemoved,
     });
 
     return () => {
       disconnectChatWS();
     };
-  }, [upsertRoom, handleNewMessage, handleRecallMessage]);
+  }, [
+    upsertRoom,
+    handleNewMessage,
+    handleRecallMessage,
+    handleRoomCreated,
+    handleMemberAdded,
+    handleMemberRemoved,
+  ]);
 
   // Websocket cho hiển thị trạng thái trực tuyến người dùng
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(

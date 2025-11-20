@@ -98,7 +98,13 @@ export const ChatBoxContent = ({
 
       {messages.map((message) => (
         <div key={message.id}>
-          {isCurrentUserMessage(message.senderId) ? (
+          {message.type === "SYSTEM" ? (
+            <div className="flex justify-center my-2">
+              <div className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+                {message.content}
+              </div>
+            </div>
+          ) : isCurrentUserMessage(message.senderId) ? (
             <SentMessageBubble
               message={message}
               onMessageRecalled={onMessageRecalled}
