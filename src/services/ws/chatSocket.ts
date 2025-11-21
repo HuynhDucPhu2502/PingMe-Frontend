@@ -49,7 +49,7 @@ export interface RoomUpdatedEventPayload {
   roomResponse: RoomResponse;
 }
 
-export interface MemberAddedEventPayload {
+export interface RoomMemberAddedEventPayload {
   chatEventType: "MEMBER_ADDED";
   roomResponse: RoomResponse;
   targetUserId: number;
@@ -57,7 +57,7 @@ export interface MemberAddedEventPayload {
   systemMessage?: MessageResponse;
 }
 
-export interface MemberRemovedEventPayload {
+export interface RoomMemberRemovedEventPayload {
   chatEventType: "MEMBER_REMOVED";
   roomResponse: RoomResponse;
   targetUserId: number;
@@ -65,13 +65,14 @@ export interface MemberRemovedEventPayload {
   systemMessage?: MessageResponse;
 }
 
-export interface MemberRoleChangedEventPayload {
+export interface RoomMemberRoleChangedEventPayload {
   chatEventType: "MEMBER_ROLE_CHANGED";
   roomResponse: RoomResponse;
   targetUserId: number;
   oldRole: "OWNER" | "ADMIN" | "MEMBER";
   newRole: "OWNER" | "ADMIN" | "MEMBER";
   actorUserId: number;
+  systemMessage?: MessageResponse;
 }
 
 export interface ChatWSOptions {
@@ -88,9 +89,9 @@ export interface ChatWSOptions {
   onRoomUpdated?: (ev: RoomUpdatedEventPayload) => void;
 
   // member events
-  onMemberAdded?: (ev: MemberAddedEventPayload) => void;
-  onMemberRemoved?: (ev: MemberRemovedEventPayload) => void;
-  onMemberRoleChanged?: (ev: MemberRoleChangedEventPayload) => void;
+  onMemberAdded?: (ev: RoomMemberAddedEventPayload) => void;
+  onMemberRemoved?: (ev: RoomMemberRemovedEventPayload) => void;
+  onMemberRoleChanged?: (ev: RoomMemberRoleChangedEventPayload) => void;
 
   // read state
   onReadStateChanged?: (ev: ReadStateChangedEvent) => void;

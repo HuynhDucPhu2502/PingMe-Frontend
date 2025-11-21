@@ -1,5 +1,3 @@
-"use client";
-
 import type { RoomParticipantResponse } from "@/types/chat/room";
 import {
   Avatar,
@@ -17,16 +15,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { removeGroupMemberApi } from "@/services/chat";
+import { removeGroupMemberApi, changeMemberRole } from "@/services/chat";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { useAppSelector } from "@/features/hooks";
+
+const canAddMembers = (
+  currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null
+): boolean => {
+  return currentUserRole === "OWNER" || currentUserRole === "ADMIN";
+};
+
+const canManageMember = (
+  currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null,
+  targetRole: "OWNER" | "ADMIN" | "MEMBER",
+  isCurrentUser: boolean
+): boolean => {
+  if (isCurrentUser) return false;
+  if (currentUserRole === "MEMBER") return false;
+  if (currentUserRole === "ADMIN") return targetRole === "MEMBER";
+  if (currentUserRole === "OWNER") return true;
+  return false;
+};
+
+const canChangeRole = (
+  currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null,
+  targetRole: "OWNER" | "ADMIN" | "MEMBER"
+): boolean => {
+  return (
+    currentUserRole === "OWNER" &&
+    (targetRole === "ADMIN" || targetRole === "MEMBER")
+  );
+};
 
 interface MemberListProps {
   participants: RoomParticipantResponse[];
   roomType: "DIRECT" | "GROUP";
   roomId: number;
   onBack: () => void;
-  onMembersAdded?: () => void;
 }
 
 const MemberList = ({
@@ -34,9 +59,12 @@ const MemberList = ({
   roomType,
   roomId,
   onBack,
-  onMembersAdded,
 }: MemberListProps) => {
+  const { userSession } = useAppSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const currentUserRole =
+    participants.find((p) => p.userId === userSession?.id)?.role || null;
 
   // Sort participants: OWNER first, then ADMIN, then MEMBER
   const sortedParticipants = [...participants].sort((a, b) => {
@@ -59,8 +87,8 @@ const MemberList = ({
     try {
       await removeGroupMemberApi(roomId, userId);
       toast.success(`${name} đã bị xóa khỏi nhóm`);
-    } catch (error) {
-      toast.error(getErrorMessage(error, "Không thể xóa thành viên"));
+    } catch {
+      toast.error("Không thể xóa thành viên khỏi nhóm");
     }
   };
 
@@ -71,14 +99,12 @@ const MemberList = ({
   ) => {
     const newRole = currentRole === "ADMIN" ? "MEMBER" : "ADMIN";
     try {
-      // await changeMemberRoleApi(roomId, userId, newRole);
+      await changeMemberRole(roomId, userId, newRole);
       toast.success(
         `${name} đã được ${newRole === "ADMIN" ? "thêm" : "gỡ"} quyền phó nhóm`
       );
-    } catch (error) {
-      toast.error(
-        getErrorMessage(error, "Không thể thay đổi quyền thành viên")
-      );
+    } catch {
+      toast.error("Không thể thay đổi quyền thành viên");
     }
   };
 
@@ -93,12 +119,11 @@ const MemberList = ({
 
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-4">
-          {roomType === "GROUP" && (
+          {roomType === "GROUP" && canAddMembers(currentUserRole) && (
             <GroupMemberModal
               mode="add"
               currentMembers={participants}
               roomId={roomId}
-              onMembersAdded={onMembersAdded}
               triggerButton={
                 <Button className="w-full justify-start gap-2 bg-purple-600 hover:bg-purple-700 text-white">
                   <UserPlus className="h-4 w-4" />
@@ -131,6 +156,12 @@ const MemberList = ({
           <div className="space-y-1">
             {filteredParticipants.map((participant) => {
               const roleDescription = getRoleDescription(participant.role);
+              const isCurrentUser = participant.userId === userSession?.id;
+              const showActions = canManageMember(
+                currentUserRole,
+                participant.role,
+                isCurrentUser
+              );
 
               return (
                 <div
@@ -157,7 +188,7 @@ const MemberList = ({
                     )}
                   </div>
 
-                  {roomType === "GROUP" && participant.role !== "OWNER" && (
+                  {roomType === "GROUP" && showActions && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -169,31 +200,35 @@ const MemberList = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {participant.role === "ADMIN" && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleChangeRole(
-                                participant.userId,
-                                participant.name,
-                                "ADMIN"
-                              )
-                            }
-                          >
-                            Gỡ quyền phó nhóm
-                          </DropdownMenuItem>
-                        )}
-                        {participant.role === "MEMBER" && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleChangeRole(
-                                participant.userId,
-                                participant.name,
-                                "MEMBER"
-                              )
-                            }
-                          >
-                            Thêm phó nhóm
-                          </DropdownMenuItem>
+                        {canChangeRole(currentUserRole, participant.role) && (
+                          <>
+                            {participant.role === "ADMIN" && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleChangeRole(
+                                    participant.userId,
+                                    participant.name,
+                                    "ADMIN"
+                                  )
+                                }
+                              >
+                                Gỡ quyền phó nhóm
+                              </DropdownMenuItem>
+                            )}
+                            {participant.role === "MEMBER" && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleChangeRole(
+                                    participant.userId,
+                                    participant.name,
+                                    "MEMBER"
+                                  )
+                                }
+                              >
+                                Thêm phó nhóm
+                              </DropdownMenuItem>
+                            )}
+                          </>
                         )}
                         <DropdownMenuItem
                           onClick={() =>

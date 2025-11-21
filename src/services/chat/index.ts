@@ -45,6 +45,16 @@ export const removeGroupMemberApi = (roomId: number, targetUserId: number) => {
   );
 };
 
+export const changeMemberRole = (
+  roomId: number,
+  targetUserId: number,
+  role: "ADMIN" | "MEMBER"
+) => {
+  return axiosClient.put<ApiResponse<RoomResponse>>(
+    `/rooms/group/${roomId}/members/${targetUserId}/role?newRole=${role}`
+  );
+};
+
 export const getCurrentUserRoomsApi = ({
   page = 0,
   size = 10,

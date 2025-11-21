@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -21,8 +19,9 @@ import {
   type RoomUpdatedEventPayload,
   type MessageRecalledEventPayload,
   type RoomCreatedEventPayload,
-  type MemberAddedEventPayload,
-  type MemberRemovedEventPayload,
+  type RoomMemberAddedEventPayload,
+  type RoomMemberRemovedEventPayload,
+  type RoomMemberRoleChangedEventPayload, // Added import for role change event
 } from "@/services/ws/chatSocket";
 import type { UserStatusPayload } from "@/types/common/userStatus";
 import {
@@ -201,7 +200,7 @@ export default function MessagesPage() {
   // Hàm xử lý sự kiện liên quan đến MEMBER_ADDED từ WebSocket
   // =======================================================================
   const handleMemberAdded = useCallback(
-    (event: MemberAddedEventPayload) => {
+    (event: RoomMemberAddedEventPayload) => {
       const isCurrentUserAdded = event.targetUserId === userSession?.id;
 
       if (isCurrentUserAdded) {
@@ -228,7 +227,7 @@ export default function MessagesPage() {
   // Hàm xử lý sự kiện liên quan đến MEMBER_REMOVED từ WebSocket
   // =======================================================================
   const handleMemberRemoved = useCallback(
-    (event: MemberRemovedEventPayload) => {
+    (event: RoomMemberRemovedEventPayload) => {
       const isCurrentUserRemoved = event.targetUserId === userSession?.id;
 
       if (isCurrentUserRemoved) {
@@ -259,6 +258,34 @@ export default function MessagesPage() {
   );
 
   // =======================================================================
+  // Hàm xử lý sự kiện liên quan đến MEMBER_ROLE_CHANGED từ WebSocket
+  // =======================================================================
+  const handleMemberRoleChanged = useCallback(
+    (event: RoomMemberRoleChangedEventPayload) => {
+      console.log("[v0] MEMBER_ROLE_CHANGED event:", event);
+      console.log("[v0] Has systemMessage?", !!event.systemMessage);
+      console.log(
+        "[v0] Current room matches?",
+        selectedRoomIdRef.current === event.roomResponse.roomId
+      );
+
+      // Update the room with new role information
+      upsertRoom(event.roomResponse);
+
+      // Add system message to chat if it exists and we're viewing this room
+      if (
+        event.systemMessage &&
+        selectedRoomIdRef.current === event.roomResponse.roomId &&
+        chatBoxRef.current
+      ) {
+        console.log("[v0] Adding system message to chat:", event.systemMessage);
+        chatBoxRef.current.handleIncomingMessage(event.systemMessage);
+      }
+    },
+    [upsertRoom]
+  );
+
+  // =======================================================================
   // Setup WebSocket connection và event handlers
   // Chạy một lần khi component mount
   // =======================================================================
@@ -282,6 +309,7 @@ export default function MessagesPage() {
       onRoomCreated: handleRoomCreated,
       onMemberAdded: handleMemberAdded,
       onMemberRemoved: handleMemberRemoved,
+      onMemberRoleChanged: handleMemberRoleChanged, // Added role change handler
     });
 
     return () => {
@@ -294,7 +322,8 @@ export default function MessagesPage() {
     handleRoomCreated,
     handleMemberAdded,
     handleMemberRemoved,
-  ]);
+    handleMemberRoleChanged,
+  ]); // Added dependency
 
   // Websocket cho hiển thị trạng thái trực tuyến người dùng
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(

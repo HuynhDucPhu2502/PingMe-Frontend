@@ -23,14 +23,12 @@ interface ConversationSidebarProps {
   selectedChat: RoomResponse;
   isOpen: boolean;
   onClose: () => void;
-  onRoomUpdated?: (room: RoomResponse) => void;
 }
 
 const ConversationSidebar = ({
   selectedChat,
   isOpen,
   onClose,
-  onRoomUpdated,
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const [currentView, setCurrentView] = useState<"main" | "members">("main");
@@ -54,7 +52,6 @@ const ConversationSidebar = ({
           roomType={selectedChat.roomType}
           roomId={selectedChat.roomId}
           onBack={() => setCurrentView("main")}
-          onRoomUpdated={onRoomUpdated}
         />
       </div>
     );
