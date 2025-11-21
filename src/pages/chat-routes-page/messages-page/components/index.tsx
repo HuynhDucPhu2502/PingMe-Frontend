@@ -25,7 +25,6 @@ import ConversationSidebar from "./conversation-sidebar";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
-  onRoomUpdated?: (updatedRoom: RoomResponse) => void;
 }
 
 export interface ChatBoxRef {
@@ -34,7 +33,7 @@ export interface ChatBoxRef {
 }
 
 export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
-  ({ selectedChat, onRoomUpdated }, ref) => {
+  ({ selectedChat }, ref) => {
     const { userSession } = useAppSelector((state) => state.auth);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -266,7 +265,6 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           selectedChat={selectedChat}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          onRoomUpdated={onRoomUpdated}
         />
       </div>
     );
