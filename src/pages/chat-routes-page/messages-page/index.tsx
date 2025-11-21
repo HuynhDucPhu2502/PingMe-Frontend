@@ -398,11 +398,7 @@ export default function MessagesPage() {
       </div>
 
       {selectedChat ? (
-        <ChatBox
-          ref={chatBoxRef}
-          selectedChat={selectedChat}
-          onRoomUpdated={upsertRoom}
-        />
+        <ChatBox ref={chatBoxRef} selectedChat={selectedChat} />
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
