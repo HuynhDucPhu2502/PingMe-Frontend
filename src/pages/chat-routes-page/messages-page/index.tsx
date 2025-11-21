@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -50,21 +52,7 @@ export default function MessagesPage() {
         if (!append) setIsFetchingRooms(true);
         else setRoomsPagination((prev) => ({ ...prev, isLoadingMore: true }));
 
-        console.log(
-          "[v0] Fetching rooms - page:",
-          page,
-          "size:",
-          size,
-          "append:",
-          append
-        );
         const res = (await getCurrentUserRoomsApi({ page, size })).data.data;
-        console.log("[v0] Rooms response:", {
-          page: res.page,
-          totalPages: res.totalPages,
-          hasMore: res.hasMore,
-          contentLength: res.content.length,
-        });
 
         setRooms((prev) => {
           if (append) {
@@ -164,17 +152,25 @@ export default function MessagesPage() {
   const upsertRoom = useCallback((incoming: RoomResponse) => {
     setRooms((prev) => {
       const idx = prev.findIndex((r) => r.roomId === incoming.roomId);
+
       if (idx === -1) {
+        // Room mới, thêm vào đầu
         return [incoming, ...prev];
       }
 
-      const updatedRoom = { ...prev[idx], ...incoming };
-      const filteredRooms = prev.filter((r) => r.roomId !== incoming.roomId);
-      return [updatedRoom, ...filteredRooms];
+      // Update và đưa lên đầu (reorder)
+      const merged = { ...prev[idx], ...incoming };
+      const filtered = prev.filter((r) => r.roomId !== incoming.roomId);
+      return [merged, ...filtered];
     });
-    setSelectedChat((prev) =>
-      prev && prev.roomId === incoming.roomId ? { ...prev, ...incoming } : prev
-    );
+
+    // Sync selectedChat với incoming data by roomId (not reference)
+    setSelectedChat((prev) => {
+      if (prev && prev.roomId === incoming.roomId) {
+        return { ...prev, ...incoming };
+      }
+      return prev;
+    });
   }, []);
 
   // =======================================================================
@@ -215,6 +211,15 @@ export default function MessagesPage() {
         // Just update the existing room with new member info
         upsertRoom(event.roomResponse);
       }
+
+      // Add system message to chat if it exists and we're viewing this room
+      if (
+        event.systemMessage &&
+        selectedRoomIdRef.current === event.roomResponse.roomId &&
+        chatBoxRef.current
+      ) {
+        chatBoxRef.current.handleIncomingMessage(event.systemMessage);
+      }
     },
     [upsertRoom, userSession?.id]
   );
@@ -239,6 +244,15 @@ export default function MessagesPage() {
       } else {
         // Just update the room with updated member list
         upsertRoom(event.roomResponse);
+
+        // Add system message to chat if it exists and we're viewing this room
+        if (
+          event.systemMessage &&
+          selectedRoomIdRef.current === event.roomResponse.roomId &&
+          chatBoxRef.current
+        ) {
+          chatBoxRef.current.handleIncomingMessage(event.systemMessage);
+        }
       }
     },
     [upsertRoom, userSession?.id]
@@ -257,7 +271,6 @@ export default function MessagesPage() {
         console.warn("[ChatWS] disconnected:", reason);
       },
       onMessageCreated: (ev: MessageCreatedEventPayload) => {
-        if (ev.messageResponse.type === "SYSTEM") console.log("Test");
         handleNewMessage(ev);
       },
       onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
@@ -356,7 +369,11 @@ export default function MessagesPage() {
       </div>
 
       {selectedChat ? (
-        <ChatBox ref={chatBoxRef} selectedChat={selectedChat} />
+        <ChatBox
+          ref={chatBoxRef}
+          selectedChat={selectedChat}
+          onRoomUpdated={upsertRoom}
+        />
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <EmptyState

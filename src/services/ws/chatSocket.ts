@@ -54,6 +54,7 @@ export interface MemberAddedEventPayload {
   roomResponse: RoomResponse;
   targetUserId: number;
   actorUserId: number;
+  systemMessage?: MessageResponse;
 }
 
 export interface MemberRemovedEventPayload {
@@ -61,6 +62,7 @@ export interface MemberRemovedEventPayload {
   roomResponse: RoomResponse;
   targetUserId: number;
   actorUserId: number;
+  systemMessage?: MessageResponse;
 }
 
 export interface MemberRoleChangedEventPayload {

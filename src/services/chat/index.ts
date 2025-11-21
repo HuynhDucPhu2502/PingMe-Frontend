@@ -39,6 +39,12 @@ export const addGroupMembersApi = (data: AddGroupMembersRequest) => {
   );
 };
 
+export const removeGroupMemberApi = (roomId: number, targetUserId: number) => {
+  return axiosClient.delete<ApiResponse<RoomResponse>>(
+    `/rooms/group/${roomId}/members/${targetUserId}`
+  );
+};
+
 export const getCurrentUserRoomsApi = ({
   page = 0,
   size = 10,

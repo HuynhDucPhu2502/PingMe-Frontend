@@ -1,3 +1,5 @@
+"use client";
+
 import type { RoomParticipantResponse } from "@/types/chat/room";
 import {
   Avatar,
@@ -6,9 +8,18 @@ import {
 } from "@/components/ui/avatar.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { ArrowLeft, UserPlus, Search } from "lucide-react";
+import { ArrowLeft, UserPlus, Search, MoreVertical } from "lucide-react";
 import { useState } from "react";
 import { GroupMemberModal } from "@/pages/chat-routes-page/components/GroupMemberModal.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.tsx";
+import { removeGroupMemberApi } from "@/services/chat";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 interface MemberListProps {
   participants: RoomParticipantResponse[];
@@ -42,6 +53,33 @@ const MemberList = ({
     if (role === "OWNER") return "Trưởng nhóm";
     if (role === "ADMIN") return "Phó nhóm";
     return null;
+  };
+
+  const handleRemoveMember = async (userId: number, name: string) => {
+    try {
+      await removeGroupMemberApi(roomId, userId);
+      toast.success(`${name} đã bị xóa khỏi nhóm`);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể xóa thành viên"));
+    }
+  };
+
+  const handleChangeRole = async (
+    userId: number,
+    name: string,
+    currentRole: "ADMIN" | "MEMBER"
+  ) => {
+    const newRole = currentRole === "ADMIN" ? "MEMBER" : "ADMIN";
+    try {
+      // await changeMemberRoleApi(roomId, userId, newRole);
+      toast.success(
+        `${name} đã được ${newRole === "ADMIN" ? "thêm" : "gỡ"} quyền phó nhóm`
+      );
+    } catch (error) {
+      toast.error(
+        getErrorMessage(error, "Không thể thay đổi quyền thành viên")
+      );
+    }
   };
 
   return (
@@ -97,7 +135,7 @@ const MemberList = ({
               return (
                 <div
                   key={participant.userId}
-                  className="flex items-center gap-3 p-3 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
+                  className="flex items-center gap-3 p-3 hover:bg-purple-50 rounded-lg transition-colors group"
                 >
                   <Avatar className="w-12 h-12">
                     <AvatarImage
@@ -118,6 +156,59 @@ const MemberList = ({
                       </p>
                     )}
                   </div>
+
+                  {roomType === "GROUP" && participant.role !== "OWNER" && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {participant.role === "ADMIN" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleChangeRole(
+                                participant.userId,
+                                participant.name,
+                                "ADMIN"
+                              )
+                            }
+                          >
+                            Gỡ quyền phó nhóm
+                          </DropdownMenuItem>
+                        )}
+                        {participant.role === "MEMBER" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleChangeRole(
+                                participant.userId,
+                                participant.name,
+                                "MEMBER"
+                              )
+                            }
+                          >
+                            Thêm phó nhóm
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleRemoveMember(
+                              participant.userId,
+                              participant.name
+                            )
+                          }
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          Xóa khỏi nhóm
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               );
             })}

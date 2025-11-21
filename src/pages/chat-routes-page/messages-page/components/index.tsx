@@ -25,6 +25,7 @@ import ConversationSidebar from "./conversation-sidebar";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
+  onRoomUpdated?: (updatedRoom: RoomResponse) => void;
 }
 
 export interface ChatBoxRef {
@@ -33,7 +34,7 @@ export interface ChatBoxRef {
 }
 
 export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
-  ({ selectedChat }, ref) => {
+  ({ selectedChat, onRoomUpdated }, ref) => {
     const { userSession } = useAppSelector((state) => state.auth);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -168,45 +169,50 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     const handleIncomingMessage = useCallback(
       (message: MessageResponse) => {
         if (message.roomId !== selectedChat.roomId) {
-          console.warn("[ChatBox] Phòng tin nhắn không hợp lệ");
+          console.warn(
+            "[ChatBox] Phòng tin nhắn không hợp lệ:",
+            message.roomId,
+            "vs",
+            selectedChat.roomId
+          );
           return;
         }
 
-        // ============================
-        //  SYSTEM MESSAGE – LUÔN NHẬN
-        // ============================
-        if (message.type === "SYSTEM") {
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === message.id)) return prev;
-            return [...prev, message];
-          });
-          return;
+        if (message.type !== "SYSTEM") {
+          const senderExists = selectedChat.participants.some(
+            (p) => p.userId === message.senderId
+          );
+          if (!senderExists) {
+            console.warn(
+              "[ChatBox] Người gửi tin nhắn không tồn tại trong phòng này:",
+              message.senderId
+            );
+            return;
+          }
+
+          if (userSession && isCurrentUserMessage(message.senderId)) return;
         }
+        // SYSTEM messages bỏ qua tất cả các check trên
 
-        // ============================================
-        // Các loại tin nhắn khác (TEXT / IMAGE / FILE)
-        // ============================================
-        const senderExists = selectedChat.participants.some(
-          (p) => p.userId === message.senderId
-        );
-        if (!senderExists) {
-          console.warn("[ChatBox] Người gửi không nằm trong phòng");
-          return;
-        }
-
-        if (userSession && isCurrentUserMessage(message.senderId)) return;
-
-        // Add message
         setMessages((prev) => {
-          if (prev.some((m) => m.id === message.id)) return prev;
+          const existingIds = new Set(prev.map((msg) => msg.id));
+          const existingClientIds = new Set(prev.map((msg) => msg.clientMsgId));
+
+          if (
+            existingIds.has(message.id) ||
+            existingClientIds.has(message.clientMsgId)
+          ) {
+            return prev;
+          }
+
           return [...prev, message];
         });
       },
       [
-        selectedChat.roomId,
-        selectedChat.participants,
-        userSession,
         isCurrentUserMessage,
+        selectedChat.participants,
+        selectedChat.roomId,
+        userSession,
       ]
     );
 
@@ -260,6 +266,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           selectedChat={selectedChat}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+          onRoomUpdated={onRoomUpdated}
         />
       </div>
     );

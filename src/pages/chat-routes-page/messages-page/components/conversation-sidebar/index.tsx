@@ -23,12 +23,14 @@ interface ConversationSidebarProps {
   selectedChat: RoomResponse;
   isOpen: boolean;
   onClose: () => void;
+  onRoomUpdated?: (room: RoomResponse) => void;
 }
 
 const ConversationSidebar = ({
   selectedChat,
   isOpen,
   onClose,
+  onRoomUpdated,
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const [currentView, setCurrentView] = useState<"main" | "members">("main");
@@ -52,6 +54,7 @@ const ConversationSidebar = ({
           roomType={selectedChat.roomType}
           roomId={selectedChat.roomId}
           onBack={() => setCurrentView("main")}
+          onRoomUpdated={onRoomUpdated}
         />
       </div>
     );
@@ -97,7 +100,7 @@ const ConversationSidebar = ({
               <Button
                 variant="outline"
                 size="icon"
-                className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
                 title="Trang cá nhân"
               >
                 <User className="h-5 w-5 text-purple-600" />
@@ -109,7 +112,7 @@ const ConversationSidebar = ({
               <Button
                 variant="outline"
                 size="icon"
-                className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
                 title="Gọi thoại"
               >
                 <Phone className="h-5 w-5 text-purple-600" />
@@ -121,7 +124,7 @@ const ConversationSidebar = ({
               <Button
                 variant="outline"
                 size="icon"
-                className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                className="h-12 w-12 rounded-full border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
                 title="Gọi video"
               >
                 <Video className="h-5 w-5 text-purple-600" />
@@ -134,7 +137,7 @@ const ConversationSidebar = ({
         <div className="p-4 space-y-3">
           <Button
             variant="outline"
-            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
             onClick={() => setCurrentView("members")}
           >
             <Users className="h-5 w-5 text-purple-600" />
@@ -146,7 +149,7 @@ const ConversationSidebar = ({
           {/* Media & Files Button */}
           <Button
             variant="outline"
-            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
           >
             <FileImage className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">
@@ -156,7 +159,7 @@ const ConversationSidebar = ({
 
           <Button
             variant="outline"
-            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
           >
             <Palette className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">Chủ đề</span>
@@ -164,7 +167,7 @@ const ConversationSidebar = ({
 
           <Button
             variant="outline"
-            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+            className="w-full justify-start gap-3 h-14 border-purple-200 hover:bg-purple-50 hover:border-purple-300 bg-transparent"
           >
             <UserCog className="h-5 w-5 text-purple-600" />
             <span className="font-medium text-gray-900">Biệt danh</span>
