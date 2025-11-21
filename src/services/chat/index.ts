@@ -55,6 +55,12 @@ export const changeMemberRole = (
   );
 };
 
+export const renameGroup = (roomId: number, name: string) => {
+  return axiosClient.put<ApiResponse<RoomResponse>>(
+    `/rooms/group/${roomId}/name?name=${name}`
+  );
+};
+
 export const getCurrentUserRoomsApi = ({
   page = 0,
   size = 10,

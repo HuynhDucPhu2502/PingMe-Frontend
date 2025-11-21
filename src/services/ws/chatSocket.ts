@@ -47,6 +47,7 @@ export interface RoomCreatedEventPayload {
 export interface RoomUpdatedEventPayload {
   chatEventType: "ROOM_UPDATED";
   roomResponse: RoomResponse;
+  systemMessage?: MessageResponse;
 }
 
 export interface RoomMemberAddedEventPayload {

@@ -21,7 +21,7 @@ import {
   type RoomCreatedEventPayload,
   type RoomMemberAddedEventPayload,
   type RoomMemberRemovedEventPayload,
-  type RoomMemberRoleChangedEventPayload, // Added import for role change event
+  type RoomMemberRoleChangedEventPayload,
 } from "@/services/ws/chatSocket";
 import type { UserStatusPayload } from "@/types/common/userStatus";
 import {
@@ -135,14 +135,30 @@ export default function MessagesPage() {
   const chatBoxRef = useRef<ChatBoxRef>(null);
 
   const handleNewMessage = useCallback((event: MessageCreatedEventPayload) => {
-    if (
-      selectedRoomIdRef.current === event.messageResponse.roomId &&
-      chatBoxRef.current
-    ) {
-      const message = event.messageResponse;
+    const message = event.messageResponse;
+
+    setRooms((prev) => {
+      const targetRoom = prev.find((r) => r.roomId === message.roomId);
+      if (!targetRoom) return prev;
+
+      const updatedRoom = {
+        ...targetRoom,
+        lastMessage: {
+          messageId: message.id,
+          senderId: message.senderId,
+          preview: message.content,
+          messageType: message.type === "SYSTEM" ? "TEXT" : message.type,
+          createdAt: message.createdAt,
+        },
+      };
+      const otherRooms = prev.filter((r) => r.roomId !== message.roomId);
+      return [updatedRoom, ...otherRooms];
+    });
+
+    // Add message to chat box if viewing this room
+    if (selectedRoomIdRef.current === message.roomId && chatBoxRef.current) {
       chatBoxRef.current.handleIncomingMessage(message);
     }
-    return;
   }, []);
 
   // =======================================================================
@@ -171,6 +187,22 @@ export default function MessagesPage() {
       return prev;
     });
   }, []);
+
+  const handleRoomUpdated = useCallback(
+    (event: RoomUpdatedEventPayload) => {
+      upsertRoom(event.roomResponse);
+
+      // Add system message to chat if it exists and we're viewing this room
+      if (
+        event.systemMessage &&
+        selectedRoomIdRef.current === event.roomResponse.roomId &&
+        chatBoxRef.current
+      ) {
+        chatBoxRef.current.handleIncomingMessage(event.systemMessage);
+      }
+    },
+    [upsertRoom]
+  );
 
   // =======================================================================
   // Hàm xử lý sự kiện liên quan đến MESSAGE_RECALLED từ WebSocket
@@ -204,10 +236,8 @@ export default function MessagesPage() {
       const isCurrentUserAdded = event.targetUserId === userSession?.id;
 
       if (isCurrentUserAdded) {
-        // Fetch the updated room to show it in the list
         upsertRoom(event.roomResponse);
       } else {
-        // Just update the existing room with new member info
         upsertRoom(event.roomResponse);
       }
 
@@ -231,17 +261,13 @@ export default function MessagesPage() {
       const isCurrentUserRemoved = event.targetUserId === userSession?.id;
 
       if (isCurrentUserRemoved) {
-        // Remove room from list if current user was removed
         setRooms((prev) =>
           prev.filter((r) => r.roomId !== event.roomResponse.roomId)
         );
-
-        // Close chat if the removed room was selected
         setSelectedChat((prev) =>
           prev?.roomId === event.roomResponse.roomId ? null : prev
         );
       } else {
-        // Just update the room with updated member list
         upsertRoom(event.roomResponse);
 
         // Add system message to chat if it exists and we're viewing this room
@@ -262,14 +288,6 @@ export default function MessagesPage() {
   // =======================================================================
   const handleMemberRoleChanged = useCallback(
     (event: RoomMemberRoleChangedEventPayload) => {
-      console.log("[v0] MEMBER_ROLE_CHANGED event:", event);
-      console.log("[v0] Has systemMessage?", !!event.systemMessage);
-      console.log(
-        "[v0] Current room matches?",
-        selectedRoomIdRef.current === event.roomResponse.roomId
-      );
-
-      // Update the room with new role information
       upsertRoom(event.roomResponse);
 
       // Add system message to chat if it exists and we're viewing this room
@@ -278,7 +296,6 @@ export default function MessagesPage() {
         selectedRoomIdRef.current === event.roomResponse.roomId &&
         chatBoxRef.current
       ) {
-        console.log("[v0] Adding system message to chat:", event.systemMessage);
         chatBoxRef.current.handleIncomingMessage(event.systemMessage);
       }
     },
@@ -300,30 +317,28 @@ export default function MessagesPage() {
       onMessageCreated: (ev: MessageCreatedEventPayload) => {
         handleNewMessage(ev);
       },
-      onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
-        upsertRoom(ev.roomResponse);
-      },
+      onRoomUpdated: handleRoomUpdated,
       onMessageRecalled: (ev: MessageRecalledEventPayload) => {
         handleRecallMessage(ev);
       },
       onRoomCreated: handleRoomCreated,
       onMemberAdded: handleMemberAdded,
       onMemberRemoved: handleMemberRemoved,
-      onMemberRoleChanged: handleMemberRoleChanged, // Added role change handler
+      onMemberRoleChanged: handleMemberRoleChanged,
     });
 
     return () => {
       disconnectChatWS();
     };
   }, [
-    upsertRoom,
     handleNewMessage,
     handleRecallMessage,
     handleRoomCreated,
     handleMemberAdded,
     handleMemberRemoved,
     handleMemberRoleChanged,
-  ]); // Added dependency
+    handleRoomUpdated,
+  ]);
 
   // Websocket cho hiển thị trạng thái trực tuyến người dùng
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(

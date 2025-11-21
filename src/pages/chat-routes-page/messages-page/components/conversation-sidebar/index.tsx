@@ -15,9 +15,14 @@ import {
   User,
   Phone,
   Video,
+  Pencil,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
 import MemberList from "./member-list";
+import { renameGroup } from "@/services/chat";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -32,6 +37,8 @@ const ConversationSidebar = ({
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const [currentView, setCurrentView] = useState<"main" | "members">("main");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
 
   const getOtherParticipant = () => {
     if (selectedChat.roomType === "DIRECT" && userSession) {
@@ -41,6 +48,32 @@ const ConversationSidebar = ({
   };
 
   const otherParticipant = getOtherParticipant();
+
+  const handleRenameGroup = async () => {
+    if (!newGroupName.trim()) {
+      toast.error("Tên nhóm không được để trống");
+      return;
+    }
+
+    try {
+      await renameGroup(selectedChat.roomId, newGroupName.trim());
+      toast.success("Đổi tên nhóm thành công");
+      setIsEditingName(false);
+    } catch (error) {
+      toast.error("Đổi tên nhóm thất bại");
+      console.error("Error renaming group:", error);
+    }
+  };
+
+  const startEditingName = () => {
+    setNewGroupName(selectedChat.name || "");
+    setIsEditingName(true);
+  };
+
+  const cancelEditingName = () => {
+    setIsEditingName(false);
+    setNewGroupName("");
+  };
 
   if (!isOpen) return null;
 
@@ -86,11 +119,57 @@ const ConversationSidebar = ({
                 : selectedChat.name?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <h4 className="font-semibold text-lg text-gray-900">
-            {selectedChat.roomType === "DIRECT"
-              ? otherParticipant?.name
-              : selectedChat.name}
-          </h4>
+
+          {selectedChat.roomType === "GROUP" ? (
+            isEditingName ? (
+              <div className="flex items-center gap-2 w-full max-w-xs">
+                <Input
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  className="h-9 text-center"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleRenameGroup();
+                    if (e.key === "Escape") cancelEditingName();
+                  }}
+                />
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 text-green-600 hover:bg-green-50"
+                  onClick={handleRenameGroup}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 text-red-600 hover:bg-red-50"
+                  onClick={cancelEditingName}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="relative w-full max-w-xs group">
+                <h4 className="font-semibold text-lg text-gray-900 text-center truncate px-10">
+                  {selectedChat.name}
+                </h4>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={startEditingName}
+                >
+                  <Pencil className="h-4 w-4 text-purple-600" />
+                </Button>
+              </div>
+            )
+          ) : (
+            <h4 className="font-semibold text-lg text-gray-900">
+              {otherParticipant?.name}
+            </h4>
+          )}
 
           <div className="flex items-center justify-center gap-6 mt-4">
             <div className="flex flex-col items-center gap-2">
