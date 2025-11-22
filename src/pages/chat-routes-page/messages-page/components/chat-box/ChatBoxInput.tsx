@@ -1,6 +1,6 @@
-"use client";
-
 import type React from "react";
+import { getTheme } from "../../utils/chatThemes";
+import type { RoomResponse } from "@/types/chat/room";
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button.tsx";
@@ -23,6 +23,7 @@ interface FilePreview {
 }
 
 interface ChatInputProps {
+  selectedChat: RoomResponse; // Add selectedChat to get theme
   newMessage: string;
   setNewMessage: (message: string) => void;
   onSendMessage: () => void;
@@ -31,12 +32,15 @@ interface ChatInputProps {
 }
 
 export function ChatBoxInput({
+  selectedChat, // Receive selectedChat prop
   newMessage,
   setNewMessage,
   onSendMessage,
   onSendFile,
   disabled = false,
 }: ChatInputProps) {
+  const theme = getTheme(selectedChat.theme);
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FilePreview[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -168,11 +172,13 @@ export function ChatBoxInput({
 
   return (
     <div className="border-t bg-white">
-      <div className="flex items-center space-x-1 p-3 border-b bg-gradient-to-r from-gray-50 to-purple-50">
+      <div
+        className={`flex items-center space-x-1 p-3 border-b ${theme.input.background}`}
+      >
         <Button
           variant="ghost"
           size="lg"
-          className="text-gray-600 hover:text-purple-600 hover:bg-purple-100 transition-all duration-200 rounded-lg"
+          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
           onClick={handleImageClick}
           disabled={disabled || isSending}
         >
@@ -190,7 +196,7 @@ export function ChatBoxInput({
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-600 hover:text-purple-600 hover:bg-purple-100 transition-all duration-200 rounded-lg"
+          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
           onClick={handleFileClick}
           disabled={disabled || isSending}
         >
@@ -211,7 +217,9 @@ export function ChatBoxInput({
             {selectedFiles.map((filePreview, index) => (
               <div key={index} className="relative group">
                 {filePreview.type === "IMAGE" && filePreview.previewUrl ? (
-                  <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-purple-200">
+                  <div
+                    className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${theme.input.attachmentBorder}`}
+                  >
                     <img
                       src={filePreview.previewUrl || "/placeholder.svg"}
                       alt={filePreview.file.name}
@@ -226,7 +234,9 @@ export function ChatBoxInput({
                     </button>
                   </div>
                 ) : filePreview.type === "VIDEO" && filePreview.previewUrl ? (
-                  <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-purple-200">
+                  <div
+                    className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${theme.input.attachmentBorder}`}
+                  >
                     <video
                       src={filePreview.previewUrl}
                       className="w-full h-full object-cover"
@@ -243,7 +253,9 @@ export function ChatBoxInput({
                     </button>
                   </div>
                 ) : (
-                  <div className="relative w-20 h-20 rounded-lg border-2 border-purple-200 bg-white flex flex-col items-center justify-center p-2">
+                  <div
+                    className={`relative w-20 h-20 rounded-lg border-2 ${theme.input.attachmentBorder} bg-white flex flex-col items-center justify-center p-2`}
+                  >
                     <FileText className="w-6 h-6 text-purple-600 mb-1" />
                     <span className="text-xs text-gray-600 truncate w-full text-center">
                       {filePreview.file.name.length > 10
@@ -287,7 +299,7 @@ export function ChatBoxInput({
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Nhập tin nhắn..."
-              className="w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg h-12 pl-4 pr-24 transition-all duration-200"
+              className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
               onKeyPress={handleKeyPress}
               disabled={disabled || isSending}
             />
@@ -306,7 +318,7 @@ export function ChatBoxInput({
                 variant="ghost"
                 size="sm"
                 onClick={toggleEmojiPicker}
-                className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-all duration-200 rounded-lg p-2 h-8 w-8"
+                className={`text-gray-500 ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg p-2 h-8 w-8`}
                 disabled={isSending}
               >
                 <Smile className="w-5 h-5" />
@@ -321,7 +333,7 @@ export function ChatBoxInput({
               disabled ||
               isSending
             }
-            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white h-12 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`${theme.input.buttonBg} ${theme.input.buttonHover} ${theme.input.buttonText} h-12 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <Send className="w-5 h-5" />
           </Button>

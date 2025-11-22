@@ -258,6 +258,8 @@ export default function MessagesPage() {
   // =======================================================================
   const handleMemberRemoved = useCallback(
     (event: RoomMemberRemovedEventPayload) => {
+      console.log("Test");
+
       const isCurrentUserRemoved = event.targetUserId === userSession?.id;
 
       if (isCurrentUserRemoved) {

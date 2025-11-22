@@ -22,7 +22,7 @@ export const getRoomAvatar = (
   userSession: CurrentUserSessionResponse | null
 ) => {
   if (room.roomType === "GROUP") {
-    return room.avatarUrl;
+    return room.roomImgUrl;
   }
 
   if (room.roomType === "DIRECT" && userSession) {

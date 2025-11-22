@@ -254,6 +254,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           </div>
 
           <ChatBoxInput
+            selectedChat={selectedChat}
             newMessage={newMessage}
             setNewMessage={setNewMessage}
             onSendMessage={handleSendMessage}

@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";

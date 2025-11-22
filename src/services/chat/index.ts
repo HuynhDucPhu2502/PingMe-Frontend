@@ -61,6 +61,12 @@ export const renameGroup = (roomId: number, name: string) => {
   );
 };
 
+export const changeTheme = (roomId: number, theme: string) => {
+  return axiosClient.put<ApiResponse<RoomResponse>>(
+    `/rooms/${roomId}/theme?theme=${theme}`
+  );
+};
+
 export const getCurrentUserRoomsApi = ({
   page = 0,
   size = 10,

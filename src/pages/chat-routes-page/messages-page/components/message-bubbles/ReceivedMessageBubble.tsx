@@ -6,12 +6,14 @@ import { formatMessageTime } from "../../utils/formatMessageTime";
 import { RotateCcw } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
+import type { ChatTheme } from "../../utils/chatThemes";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
   senderName?: string;
   senderAvatar?: string;
   roomType?: "DIRECT" | "GROUP";
+  theme: ChatTheme;
 }
 
 export default function ReceivedMessageBubble({
@@ -19,6 +21,7 @@ export default function ReceivedMessageBubble({
   senderName,
   senderAvatar,
   roomType,
+  theme,
 }: ReceivedMessageBubbleProps) {
   const isMediaMessage =
     message.type === "IMAGE" ||
@@ -62,7 +65,9 @@ export default function ReceivedMessageBubble({
 
   return (
     <div className="flex items-start mb-4 group">
-      <Avatar className="w-10 h-10 mr-3 flex-shrink-0 ring-2 ring-purple-100">
+      <Avatar
+        className={`w-10 h-10 mr-3 flex-shrink-0 ring-2 ${theme.messages.avatarRing}`}
+      >
         <AvatarImage
           src={senderAvatar || "/placeholder.svg"}
           alt={senderName}
@@ -80,7 +85,9 @@ export default function ReceivedMessageBubble({
         {isMediaMessage ? (
           <div>{renderMessageContent()}</div>
         ) : (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 text-foreground rounded-2xl rounded-bl-md px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 border border-purple-100/50">
+          <div
+            className={`${theme.messages.receivedBubbleBg} ${theme.messages.receivedBubbleText} rounded-2xl rounded-bl-md px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 border ${theme.messages.receivedBubbleBorder}`}
+          >
             {renderMessageContent()}
           </div>
         )}

@@ -10,7 +10,8 @@ export interface RoomResponse {
   name: string | null;
   lastMessage: LastMessage | null;
   participants: RoomParticipantResponse[];
-  avatarUrl: string | null;
+  roomImgUrl: string | null;
+  theme: string | null;
 }
 
 export interface RoomParticipantResponse {

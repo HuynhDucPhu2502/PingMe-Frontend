@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import SentMessageBubble from "../message-bubbles/SentMessageBubble.tsx";
 import ReceivedMessageBubble from "../message-bubbles/ReceivedMessageBubble.tsx";
+import { getTheme } from "../../utils/chatThemes";
 
 interface ChatBoxContentProps {
   selectedChat: RoomResponse;
@@ -32,6 +33,8 @@ export const ChatBoxContent = ({
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const theme = getTheme(selectedChat.theme);
 
   useEffect(() => {
     if (messagesEndRef.current && shouldScrollToBottom && !isLoadingMore) {
@@ -85,50 +88,68 @@ export const ChatBoxContent = ({
   }
 
   return (
-    <div
-      ref={messagesContainerRef}
-      className="h-full overflow-y-auto p-4 space-y-4"
-      onScroll={handleScroll}
-    >
-      {isLoadingMore && (
-        <div className="flex justify-center py-2">
-          <LoadingSpinner className="w-8 h-8 text-purple-600" />
-        </div>
+    <div className="relative h-full overflow-hidden">
+      {/* Background image layer */}
+      {theme.backgroundImage && (
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: `url(${theme.backgroundImage})`,
+            backgroundPosition: "center",
+          }}
+        />
       )}
 
-      {messages.map((message) => (
-        <div key={message.id}>
-          {message.type === "SYSTEM" ? (
-            <div className="flex justify-center my-2">
-              <div className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
-                {message.content}
-              </div>
-            </div>
-          ) : isCurrentUserMessage(message.senderId) ? (
-            <SentMessageBubble
-              message={message}
-              onMessageRecalled={onMessageRecalled}
-            />
-          ) : (
-            <ReceivedMessageBubble
-              message={message}
-              senderName={
-                selectedChat.participants.find(
-                  (p) => p.userId === message.senderId
-                )?.name || "Unknown"
-              }
-              senderAvatar={
-                selectedChat.participants.find(
-                  (p) => p.userId === message.senderId
-                )?.avatarUrl
-              }
-              roomType={selectedChat.roomType}
-            />
-          )}
-        </div>
-      ))}
+      {/* Content layer */}
+      <div
+        ref={messagesContainerRef}
+        className="relative z-10 h-full overflow-y-auto p-4 space-y-4"
+        onScroll={handleScroll}
+      >
+        {isLoadingMore && (
+          <div className="flex justify-center py-2">
+            <LoadingSpinner className="w-8 h-8 text-purple-600" />
+          </div>
+        )}
 
-      <div ref={messagesEndRef} />
+        {messages.map((message) => (
+          <div key={message.id}>
+            {message.type === "SYSTEM" ? (
+              <div className="flex justify-center my-2">
+                <div
+                  className={`px-3 py-1 ${theme.content.systemMessageBg} ${theme.content.systemMessageText} text-sm rounded-full`}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ) : isCurrentUserMessage(message.senderId) ? (
+              <SentMessageBubble
+                message={message}
+                onMessageRecalled={onMessageRecalled}
+                theme={theme}
+              />
+            ) : (
+              <ReceivedMessageBubble
+                message={message}
+                senderName={
+                  selectedChat.participants.find(
+                    (p) => p.userId === message.senderId
+                  )?.name || "Unknown"
+                }
+                senderAvatar={
+                  selectedChat.participants.find(
+                    (p) => p.userId === message.senderId
+                  )?.avatarUrl
+                }
+                roomType={selectedChat.roomType}
+                theme={theme}
+              />
+            )}
+          </div>
+        ))}
+
+        <div ref={messagesEndRef} />
+      </div>
     </div>
   );
 };

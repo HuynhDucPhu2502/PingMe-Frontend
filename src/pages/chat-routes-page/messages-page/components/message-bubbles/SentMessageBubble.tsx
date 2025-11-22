@@ -14,15 +14,18 @@ import {
 import { recallMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
+import type { ChatTheme } from "../../utils/chatThemes";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
   onMessageRecalled?: (messageId: number) => void;
+  theme: ChatTheme;
 }
 
 export default function SentMessageBubble({
   message,
   onMessageRecalled,
+  theme,
 }: SentMessageBubbleProps) {
   const isMediaMessage =
     message.type === "IMAGE" ||
@@ -110,7 +113,9 @@ export default function SentMessageBubble({
         {isMediaMessage ? (
           <div>{renderMessageContent()}</div>
         ) : (
-          <div className="bg-blue-500 text-white rounded-2xl rounded-br-md px-4 py-3 shadow-sm">
+          <div
+            className={`${theme.messages.sentBubbleBg} ${theme.messages.sentBubbleText} rounded-2xl rounded-br-md px-4 py-3 shadow-sm`}
+          >
             {renderMessageContent()}
           </div>
         )}
